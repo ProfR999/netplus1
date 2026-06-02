@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAN Architect: 3-Site Topology Interconnectivity Lab</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e5631',
+                        accent: '#d4a017',
+                        background: '#f5f7f2',
+                        darkText: '#1c2e21',
+                        cardBg: '#ffffff'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom styling for seamless 3-site flow animations and node states -->
+    <style>
+        :root {
+            --user-primary: #1e5631;
+            --user-accent: #d4a017;
+            --user-background: #f5f7f2;
+        }
+        body {
+            background-color: var(--user-background);
+            color: #1a2e1f;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* Custom progress bar transitions */
+        .progress-transition {
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Custom SVG flow dash animations representing packets traversing links */
+        @keyframes march {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+        .animated-link {
+            stroke-dasharray: 6, 4;
+            animation: march 1s linear infinite;
+        }
+        .animated-link-fast {
+            stroke-dasharray: 4, 3;
+            animation: march 0.5s linear infinite;
+        }
+        .animated-link-slow {
+            stroke-dasharray: 8, 6;
+            animation: march 2.5s linear infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-primary text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-accent text-primary p-2 rounded-lg font-bold shadow-md">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl tracking-tight">WAN <span class="text-accent">Architect</span> <span class="text-xs bg-accent text-primary px-1.5 py-0.5 rounded ml-1 font-mono">3-SITE v2.0</span></h1>
+                    <p class="text-xs text-green-100 font-medium">Multi-Node Interconnectivity &amp; Routing Lab</p>
+                </div>
+            </div>
+            
+            <!-- Progress Steps & Tab Nav -->
+            <nav class="flex flex-wrap bg-green-900 bg-opacity-40 p-1.5 rounded-full border border-green-800">
+                <button onclick="switchTab('explorer')" id="btn-explorer" class="tab-btn px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 bg-accent text-primary shadow">
+                    1. Explorer Deck
+                </button>
+                <button onclick="switchTab('scenario')" id="btn-scenario" class="tab-btn px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 text-green-100 hover:text-white">
+                    2. Scenario Simulation
+                </button>
+                <button onclick="switchTab('quiz')" id="btn-quiz" class="tab-btn px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 text-green-100 hover:text-white">
+                    3. Knowledge Check
+                </button>
+            </nav>
+            
+            <!-- Student Scoreboard HUD -->
+            <div class="flex items-center space-x-4">
+                <div class="text-right hidden md:block">
+                    <div class="text-xs text-green-200">Lab Score</div>
+                    <div class="font-bold text-accent text-sm" id="hud-score">0 / 100 XP</div>
+                </div>
+                <div class="h-8 w-px bg-green-800 hidden md:block"></div>
+                <div class="bg-green-950 px-3 py-1.5 rounded-lg text-xs font-mono text-green-300 border border-green-800">
+                    STATUS: <span class="text-green-400 font-bold" id="hud-status">Learning</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Lab Banner / Objectives Scaffolding -->
+    <section class="bg-gradient-to-r from-primary to-green-900 text-white py-8 px-4 border-b-4 border-accent">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col lg:flex-row gap-6 items-start justify-between">
+                <div class="space-y-2 max-w-3xl">
+                    <span class="inline-block bg-accent text-primary font-bold text-xs uppercase px-2.5 py-1 rounded-md tracking-wider">Course Lab • CC-CS 102</span>
+                    <h2 class="text-3xl font-extrabold">Mapping Multi-Site WANs: Mesh, Hub, and Virtual Overlays</h2>
+                    <p class="text-green-100 text-sm leading-relaxed">
+                        Modern networks rarely connect just two points. True enterprise networks link multiple distinct geographic zones. In this advanced 3-site lab, you will explore the real-world trade-offs of interconnecting a **Corporate Headquarters**, a centralized high-speed **Cloud Data Center**, and a remote **Branch Office**.
+                    </p>
+                </div>
+                <!-- Learning Objectives Panel -->
+                <div class="bg-green-950 p-4 rounded-xl border border-green-800 max-w-sm w-full lg:w-auto">
+                    <h3 class="text-accent font-bold text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Lab Objectives (3-Site Architecture)
+                    </h3>
+                    <ul class="space-y-1.5 text-xs text-green-100">
+                        <li class="flex items-start gap-1"><span class="text-accent">•</span><span><strong>Differentiate</strong> between full-mesh, hub-and-spoke, and software-defined overlay models across three nodes.</span></li>
+                        <li class="flex items-start gap-1"><span class="text-accent">•</span><span><strong>Identify</strong> latency tromboning (hair-pinning) and transit path limits.</span></li>
+                        <li class="flex items-start gap-1"><span class="text-accent">•</span><span><strong>Provision</strong> WAN architectures meeting dual-constraint cost &amp; SLA bounds.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Dynamic Content Wrapper -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
+        
+        <!-- SECTION 1: INTERACTIVE EXPLORER DECK -->
+        <section id="tab-content-explorer" class="tab-pane active space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Category Selectors and Menu (Left Side, Span 4) -->
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="bg-cardBg rounded-xl p-5 shadow-md border border-gray-200">
+                        <h3 class="font-extrabold text-primary text-base mb-3 flex items-center gap-2">
+                            <span class="w-2 h-5 bg-primary rounded"></span>
+                            Select WAN Medium
+                        </h3>
+                        <p class="text-xs text-gray-500 mb-4">Click to inspect active paths, link latencies, and routing behavior across our three target network sites.</p>
+                        
+                        <!-- Accordion/Categories -->
+                        <div class="space-y-3">
+                            <!-- Category 1: Dedicated & Circuit -->
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Dedicated / Legacy Switched</h4>
+                                <div class="space-y-1">
+                                    <button onclick="selectTech('leased')" id="tech-leased" class="tech-select-btn w-full text-left p-3 rounded-lg border-2 border-gray-100 hover:border-green-800 transition-all flex justify-between items-center bg-gray-50">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-sm text-primary">Dedicated Leased Lines</span>
+                                            <span class="text-[10px] text-gray-500">T1 / T3 Point-to-Point (Hub &amp; Spoke)</span>
+                                        </div>
+                                        <span class="bg-gray-200 text-gray-700 text-[10px] font-bold px-2 py-0.5 rounded">Hub-Spoke</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Category 2: Modern Wired Packet & Cell -->
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Modern Wired (Packet &amp; Carrier)</h4>
+                                <div class="space-y-2">
+                                    <button onclick="selectTech('mpls')" id="tech-mpls" class="tech-select-btn w-full text-left p-3 rounded-lg border-2 border-primary border-opacity-10 hover:border-green-800 transition-all flex justify-between items-center bg-gray-50">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-sm text-primary">MPLS Network</span>
+                                            <span class="text-[10px] text-gray-500">Carrier Mesh Label Switching</span>
+                                        </div>
+                                        <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded">Full Mesh</span>
+                                    </button>
+                                    <button onclick="selectTech('metro')" id="tech-metro" class="tech-select-btn w-full text-left p-3 rounded-lg border-2 border-gray-100 hover:border-green-800 transition-all flex justify-between items-center bg-gray-50">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-sm text-primary">Metro Ethernet Ring</span>
+                                            <span class="text-[10px] text-gray-500">Carrier Layer 2 Regional Loop</span>
+                                        </div>
+                                        <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded">High Speed</span>
+                                    </button>
+                                    <button onclick="selectTech('broadband')" id="tech-broadband" class="tech-select-btn w-full text-left p-3 rounded-lg border-2 border-gray-100 hover:border-green-800 transition-all flex justify-between items-center bg-gray-50">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-sm text-primary">Public Broadband (FTTH/Cable)</span>
+                                            <span class="text-[10px] text-gray-500">Best-Effort Dynamic Public IP Routing</span>
+                                        </div>
+                                        <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded">Variable</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Category 3: Wireless/Satellite -->
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Modern Wireless (Air &amp; Orbit)</h4>
+                                <div class="space-y-2">
+                                    <button onclick="selectTech('satellite')" id="tech-satellite" class="tech-select-btn w-full text-left p-3 rounded-lg border-2 border-gray-100 hover:border-green-800 transition-all flex justify-between items-center bg-gray-50">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-sm text-primary">Satellite Constellations (LEO)</span>
+                                            <span class="text-[10px] text-gray-500">Multi-point Space-to-Ground Links</span>
+                                        </div>
+                                        <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded">Satellite</span>
+                                    </button>
+                                    <button onclick="selectTech('cellular')" id="tech-cellular" class="tech-select-btn w-full text-left p-3 rounded-lg border-2 border-gray-100 hover:border-green-800 transition-all flex justify-between items-center bg-gray-50">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-sm text-primary">Cellular 5G Backhaul</span>
+                                            <span class="text-[10px] text-gray-500">Fixed-Wireless Point-to-Tower Transit</span>
+                                        </div>
+                                        <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded">Wireless</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Category 4: Software-Defined / Overlay -->
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Virtualization / Overlay</h4>
+                                <div class="space-y-1">
+                                    <button onclick="selectTech('sdwan')" id="tech-sdwan" class="tech-select-btn w-full text-left p-3 rounded-lg border-2 border-gray-100 hover:border-green-800 transition-all flex justify-between items-center bg-gray-50">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-sm text-primary">SD-WAN Dual-Path Overlay</span>
+                                            <span class="text-[10px] text-gray-500">Virtual Orchestration across Multi-Links</span>
+                                        </div>
+                                        <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded">Dynamic Overlay</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Visual Board & Spec Deck (Center & Right, Span 8) -->
+                <div class="lg:col-span-8 flex flex-col gap-6">
+                    
+                    <!-- Live Interactive Network Diagram Canvas (3-Site Triangular Layout) -->
+                    <div class="bg-primary text-white rounded-xl p-6 shadow-md border border-green-800 relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:14px_24px]"></div>
+                        
+                        <!-- Header inside diagram -->
+                        <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                            <div>
+                                <span class="bg-accent text-primary px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase">Active Topology Mesh</span>
+                                <h4 class="font-extrabold text-lg mt-1" id="vis-title">MPLS Enterprise Tunnel</h4>
+                            </div>
+                            <div class="bg-green-950 bg-opacity-80 px-3 py-1 rounded border border-green-800 text-xs font-mono">
+                                Top Latency: <span class="text-accent font-bold" id="vis-latency-label">~15ms</span>
+                            </div>
+                        </div>
+
+                        <!-- 3-SITE INTERCONNECTIVITY SVG DIAGRAM -->
+                        <div class="relative w-full h-72 bg-green-950 bg-opacity-70 rounded-xl border border-green-800 overflow-hidden flex flex-col justify-between">
+                            
+                            <!-- Interactive SVG Overlay containing dynamic glowing link lines and satellites -->
+                            <svg class="absolute inset-0 w-full h-full" id="network-svg" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="glow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#d4a017" stop-opacity="1" />
+                                        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.8" />
+                                    </linearGradient>
+                                </defs>
+                                
+                                <!-- Core Links: HQ (70, 200) | DC (300, 55) | Branch (530, 200) -->
+                                <!-- Link 1: HQ to Cloud DC -->
+                                <path id="link-hq-dc" d="M 100 185 L 280 75" stroke="#14532d" stroke-width="4" fill="none" />
+                                <path id="link-hq-dc-flow" d="M 100 185 L 280 75" stroke="#d4a017" stroke-width="4" fill="none" class="animated-link hidden" />
+                                
+                                <!-- Link 2: Branch to Cloud DC -->
+                                <path id="link-branch-dc" d="M 500 185 L 320 75" stroke="#14532d" stroke-width="4" fill="none" />
+                                <path id="link-branch-dc-flow" d="M 500 185 L 320 75" stroke="#d4a017" stroke-width="4" fill="none" class="animated-link hidden" />
+                                
+                                <!-- Link 3: HQ to Branch (Direct Spoke Link) -->
+                                <path id="link-hq-branch" d="M 125 210 L 475 210" stroke="#14532d" stroke-width="4" fill="none" />
+                                <path id="link-hq-branch-flow" d="M 125 210 L 475 210" stroke="#d4a017" stroke-width="4" fill="none" class="animated-link hidden" />
+
+                                <!-- Additional Overlay Paths for SD-WAN Multi-tunneling -->
+                                <path id="link-sdwan-1" d="M 95 180 L 275 70" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3, 3" fill="none" class="hidden" />
+                                <path id="link-sdwan-2" d="M 505 180 L 325 70" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3, 3" fill="none" class="hidden" />
+                                <path id="link-sdwan-3" d="M 125 220 L 475 220" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3, 3" fill="none" class="hidden" />
+
+                                <!-- Satellite Uplinks (Routed to LEO Sat node) -->
+                                <path id="link-sat-hq" d="M 100 185 L 300 40" stroke="#6366f1" stroke-width="2" stroke-dasharray="4,4" fill="none" class="hidden" />
+                                <path id="link-sat-dc" d="M 300 70 L 300 40" stroke="#6366f1" stroke-width="2" stroke-dasharray="4,4" fill="none" class="hidden" />
+                                <path id="link-sat-branch" d="M 500 185 L 300 40" stroke="#6366f1" stroke-width="2" stroke-dasharray="4,4" fill="none" class="hidden" />
+                            </svg>
+
+                            <!-- Node Icons absolute wrapper -->
+                            <!-- Node 1: Cloud/Data Center (Top Center) -->
+                            <div class="absolute" style="left: 50%; top: 20px; transform: translateX(-50%);">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-12 bg-primary border-2 border-accent rounded-xl flex items-center justify-center shadow-lg relative z-10" id="node-dc-container">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+                                        </svg>
+                                        <!-- Active status blip -->
+                                        <span class="absolute top-0 right-0 flex h-3 w-3">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                        </span>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-accent uppercase tracking-wide mt-1">Cloud Data Center</span>
+                                    <span class="text-[8px] font-mono text-green-300">IP: 10.100.200.5</span>
+                                </div>
+                            </div>
+
+                            <!-- Node 2: Corporate HQ (Bottom Left) -->
+                            <div class="absolute" style="left: 40px; bottom: 15px;">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-12 bg-primary border-2 border-accent rounded-xl flex items-center justify-center shadow-lg relative z-10">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-accent uppercase tracking-wide mt-1">Corporate HQ</span>
+                                    <span class="text-[8px] font-mono text-green-300">IP: 10.100.1.1</span>
+                                </div>
+                            </div>
+
+                            <!-- Node 3: Remote Branch (Bottom Right) -->
+                            <div class="absolute" style="right: 40px; bottom: 15px;">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-12 h-12 bg-primary border-2 border-accent rounded-xl flex items-center justify-center shadow-lg relative z-10">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                        </svg>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-accent uppercase tracking-wide mt-1">Remote Branch</span>
+                                    <span class="text-[8px] font-mono text-green-300">IP: 10.200.5.1</span>
+                                </div>
+                            </div>
+
+                            <!-- Space Satellite node (Floating at coordinates 300, 15 - shown/hidden dynamically) -->
+                            <div class="absolute hidden" id="vis-sat-node" style="left: 50%; top: 5px; transform: translateX(-50%);">
+                                <div class="w-8 h-8 bg-indigo-900 border border-accent rounded-full flex items-center justify-center shadow-md animate-bounce">
+                                    <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Topography Flow Labels (Overlaid onto lines) -->
+                            <div class="absolute text-[8px] font-mono text-green-300 px-1 rounded bg-black/60" style="left: 17%; top: 40%;" id="label-hq-dc">HQ ➔ DC</div>
+                            <div class="absolute text-[8px] font-mono text-green-300 px-1 rounded bg-black/60" style="right: 17%; top: 40%;" id="label-branch-dc">Branch ➔ DC</div>
+                            <div class="absolute text-[8px] font-mono text-green-300 px-1 rounded bg-black/60" style="left: 45%; bottom: 25px;" id="label-hq-branch">HQ ➔ Branch</div>
+
+                        </div>
+
+                        <!-- Real-time Diagnostics HUD Overlay -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-1">
+                            <div class="bg-green-950 bg-opacity-80 p-2.5 rounded border border-green-800 text-center">
+                                <span class="block text-[10px] text-green-400 uppercase font-bold tracking-wider">Bandwidth Profile</span>
+                                <span class="block text-xs font-extrabold text-accent" id="diag-bandwidth">10 Gbps Mesh</span>
+                            </div>
+                            <div class="bg-green-950 bg-opacity-80 p-2.5 rounded border border-green-800 text-center">
+                                <span class="block text-[10px] text-green-400 uppercase font-bold tracking-wider">System Cost</span>
+                                <span class="block text-xs font-extrabold text-accent" id="diag-cost">$$$$</span>
+                            </div>
+                            <div class="bg-green-950 bg-opacity-80 p-2.5 rounded border border-green-800 text-center">
+                                <span class="block text-[10px] text-green-400 uppercase font-bold tracking-wider">Mesh Configuration</span>
+                                <span class="block text-xs font-extrabold text-accent" id="diag-sla">Full Any-to-Any</span>
+                            </div>
+                            <div class="bg-green-950 bg-opacity-80 p-2.5 rounded border border-green-800 text-center">
+                                <span class="block text-[10px] text-green-400 uppercase font-bold tracking-wider">Physical Infrastructure</span>
+                                <span class="block text-xs font-extrabold text-accent" id="diag-medium">Dedicated Fiber</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tech Information Grid & Architectural Insights -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Left Panel: Core Description & Metrics -->
+                        <div class="bg-cardBg rounded-xl p-5 shadow-md border border-gray-200 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="p-1.5 bg-green-100 rounded text-primary">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    </span>
+                                    <h4 class="font-extrabold text-primary text-base">3-Site Interconnection Blueprint</h4>
+                                </div>
+                                <p class="text-xs text-gray-600 leading-relaxed" id="tech-desc">
+                                    Multi-Protocol Label Switching (MPLS) sets up any-to-any full-mesh communication channels. Because packets are pre-labeled, traffic moves securely and directly across all three points without requiring intermediate hop decodes.
+                                </p>
+                                
+                                <div class="mt-4 space-y-2.5">
+                                    <h5 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Topology Metrics</h5>
+                                    <!-- Metric Bars -->
+                                    <div class="space-y-2">
+                                        <div>
+                                            <div class="flex justify-between text-[10px] font-medium text-gray-500">
+                                                <span>Mesh Redundancy (Resilience)</span>
+                                                <span id="metric-throughput-text" class="font-bold text-primary">High</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                                                <div id="metric-throughput-bar" class="bg-primary h-full progress-transition" style="width: 80%;"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-[10px] font-medium text-gray-500">
+                                                <span>Encryption & isolation</span>
+                                                <span id="metric-security-text" class="font-bold text-primary">Excellent</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                                                <div id="metric-security-bar" class="bg-primary h-full progress-transition" style="width: 90%;"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-[10px] font-medium text-gray-500">
+                                                <span>Multi-Site SLA (Site-to-Site)</span>
+                                                <span id="metric-sla-text" class="font-bold text-primary">SLA Guaranteed</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                                                <div id="metric-sla-bar" class="bg-primary h-full progress-transition" style="width: 95%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                                <span class="text-xs text-gray-500 font-medium">Ready to test your multi-site design skills?</span>
+                                <button onclick="switchTab('scenario')" class="bg-accent text-primary font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-sm hover:bg-opacity-90 transition-all">
+                                    Deploy a Circuit
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Architectural Pitfall & Academic Concept Clashes (SME Role) -->
+                        <div class="bg-cardBg rounded-xl p-5 shadow-md border-t-4 border-accent border-l border-r border-b border-gray-200 flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="p-1.5 bg-yellow-50 text-accent rounded">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                    </span>
+                                    <h4 class="font-extrabold text-primary text-base">SME 3-Site Architectural Insight</h4>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <h5 class="text-xs font-bold text-primary mb-1 uppercase tracking-wider">The "Under-the-Hood" Routing Dynamics:</h5>
+                                    <p class="text-xs text-gray-600 leading-relaxed" id="tech-truth">
+                                        In a 3-site network, legacy technologies (like T1 point-to-point lines) require a Hub-and-Spoke topology. This means the Branch cannot talk directly to the Cloud DC. It must route its traffic *through* the HQ Hub, adding latency overhead. Conversely, MPLS and SD-WAN dynamically enable direct mesh routes, reducing hops.
+                                    </p>
+                                </div>
+
+                                <div class="bg-red-50 p-3 rounded-lg border border-red-100">
+                                    <h5 class="text-xs font-bold text-red-800 mb-1 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                                        The Tromboning (Hairpinning) Pitfall
+                                    </h5>
+                                    <p class="text-xs text-red-900 leading-relaxed" id="tech-pitfall">
+                                        <strong>What is Hairpinning?</strong> Students often assume that if a branch has standard internet access, it can automatically route directly to cloud nodes. Under legacy enterprise VPN settings (split-tunneling disabled), all remote branch cloud requests are sent through the corporate HQ firewall first, then shot back out to the internet to reach the Cloud. This redundant double-back path mimics a trombone, wasting HQ bandwidth and doubling regional latency!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: ARCHITECTURAL DESIGN SCENARIO SIMULATION -->
+        <section id="tab-content-scenario" class="tab-pane hidden space-y-6">
+            
+            <div class="bg-cardBg rounded-xl p-6 shadow-md border border-gray-200">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 border-b border-gray-100 pb-4">
+                    <div>
+                        <span class="text-xs text-accent font-bold tracking-wider uppercase">Active Design Mission</span>
+                        <h3 class="text-2xl font-extrabold text-primary">WAN Topology Provisioning Suite</h3>
+                        <p class="text-xs text-gray-500 mt-1">Review multi-site constraints, configure the most resilient WAN topology, and run tests on our three nodes.</p>
+                    </div>
+                    <div class="bg-primary text-white px-4 py-2 rounded-xl text-center shadow">
+                        <span class="text-[10px] block text-green-300 font-bold uppercase tracking-widest">Architect Rating</span>
+                        <span id="panel-star-rating" class="text-accent text-lg font-bold">⭐ Apprentice</span>
+                    </div>
+                </div>
+
+                <!-- Main Grid of Worksheets -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Client Selector (Left Side, Span 4) -->
+                    <div class="lg:col-span-4 space-y-3">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Active Multi-Site Contracts</h4>
+                        
+                        <!-- Client 1 -->
+                        <button onclick="selectClient(1)" id="client-card-1" class="client-card w-full text-left p-4 rounded-xl border-2 border-accent transition-all bg-green-50/50 flex flex-col justify-between relative overflow-hidden">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[9px] font-bold text-accent uppercase tracking-wider">Mission 1</span>
+                                    <h5 class="font-extrabold text-primary text-sm">Vanguard Global Finance</h5>
+                                    <p class="text-[10px] text-gray-500">HQ ➔ Backup DC ➔ Exchange Spoke</p>
+                                </div>
+                                <span id="status-badge-1" class="bg-gray-200 text-gray-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Pending</span>
+                            </div>
+                            <div class="mt-3 flex gap-2">
+                                <span class="text-[9px] bg-primary bg-opacity-10 text-primary font-bold px-1.5 py-0.5 rounded">Mesh Ring</span>
+                                <span class="text-[9px] bg-primary bg-opacity-10 text-primary font-bold px-1.5 py-0.5 rounded">No Public Hops</span>
+                            </div>
+                        </button>
+
+                        <!-- Client 2 -->
+                        <button onclick="selectClient(2)" id="client-card-2" class="client-card w-full text-left p-4 rounded-xl border-2 border-gray-100 hover:border-accent transition-all bg-gray-50 flex flex-col justify-between relative overflow-hidden">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Mission 2</span>
+                                    <h5 class="font-extrabold text-primary text-sm">Apex Retail Franchises</h5>
+                                    <p class="text-[10px] text-gray-500">HQ ➔ Central Cloud ➔ 180 Gas Branches</p>
+                                </div>
+                                <span id="status-badge-2" class="bg-gray-200 text-gray-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Pending</span>
+                            </div>
+                            <div class="mt-3 flex gap-2">
+                                <span class="text-[9px] bg-primary bg-opacity-10 text-primary font-bold px-1.5 py-0.5 rounded">Anti-Tromboning</span>
+                                <span class="text-[9px] bg-primary bg-opacity-10 text-primary font-bold px-1.5 py-0.5 rounded">Failover Trunk</span>
+                            </div>
+                        </button>
+
+                        <!-- Client 3 -->
+                        <button onclick="selectClient(3)" id="client-card-3" class="client-card w-full text-left p-4 rounded-xl border-2 border-gray-100 hover:border-accent transition-all bg-gray-50 flex flex-col justify-between relative overflow-hidden">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Mission 3</span>
+                                    <h5 class="font-extrabold text-primary text-sm">Polaris Glaciology Lab</h5>
+                                    <p class="text-[10px] text-gray-500">HQ ➔ Public Cloud ➔ Arctic Sensor Array</p>
+                                </div>
+                                <span id="status-badge-3" class="bg-gray-200 text-gray-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Pending</span>
+                            </div>
+                            <div class="mt-3 flex gap-2">
+                                <span class="text-[9px] bg-primary bg-opacity-10 text-primary font-bold px-1.5 py-0.5 rounded">Zero Terrestrial</span>
+                                <span class="text-[9px] bg-primary bg-opacity-10 text-primary font-bold px-1.5 py-0.5 rounded">Extreme Climate</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Selected Client Worksheet & Config Board (Right Side, Span 8) -->
+                    <div class="lg:col-span-8 flex flex-col gap-5">
+                        
+                        <!-- Client Blueprint Overview -->
+                        <div class="bg-gray-50 rounded-xl p-5 border border-gray-200 relative">
+                            <div class="absolute top-4 right-4 bg-primary text-white text-[10px] font-mono font-bold px-2.5 py-1 rounded">
+                                Budget Level: <span class="text-accent" id="client-budget-hud">$$$$$</span>
+                            </div>
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">3-Site Topology Requirement Brief</h4>
+                            <h3 class="text-xl font-black text-primary" id="client-title">Vanguard Global Finance</h3>
+                            <p class="text-xs text-gray-600 mt-2 leading-relaxed" id="client-objective">
+                                Objective: Secure connection between Corporate HQ, Backup DC, and our Regional Branch. All three nodes must replicate transactional ledgers directly with sub-15ms delay. Public routing exposing packets or relying on single central hub hair-pinning is illegal.
+                            </p>
+                            
+                            <!-- Constraints Metric Display -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 bg-white p-4 rounded-lg border border-gray-200">
+                                <div>
+                                    <span class="block text-[10px] text-gray-500 uppercase tracking-wider">Latency SLA Priority</span>
+                                    <span class="text-xs font-bold text-primary" id="client-latency-req">Ultra-Low (&lt;15ms Mesh)</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] text-gray-500 uppercase tracking-wider">Topology Preference</span>
+                                    <span class="text-xs font-bold text-primary" id="client-security-req">Direct Site-to-Site Mesh</span>
+                                </div>
+                                <div>
+                                    <span class="block text-[10px] text-gray-500 uppercase tracking-wider font-bold">Key Performance Risk</span>
+                                    <span class="text-xs font-bold text-red-600" id="client-risk-req">HQ hairpinning routing delay</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Technical Solution Provisioning Drawer -->
+                        <div class="bg-cardBg rounded-xl p-5 border border-gray-200">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Architect's Selection</h4>
+                            <label class="block text-xs font-bold text-primary mb-2">Provision the 3-site network using one of these options:</label>
+                            
+                            <!-- Radio Selection Elements Grid -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
+                                <label class="border-2 rounded-lg p-3 hover:bg-gray-50 cursor-pointer flex items-start gap-2.5 transition-all" id="sel-label-leased">
+                                    <input type="radio" name="wan-provision" value="leased" class="mt-1 accent-primary">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-primary">Dual Point-to-Point T1 Lines</span>
+                                        <span class="text-[10px] text-gray-500">Static paths. Hubs traffic back to HQ first.</span>
+                                    </div>
+                                </label>
+                                <label class="border-2 rounded-lg p-3 hover:bg-gray-50 cursor-pointer flex items-start gap-2.5 transition-all" id="sel-label-mpls">
+                                    <input type="radio" name="wan-provision" value="mpls" class="mt-1 accent-primary" checked>
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-primary">Carrier MPLS Core Mesh</span>
+                                        <span class="text-[10px] text-gray-500">Any-to-any direct labels. High multi-site SLA.</span>
+                                    </div>
+                                </label>
+                                <label class="border-2 rounded-lg p-3 hover:bg-gray-50 cursor-pointer flex items-start gap-2.5 transition-all" id="sel-label-metro">
+                                    <input type="radio" name="wan-provision" value="metro" class="mt-1 accent-primary">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-primary">Metropolitan Metro Ethernet</span>
+                                        <span class="text-[10px] text-gray-500">Shared regional fiber ring, localized footprint.</span>
+                                    </div>
+                                </label>
+                                <label class="border-2 rounded-lg p-3 hover:bg-gray-50 cursor-pointer flex items-start gap-2.5 transition-all" id="sel-label-satellite">
+                                    <input type="radio" name="wan-provision" value="satellite" class="mt-1 accent-primary">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-primary">LEO Satellite Ground Links</span>
+                                        <span class="text-[10px] text-gray-500">Direct satellite transceivers at each of the 3 nodes.</span>
+                                    </div>
+                                </label>
+                                <label class="border-2 rounded-lg p-3 hover:bg-gray-50 cursor-pointer flex items-start gap-2.5 transition-all" id="sel-label-sdwan">
+                                    <input type="radio" name="wan-provision" value="sdwan" class="mt-1 accent-primary">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-primary">SD-WAN Secure Multi-Overlay</span>
+                                        <span class="text-[10px] text-gray-500">Aggregated broadband tunnels bypassing HQ.</span>
+                                    </div>
+                                </label>
+                                <label class="border-2 rounded-lg p-3 hover:bg-gray-50 cursor-pointer flex items-start gap-2.5 transition-all" id="sel-label-broadband">
+                                    <input type="radio" name="wan-provision" value="broadband" class="mt-1 accent-primary">
+                                    <div class="flex flex-col">
+                                        <span class="text-xs font-bold text-primary">Unmanaged Public Broadband</span>
+                                        <span class="text-[10px] text-gray-500">Simple public gateways over standard internet.</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Execution Actions -->
+                            <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                                <div class="text-xs text-gray-500 flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 102 0v-3a1 1 0 00-2 0v3z" clip-rule="evenodd"></path></svg>
+                                    Inspect active paths and nodes before deploying.
+                                </div>
+                                <button onclick="deployWANCircuit()" class="bg-primary text-white font-extrabold text-sm px-6 py-3 rounded-lg shadow-md hover:bg-opacity-95 flex items-center gap-2 transition-all w-full sm:w-auto justify-center">
+                                    <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    Deploy &amp; Test 3-Site Mesh
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Deployment Results Feedback Deck -->
+                        <div id="deployment-feedback-box" class="bg-cardBg rounded-xl p-5 border border-gray-200 hidden transition-all">
+                            <div class="flex items-start gap-4">
+                                <div class="p-3 rounded-full" id="feedback-icon-container">
+                                    <!-- Dynamic SVG icon insertion via JS -->
+                                </div>
+                                <div class="space-y-2 flex-grow">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="font-black text-lg" id="feedback-result-title">Deployment Status</h4>
+                                        <span class="bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded" id="feedback-result-tag">Result</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 leading-relaxed" id="feedback-result-desc">
+                                        Result analysis description.
+                                    </p>
+                                    
+                                    <!-- Diagnostics / Educational Retrospective -->
+                                    <div class="bg-gray-50 p-3 rounded border border-gray-200 mt-2">
+                                        <h5 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Architectural Retrospective</h5>
+                                        <p class="text-xs text-gray-600 mt-1 leading-relaxed" id="feedback-result-analysis">
+                                            Diagnostics analysis.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: KNOWLEDGE RETRIEVAL CHECK -->
+        <section id="tab-content-quiz" class="tab-pane hidden space-y-6">
+            <div class="bg-cardBg rounded-xl p-6 shadow-md border border-gray-200 max-w-4xl mx-auto">
+                <div class="border-b border-gray-100 pb-4 mb-6">
+                    <span class="text-xs text-accent font-bold tracking-wider uppercase">Bloom's Taxonomy Level: Remember &amp; Apply</span>
+                    <h3 class="text-2xl font-extrabold text-primary">Technical Certification Exam</h3>
+                    <p class="text-xs text-gray-500 mt-1">Answer these multi-site conceptual questions to earn your WAN Architect credential.</p>
+                </div>
+
+                <!-- Quiz Progress Bar -->
+                <div class="w-full bg-gray-200 h-2.5 rounded-full mb-6 overflow-hidden">
+                    <div id="quiz-progress-bar" class="bg-accent h-full progress-transition" style="width: 25%;"></div>
+                </div>
+
+                <!-- Live Quiz Core Component -->
+                <div id="quiz-question-container" class="space-y-6">
+                    <!-- Dynamic Question Heading -->
+                    <div>
+                        <span class="text-xs font-bold text-primary uppercase bg-green-50 px-2.5 py-1 rounded" id="quiz-question-num">Question 1 of 4</span>
+                        <h4 class="text-base font-bold mt-3 text-darkText leading-relaxed" id="quiz-question-text">
+                            Question text goes here.
+                        </h4>
+                    </div>
+
+                    <!-- Options Grid -->
+                    <div class="space-y-2.5" id="quiz-options-grid">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <!-- Evaluation Action Button -->
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                        <span class="text-xs text-gray-500" id="quiz-score-indicator">Current score is evaluated on first attempts.</span>
+                        <button onclick="evaluateQuizAnswer()" id="quiz-eval-btn" class="bg-primary text-white font-extrabold text-xs px-5 py-2.5 rounded-lg shadow-sm hover:bg-opacity-95 transition-all">
+                            Submit Answer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Feedback Drawer -->
+                <div id="quiz-feedback-box" class="mt-6 bg-green-50 p-4 rounded-xl border border-green-200 hidden">
+                    <div class="flex items-start gap-3">
+                        <div id="quiz-feedback-icon" class="p-2 bg-primary rounded-full text-white">
+                            <!-- Dynamic SVG -->
+                        </div>
+                        <div class="space-y-1">
+                            <h5 class="font-extrabold text-sm text-primary" id="quiz-feedback-title">Correct!</h5>
+                            <p class="text-xs text-gray-600 leading-relaxed" id="quiz-feedback-body">
+                                Feedback description text.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Certification Drawer -->
+                <div id="quiz-cert-box" class="mt-6 bg-gradient-to-r from-primary to-green-950 p-6 rounded-xl border-2 border-accent text-white text-center hidden space-y-4">
+                    <div class="w-16 h-16 bg-accent text-primary rounded-full flex items-center justify-center mx-auto shadow-lg">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-xl font-extrabold text-accent">3-Site WAN Architect Certified</h4>
+                        <p class="text-xs text-green-100 max-w-md mx-auto">
+                            Fantastic job! You've mastered any-to-any mesh configurations, diagnosed split-tunneling tromboning, and successfully deployed space/ground paths.
+                        </p>
+                    </div>
+                    <div class="text-sm font-mono text-green-300">
+                        Final Score: <span class="text-accent font-bold" id="cert-final-score">100 / 100 XP</span>
+                    </div>
+                    <button onclick="resetLab()" class="bg-accent text-primary font-bold text-xs px-4 py-2 rounded shadow hover:bg-opacity-95 transition-all">
+                        Reset Learning Lab
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Interactive Glossary Quick-Reference Footer Section -->
+    <footer class="bg-green-950 text-white mt-auto py-8 px-4 border-t border-green-800">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <h5 class="text-accent font-bold text-xs uppercase tracking-wider mb-2">Technical Glossary (3-Site Model)</h5>
+                <ul class="space-y-1 text-xs text-green-200">
+                    <li><strong>Full Mesh:</strong> Every node connects directly to every other node without mid-hops.</li>
+                    <li><strong>Hub &amp; Spoke:</strong> Spoke nodes route exclusively via a central hub, creating latency bottlenecks.</li>
+                    <li><strong>Split Tunneling:</strong> Direct-to-internet routing for cloud apps from spokes, bypassing the HQ firewall.</li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="text-accent font-bold text-xs uppercase tracking-wider mb-2">Architectural Troubleshooting</h5>
+                <p class="text-xs text-green-200 leading-relaxed">
+                    Always calculate site-to-site latency. Even if Node A is connected to Node B and Node B is connected to Node C, routing traffic from A to C via B will double latency. Look for Direct-Mesh configurations (like MPLS or SD-WAN dynamic overlays) when latency is critical.
+                </p>
+            </div>
+            <div>
+                <h5 class="text-accent font-bold text-xs uppercase tracking-wider mb-2">Instructional Design Note</h5>
+                <p class="text-xs text-green-200 leading-relaxed">
+                    This simulation applies Bloom's Taxonomy "Understand" and "Apply" tiers to multi-point topologies, teaching students core routing, backhaul, and budgetary constraints.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main Controller Logic JavaScript -->
+    <script>
+        // GLOBAL STATE MODEL
+        const state = {
+            currentTab: 'explorer',
+            score: 0,
+            activeTech: 'mpls',
+            activeClient: 1,
+            completedScenarios: { 1: false, 2: false, 3: false },
+            quizIndex: 0,
+            quizSelectedOption: null,
+            quizCompleted: false,
+            quizFirstAttempts: { 0: true, 1: true, 2: true, 3: true },
+            quizScores: { 0: 0, 1: 0, 2: 0, 3: 0 }
+        };
+
+        // DOM REFERENCES
+        const elements = {
+            hudScore: document.getElementById('hud-score'),
+            hudStatus: document.getElementById('hud-status'),
+            tabBtns: document.querySelectorAll('.tab-btn'),
+            tabPanes: document.querySelectorAll('.tab-pane'),
+            visTitle: document.getElementById('vis-title'),
+            visLatencyLabel: document.getElementById('vis-latency-label'),
+            visSatNode: document.getElementById('vis-sat-node'),
+            diagBandwidth: document.getElementById('diag-bandwidth'),
+            diagCost: document.getElementById('diag-cost'),
+            diagSla: document.getElementById('diag-sla'),
+            diagMedium: document.getElementById('diag-medium'),
+            techDesc: document.getElementById('tech-desc'),
+            techTruth: document.getElementById('tech-truth'),
+            techPitfall: document.getElementById('tech-pitfall'),
+            metricThroughputBar: document.getElementById('metric-throughput-bar'),
+            metricThroughputText: document.getElementById('metric-throughput-text'),
+            metricSecurityBar: document.getElementById('metric-security-bar'),
+            metricSecurityText: document.getElementById('metric-security-text'),
+            metricSlaBar: document.getElementById('metric-sla-bar'),
+            metricSlaText: document.getElementById('metric-sla-text'),
+            clientTitle: document.getElementById('client-title'),
+            clientObjective: document.getElementById('client-objective'),
+            clientBudgetHud: document.getElementById('client-budget-hud'),
+            clientLatencyReq: document.getElementById('client-latency-req'),
+            clientSecurityReq: document.getElementById('client-security-req'),
+            clientRiskReq: document.getElementById('client-risk-req'),
+            deploymentFeedbackBox: document.getElementById('deployment-feedback-box'),
+            feedbackIconContainer: document.getElementById('feedback-icon-container'),
+            feedbackResultTitle: document.getElementById('feedback-result-title'),
+            feedbackResultTag: document.getElementById('feedback-result-tag'),
+            feedbackResultDesc: document.getElementById('feedback-result-desc'),
+            feedbackResultAnalysis: document.getElementById('feedback-result-analysis'),
+            quizProgress: document.getElementById('quiz-progress-bar'),
+            quizQuestionNum: document.getElementById('quiz-question-num'),
+            quizQuestionText: document.getElementById('quiz-question-text'),
+            quizOptionsGrid: document.getElementById('quiz-options-grid'),
+            quizEvalBtn: document.getElementById('quiz-eval-btn'),
+            quizFeedbackBox: document.getElementById('quiz-feedback-box'),
+            quizFeedbackIcon: document.getElementById('quiz-feedback-icon'),
+            quizFeedbackTitle: document.getElementById('quiz-feedback-title'),
+            quizFeedbackBody: document.getElementById('quiz-feedback-body'),
+            quizCertBox: document.getElementById('quiz-cert-box'),
+            quizQuestionContainer: document.getElementById('quiz-question-container'),
+            certFinalScore: document.getElementById('cert-final-score'),
+            panelStarRating: document.getElementById('panel-star-rating'),
+            // 3-Site Active SVGs
+            linkHqDc: document.getElementById('link-hq-dc-flow'),
+            linkBranchDc: document.getElementById('link-branch-dc-flow'),
+            linkHqBranch: document.getElementById('link-hq-branch-flow'),
+            linkSdwan1: document.getElementById('link-sdwan-1'),
+            linkSdwan2: document.getElementById('link-sdwan-2'),
+            linkSdwan3: document.getElementById('link-sdwan-3'),
+            linkSatHq: document.getElementById('link-sat-hq'),
+            linkSatDc: document.getElementById('link-sat-dc'),
+            linkSatBranch: document.getElementById('link-sat-branch')
+        };
+
+        // DATABASE/MODEL INFORMATION (UPGRADED TO 3-SITE TOPOLOGIES)
+        const techData = {
+            leased: {
+                title: "Dual Pt-to-Pt Leased T1 Lines",
+                latency: "Hub & Spoke (Spoke-to-Spoke ~35ms via HQ)",
+                bandwidth: "1.5 Mbps to 45 Mbps (Each Line)",
+                cost: "$$$$$",
+                sla: "Hub-and-Spoke Topology",
+                medium: "Point-to-Point Copper Lines",
+                desc: "Static, direct leased lines are highly secure but configure as a Hub-and-Spoke system. Traffic traveling from the Remote Branch to the Cloud Data Center must first route physically through Corporate HQ (the hub), incurring substantial processing latency and bottlenecking resources.",
+                truth: "To achieve direct any-to-any interconnectivity over leased lines, you would need to buy a third expensive point-to-point line between the Cloud DC and the Remote Branch. Without it, you are locked into a sub-optimal Hub-and-Spoke layout.",
+                pitfall: "<strong>The Single-Hub Bottleneck:</strong> If Corporate HQ experiences a regional power failure or WAN interface crash, the entire link between the Branch and Cloud DC completely collapses, even if those physical locations are running perfectly. No mesh redundancy exists.",
+                throughput: { text: "Low static bandwidth", value: 25 },
+                security: { text: "Isolated Physical Loop", value: 95 },
+                slaRating: { text: "HQ Node Vulnerability", value: 50 },
+                links: { hqDc: true, branchDc: false, hqBranch: true, sdwan: false, satellite: false }
+            },
+            mpls: {
+                title: "Any-to-Any Carrier MPLS Mesh",
+                latency: "Full-Mesh Symmetrical (<15ms)",
+                bandwidth: "10 Mbps to 10 Gbps (Symmetrical)",
+                cost: "$$$$",
+                sla: "Full Mesh (ISP Managed)",
+                medium: "Carrier Core Backhaul",
+                desc: "MPLS encapsulates data frames with routing labels inside the carrier's private cloud infrastructure. This naturally facilitates a full-mesh topology. The Remote Branch, Corporate HQ, and Cloud Data Center all talk directly to one another with guaranteed SLAs and no hairpin routing delays.",
+                truth: "MPLS functions like a virtual private switchboard inside the ISP network. All three sites plug into the same multi-protocol core cloud, resolving traffic directly through labeled tunnels without crossing the open public internet.",
+                pitfall: "<strong>No Open Internet Access:</strong> MPLS only routes private internal packets. To allow nodes to reach public web pages, you must add external firewalls and public breakout gateways, increasing architectural complexity.",
+                throughput: { text: "Highly scalable", value: 80 },
+                security: { text: "Private Carrier Core", value: 90 },
+                slaRating: { text: "ISP Bound SLA", value: 95 },
+                links: { hqDc: true, branchDc: true, hqBranch: true, sdwan: false, satellite: false }
+            },
+            metro: {
+                title: "Metro Ethernet Regional Fiber Ring",
+                latency: "Ultra-Low (<8ms Regional Only)",
+                bandwidth: "1 Gbps to 100 Gbps",
+                cost: "$$$",
+                sla: "Symmetrical Fiber Loop",
+                medium: "Local Metro Fiber Core",
+                desc: "Metro Ethernet extends Layer 2 local switching across metropolitan boundaries. If all 3 nodes (HQ, DC, and Branch) sit within the same metropolitan area, they connect directly to a high-speed regional ring with virtually zero latency and massive bandwidth capacities.",
+                truth: "Metro Ethernet abstracts the physical distance by making all three offices appear on the exact same local Layer 2 VLAN switch. It allows direct, unrouted high-speed transfers.",
+                pitfall: "<strong>Geographic Boundaries:</strong> Metro Ethernet is strictly regional. If your Corporate HQ is in New York, your Data Center is in Virginia, and your Branch is in California, Metro Ethernet cannot interconnect them without an expensive long-haul transit contract.",
+                throughput: { text: "Extremely High (Up to 100G)", value: 98 },
+                security: { text: "Layer 2 VLAN Isolation", value: 80 },
+                slaRating: { text: "Localized SLA Only", value: 75 },
+                links: { hqDc: true, branchDc: true, hqBranch: true, sdwan: false, satellite: false }
+            },
+            broadband: {
+                title: "Public Broadband VPN (Public Paths)",
+                latency: "Highly Variable (30ms - 90ms)",
+                bandwidth: "100 Mbps to 2 Gbps (Asymmetrical)",
+                cost: "$",
+                sla: "Best-Effort Gateway Routing",
+                medium: "Public Internet Core",
+                desc: "By utilizing standard consumer broadband lines, each site tunnels traffic through the public internet. Because the public internet routes packets dynamically across arbitrary hops, latency is inconsistent, and there is no guaranteed SLA to safeguard high-volume ledger replication.",
+                truth: "Broadband links run over public infrastructure. While incredibly cheap, packets share pathways with household video streaming, meaning throughput suffers from neighborhood congestion peaks.",
+                pitfall: "<strong>The Double-Tunnel Lag:</strong> In standard VPN overlays over broadband, traffic from the Branch going to the Cloud DC is often routed through the HQ firewall first (hub-and-spoke VPN). This double-hop introduces serious latency spikes.",
+                throughput: { text: "Asymmetrical (Fast down, slow up)", value: 65 },
+                security: { text: "IPsec Enforced Tunnels", value: 50 },
+                slaRating: { text: "None (Best Effort)", value: 30 },
+                links: { hqDc: true, branchDc: false, hqBranch: true, sdwan: false, satellite: false } // Default VPN hub-and-spoke
+            },
+            satellite: {
+                title: "LEO Satellite Multi-Link System",
+                latency: "Uniform Low Latency (~35ms-45ms)",
+                bandwidth: "50 Mbps to 250 Mbps",
+                cost: "$$$",
+                sla: "Space-Based Mesh",
+                medium: "Air & Space RF Channels",
+                desc: "Using Low Earth Orbit (LEO) constellations, all three nodes transmit data directly to orbiting satellite arrays. The satellites route packets through space using inter-satellite laser links before reflecting the packets down to ground gateways, making it ideal for rural locations.",
+                truth: "LEO satellite arrays operate at ~550 km, maintaining a consistent round-trip path that completely avoids terrestrial telephone poles, trench lines, or metropolitan carrier boundaries.",
+                pitfall: "<strong>Weather Jitter & Line-of-Sight:</strong> Heavily overcast skies, physical tree cover, or sub-zero snowstorms can lead to transient packet loss and transmission delays, lowering the reliability below carrier-grade SLAs.",
+                throughput: { text: "Consistent Symmetrical", value: 55 },
+                security: { text: "Encrypted Wireless", value: 70 },
+                slaRating: { text: "Environmentally Sensitive", value: 60 },
+                links: { hqDc: false, branchDc: false, hqBranch: false, sdwan: false, satellite: true }
+            },
+            cellular: {
+                title: "5G Fixed Wireless Backhaul",
+                latency: "25ms - 60ms (Cell Tower Dynamic)",
+                bandwidth: "20 Mbps to 300 Mbps",
+                cost: "$$",
+                sla: "Best-Effort Wireless Uplink",
+                medium: "Licensed Cellular Frequencies",
+                desc: "Using directional high-gain antennas, all three sites connect to cellular towers owned by regional mobile carriers. This bypasses physical copper or fiber trenching, allowing lightning-fast deployments. However, cellular paths are highly susceptible to radio congestion.",
+                truth: "Fixed Wireless utilizes cellular spectrum. It functions like a standard backup router path, utilizing dedicated IPsec tunnels to establish virtual private site-to-site tunnels.",
+                pitfall: "<strong>Cell Tower Congestion:</strong> If a major sporting event or traffic jam occurs near the Remote Branch, the local cell tower will prioritize consumer phones, throttles WAN backhaul speeds.",
+                throughput: { text: "Moderate Symmetrical", value: 60 },
+                security: { text: "Carrier Enforced Tunnels", value: 65 },
+                slaRating: { text: "Dynamic Congestion Limits", value: 55 },
+                links: { hqDc: true, branchDc: false, hqBranch: true, sdwan: false, satellite: false } // Hub-and-Spoke structure over LTE
+            },
+            sdwan: {
+                title: "SD-WAN Dual-Path Overlay Mesh",
+                latency: "Dynamic Auto-Rerouted (<20ms)",
+                bandwidth: "Aggregate (Fiber + Broadband)",
+                cost: "$$$",
+                sla: "Dynamic path-selection mesh",
+                medium: "Virtual Orchestrated Overlays",
+                desc: "SD-WAN decouples virtual networking from the physical wires. By installing SD-WAN routers at all 3 nodes, the system bonds multiple physical circuits (e.g., Fiber and cheap Broadband) into a single virtual mesh. If one link fails, the controller reroutes traffic sub-second.",
+                truth: "SD-WAN continuously measures real-time jitter and packet loss on all three links. If it detects congestion on the Branch-to-HQ line, it automatically routes critical ledger data over the direct Branch-to-Cloud path.",
+                pitfall: "<strong>Underlay Reliance:</strong> SD-WAN is a virtual overlay. It cannot run without physical wires. If the local physical broadband or fiber lines are physically cut, the virtual SD-WAN overlay fails completely.",
+                throughput: { text: "Highly Resilient & Aggregated", value: 90 },
+                security: { text: "Automated IPsec Mesh", value: 92 },
+                slaRating: { text: "Highly Resilient Overlay", value: 88 },
+                links: { hqDc: true, branchDc: true, hqBranch: true, sdwan: true, satellite: false }
+            }
+        };
+
+        const clientData = {
+            1: {
+                title: "Vanguard Global Finance",
+                objective: "Interconnect our Corporate HQ, backup Data Center, and our newly established Regional Branch. To support real-time stock-ledger replication, we require continuous, low-latency, any-to-any full-mesh communication with zero packet loss. Direct pathing is required—forcing branch data to hairpin through the HQ hub to reach the DC is strictly unacceptable.",
+                budget: "$$$$$",
+                latencyReq: "Sub-15ms Any-to-Any (No Hairpinning)",
+                securityReq: "ISP Isolated Backhaul Private Loop",
+                riskReq: "Hairpin routing and public internet exposure",
+                bestChoice: "mpls",
+                retrospective: "Vanguard Global Finance mandates private physical isolation, high symmetrical throughput, and a direct full-mesh topology. Point-to-Point leased lines fail because they isolate branch-to-DC traffic without an intermediate hub. MPLS solves this by offering a secure, carrier-managed label switching cloud that links all three nodes directly."
+            },
+            2: {
+                title: "Apex Retail Franchises",
+                objective: "We operate 180 gas stations nationwide. We must connect our physical headquarters, the primary transaction cloud node, and all remote stations. We have a highly restricted budget per station. If a primary local broadband line drops, the checkout lanes must immediately route transactions via a cellular backup without drops.",
+                budget: "$$",
+                latencyReq: "Flexible (~100ms Tolerance)",
+                securityReq: "Encrypted VPN Overlays with Smart Routing",
+                riskReq: "High costs of multiple leased lines & local fiber outages",
+                bestChoice: "sdwan",
+                retrospective: "For a highly distributed network like Apex Retail, purchasing private MPLS backhauls for 180 branches is cost-prohibitive. SD-WAN is the perfect solution. It utilizes inexpensive public broadband, automatically establishes secure VPN tunnels between all three nodes, and dynamically fails over to cellular if the primary wire fails."
+            },
+            3: {
+                title: "Polaris Glaciology Lab",
+                objective: "Deploy a WAN linking our Seattle Headquarters, our Azure Cloud Database, and a high-altitude research sensor hub in the remote Arctic. There is zero physical telephone wire, fiber, or cellular coverage within 800 miles of the Arctic site. Bandwidth must support reliable daily telemetry uploads.",
+                budget: "$$$",
+                latencyReq: "Moderate / Daily Batching",
+                securityReq: "AES-256 Virtual Private Tunnels",
+                riskReq: "Complete lack of local terrestrial infrastructure",
+                bestChoice: "satellite",
+                retrospective: "Polaris Lab has no access to regional fiber or carrier towers in the Arctic Circle. Terrestrial options like Metro Ethernet, leased copper, or cellular are physically impossible. Low Earth Orbit (LEO) Satellite networks are the only feasible design, bypassing all terrestrial infrastructure to link the remote node directly to the cloud."
+            }
+        };
+
+        const quizQuestions = [
+            {
+                text: "In a 3-site network topology linking HQ, a Branch, and a Cloud DC, what is meant by 'hairpinning' or 'tromboning'?",
+                options: [
+                    { key: "A", text: "Encrypting a payload twice using distinct keys.", correct: false },
+                    { key: "B", text: "Forcing branch-to-cloud traffic through the corporate HQ hub first, doubling latency.", correct: true },
+                    { key: "C", text: "The physical reflection of copper signals when terminating a leased line.", correct: false },
+                    { key: "D", text: "Aggregating dual public broadband connections using high-gain antennas.", correct: false }
+                ],
+                explanation: "Hairpinning occurs when traffic destined for one site (e.g., Cloud DC) is forced through another site (e.g., HQ) first. This redundant pathway wastes WAN bandwidth and dramatically increases packet transit times."
+            },
+            {
+                text: "A banking firm is evaluating Metro Ethernet regional fiber loops to interconnect its HQ, regional branch, and central data center. What is the biggest architectural limitation of this design?",
+                options: [
+                    { key: "A", text: "It cannot transport standard Layer 3 IP packets.", correct: false },
+                    { key: "B", text: "It requires satellite transceivers on rooftops to handle the fiber ring.", correct: false },
+                    { key: "C", text: "It is geographically restricted to regional metropolitan footprints.", correct: true },
+                    { key: "D", text: "It only supports asymmetrical bandwidth speeds.", correct: false }
+                ],
+                explanation: "Metro Ethernet offers incredibly fast speeds and low latency, but is strictly localized. Attempting to link geographically distant cities requires transition to carrier backhaul networks like MPLS."
+            },
+            {
+                text: "Why is a carrier-managed MPLS core mesh considered superior to dual point-to-point T1 leased lines for a secure, low-latency 3-site financial deployment?",
+                options: [
+                    { key: "A", text: "MPLS operates entirely via satellites, avoiding terrestrial outages.", correct: false },
+                    { key: "B", text: "Leased lines require public internet gateways, posing severe security threats.", correct: false },
+                    { key: "C", text: "MPLS enables direct any-to-any mesh communication, avoiding Hub-and-Spoke latency hairpins.", correct: true },
+                    { key: "D", text: "MPLS encrypts all traffic natively with AES-256 without hardware overhead.", correct: false }
+                ],
+                explanation: "A standard two-circuit leased line setup forms a Hub-and-Spoke network where the branch must hop through HQ to reach the DC. MPLS allows direct any-to-any (full mesh) routing within the carrier cloud, bypassing the HQ hop."
+            },
+            {
+                text: "A network architect deploys an SD-WAN overlay on a 3-site retail network. What happens to the virtual mesh if the underlying physical fiber and broadband links are physically severed?",
+                options: [
+                    { key: "A", text: "The SD-WAN overlay automatically synthesizes dynamic cellular backup frequencies.", correct: false },
+                    { key: "B", text: "The overlay network fails completely because virtual overlays rely on a physical underlay to transport bits.", correct: true },
+                    { key: "C", text: "The routers switch to orbital satellite beams without extra hardware.", correct: false },
+                    { key: "D", text: "The database servers will continue to replicate using offline metadata cache.", correct: false }
+                ],
+                explanation: "SD-WAN is a virtual overlay. While it can dynamically route traffic around congested links, it has no physical transmission capabilities of its own and depends entirely on the underlying physical connections (the underlay) to route packets."
+            }
+        ];
+
+        // CONTROLLER FUNCTIONS
+
+        // Tab Switcher
+        function switchTab(tabName) {
+            state.currentTab = tabName;
+            
+            // Adjust HUD Status
+            if(tabName === 'explorer') elements.hudStatus.innerText = "Learning";
+            if(tabName === 'scenario') elements.hudStatus.innerText = "Configuring";
+            if(tabName === 'quiz') elements.hudStatus.innerText = "Exam Mode";
+
+            // Update tab buttons
+            elements.tabBtns.forEach(btn => {
+                if (btn.id === `btn-${tabName}`) {
+                    btn.className = "tab-btn px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 bg-accent text-primary shadow";
+                } else {
+                    btn.className = "tab-btn px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 text-green-100 hover:text-white";
+                }
+            });
+
+            // Update tab panes
+            elements.tabPanes.forEach(pane => {
+                if (pane.id === `tab-content-${tabName}`) {
+                    pane.classList.remove('hidden');
+                    pane.classList.add('active');
+                } else {
+                    pane.classList.add('hidden');
+                    pane.classList.remove('active');
+                }
+            });
+
+            // Specific Tab Actions
+            if (tabName === 'explorer') {
+                renderTechDetails(state.activeTech);
+            } else if (tabName === 'scenario') {
+                selectClient(state.activeClient);
+            } else if (tabName === 'quiz') {
+                renderQuizQuestion();
+            }
+        }
+
+        // Active Scoreboard Updater
+        function addScore(points) {
+            state.score = Math.min(100, state.score + points);
+            elements.hudScore.innerText = `${state.score} / 100 XP`;
+            updateArchitectBadge();
+        }
+
+        function updateArchitectBadge() {
+            let rank = "⭐ Apprentice";
+            if (state.score >= 40) rank = "⭐⭐ Specialist";
+            if (state.score >= 70) rank = "⭐⭐⭐ Engineer";
+            if (state.score >= 95) rank = "🏆 Master Architect";
+            elements.panelStarRating.innerText = rank;
+        }
+
+        // Explorer Action: Select Technology
+        function selectTech(techKey) {
+            state.activeTech = techKey;
+            
+            // Highlight Button
+            document.querySelectorAll('.tech-select-btn').forEach(btn => {
+                btn.classList.remove('border-green-800', 'bg-green-50');
+                btn.classList.add('border-gray-100', 'bg-gray-50');
+            });
+            
+            const selectedBtn = document.getElementById(`tech-${techKey}`);
+            if (selectedBtn) {
+                selectedBtn.classList.remove('border-gray-100', 'bg-gray-50');
+                selectedBtn.classList.add('border-green-800', 'bg-green-50');
+            }
+
+            renderTechDetails(techKey);
+        }
+
+        // Render Explorer UI Details
+        function renderTechDetails(techKey) {
+            const data = techData[techKey];
+            if (!data) return;
+
+            // Live Diagram Visual State
+            elements.visTitle.innerText = data.title;
+            elements.visLatencyLabel.innerText = data.latency;
+            
+            // Adjust Diagnostics
+            elements.diagBandwidth.innerText = data.bandwidth;
+            elements.diagCost.innerText = data.cost;
+            elements.diagSla.innerText = data.sla;
+            elements.diagMedium.innerText = data.medium;
+
+            // Description Cards
+            elements.techDesc.innerText = data.desc;
+            elements.techTruth.innerText = data.truth;
+            elements.techPitfall.innerHTML = data.pitfall;
+
+            // Spec Bars & Metrics
+            elements.metricThroughputText.innerText = data.throughput.text;
+            elements.metricThroughputBar.style.width = `${data.throughput.value}%`;
+
+            elements.metricSecurityText.innerText = data.security.text;
+            elements.metricSecurityBar.style.width = `${data.security.value}%`;
+
+            elements.metricSlaText.innerText = data.slaRating.text;
+            elements.metricSlaBar.style.width = `${data.slaRating.value}%`;
+
+            // Reset dynamic SVGs to default hidden state
+            elements.linkHqDc.classList.add('hidden');
+            elements.linkBranchDc.classList.add('hidden');
+            elements.linkHqBranch.classList.add('hidden');
+            elements.linkSdwan1.classList.add('hidden');
+            elements.linkSdwan2.classList.add('hidden');
+            elements.linkSdwan3.classList.add('hidden');
+            elements.linkSatHq.classList.add('hidden');
+            elements.linkSatDc.classList.add('hidden');
+            elements.linkSatBranch.classList.add('hidden');
+            elements.visSatNode.classList.add('hidden');
+
+            // Apply SVG animations representing the selected technology
+            if (data.links.satellite) {
+                elements.visSatNode.classList.remove('hidden');
+                elements.linkSatHq.classList.remove('hidden');
+                elements.linkSatDc.classList.remove('hidden');
+                elements.linkSatBranch.classList.remove('hidden');
+            } else if (data.links.sdwan) {
+                elements.linkHqDc.classList.remove('hidden');
+                elements.linkBranchDc.classList.remove('hidden');
+                elements.linkHqBranch.classList.remove('hidden');
+                elements.linkSdwan1.classList.remove('hidden');
+                elements.linkSdwan2.classList.remove('hidden');
+                elements.linkSdwan3.classList.remove('hidden');
+                
+                elements.linkHqDc.setAttribute('class', 'animated-link-fast');
+                elements.linkBranchDc.setAttribute('class', 'animated-link-fast');
+                elements.linkHqBranch.setAttribute('class', 'animated-link-fast');
+            } else {
+                // Symmetrical vs Hub & Spoke
+                if (data.links.hqDc) {
+                    elements.linkHqDc.classList.remove('hidden');
+                    elements.linkHqDc.setAttribute('class', techKey === 'broadband' || techKey === 'cellular' ? 'animated-link-slow' : 'animated-link');
+                }
+                if (data.links.branchDc) {
+                    elements.linkBranchDc.classList.remove('hidden');
+                    elements.linkBranchDc.setAttribute('class', 'animated-link');
+                }
+                if (data.links.hqBranch) {
+                    elements.linkHqBranch.classList.remove('hidden');
+                    elements.linkHqBranch.setAttribute('class', techKey === 'broadband' || techKey === 'cellular' ? 'animated-link-slow' : 'animated-link');
+                }
+            }
+        }
+
+        // Scenario: Client Card Picker
+        function selectClient(clientNum) {
+            state.activeClient = clientNum;
+            const data = clientData[clientNum];
+            
+            // Reset active styles
+            document.querySelectorAll('.client-card').forEach(card => {
+                card.classList.remove('border-accent', 'bg-green-50/50');
+                card.classList.add('border-gray-100', 'bg-gray-50');
+            });
+
+            const activeCard = document.getElementById(`client-card-${clientNum}`);
+            if (activeCard) {
+                activeCard.classList.remove('border-gray-100', 'bg-gray-50');
+                activeCard.classList.add('border-accent', 'bg-green-50/50');
+            }
+
+            // Bind values
+            elements.clientTitle.innerText = data.title;
+            elements.clientObjective.innerText = data.objective;
+            elements.clientBudgetHud.innerText = data.budget;
+            elements.clientLatencyReq.innerText = data.latencyReq;
+            elements.clientSecurityReq.innerText = data.securityReq;
+            elements.clientRiskReq.innerText = data.riskReq;
+
+            // Hide previous results box unless evaluated
+            elements.deploymentFeedbackBox.classList.add('hidden');
+
+            // Select radio values
+            const radioToSelect = document.querySelector(`input[name="wan-provision"][value="${data.bestChoice}"]`);
+            if (radioToSelect) {
+                radioToSelect.checked = true;
+            }
+        }
+
+        // Scenario Action: Evaluate Deployed Solution
+        function deployWANCircuit() {
+            const selectedRadio = document.querySelector('input[name="wan-provision"]:checked');
+            if (!selectedRadio) return;
+
+            const selectedTech = selectedRadio.value;
+            const client = clientData[state.activeClient];
+            
+            const isMatch = (selectedTech === client.bestChoice);
+            
+            // Display Results
+            elements.deploymentFeedbackBox.classList.remove('hidden');
+            
+            if (isMatch) {
+                // SUCCESS
+                elements.feedbackIconContainer.className = "p-3 rounded-full bg-green-100 text-green-800";
+                elements.feedbackIconContainer.innerHTML = `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>`;
+                elements.feedbackResultTitle.innerText = "Deployment Successful: Operational!";
+                elements.feedbackResultTitle.className = "font-black text-lg text-green-900";
+                elements.feedbackResultTag.innerText = "Verified Mesh";
+                elements.feedbackResultTag.className = "bg-green-100 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded";
+                elements.feedbackResultDesc.innerText = `Awesome job! Your deployment of ${techData[selectedTech].title} successfully resolved the 3-site interconnectivity constraints.`;
+                elements.feedbackResultAnalysis.innerText = client.retrospective;
+
+                // Mark Completed
+                if (!state.completedScenarios[state.activeClient]) {
+                    state.completedScenarios[state.activeClient] = true;
+                    addScore(20); // 20 XP per scenario matched
+                    document.getElementById(`status-badge-${state.activeClient}`).innerText = "Completed";
+                    document.getElementById(`status-badge-${state.activeClient}`).className = "bg-green-100 text-green-800 text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider";
+                }
+            } else {
+                // FAIL
+                elements.feedbackIconContainer.className = "p-3 rounded-full bg-red-100 text-red-800";
+                elements.feedbackIconContainer.innerHTML = `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+                elements.feedbackResultTitle.innerText = "Deployment Terminated: Failed Configuration";
+                elements.feedbackResultTitle.className = "font-black text-lg text-red-900";
+                elements.feedbackResultTag.innerText = "Failed";
+                elements.feedbackResultTag.className = "bg-red-100 text-red-800 text-xs font-bold px-2.5 py-0.5 rounded";
+                elements.feedbackResultDesc.innerText = `The configuration choice of ${techData[selectedTech].title} failed to satisfy client SLA limits or budget targets.`;
+                
+                // Construct constructive diagnostic guidance (SME Focus)
+                let customAnalysis = `Let's analyze why ${techData[selectedTech].title} failed: `;
+                if (selectedTech === 'leased' && client.bestChoice === 'mpls') {
+                    customAnalysis += "Dual point-to-point leased lines lock the network into a Hub-and-Spoke system. Traffic from the Branch must pass through HQ before hitting the Data Center. This adds redundant routing latency that violates the required sub-15ms direct synchronization threshold.";
+                } else if (selectedTech === 'broadband' && client.bestChoice === 'mpls') {
+                    customAnalysis += "Public broadband setups operate across unmanaged public paths. This leads to packet drops and unpredictable routing jitter, failing Vanguard's strict, non-public transactional SLA bounds.";
+                } else if (selectedTech === 'mpls' && client.bestChoice === 'sdwan') {
+                    customAnalysis += "While MPLS is reliable, rolling it out across 180 branches exceeds the gas station network's limited budget. Furthermore, MPLS does not support sub-second dynamic failover across alternative consumer paths out-of-the-box.";
+                } else if (selectedTech !== 'satellite' && client.bestChoice === 'satellite') {
+                    customAnalysis += "Terrain audits show that standard regional fibers, copper links, and carrier towers are unavailable in this remote Arctic zone, making space-based satellite transit the only physically viable option.";
+                } else {
+                    customAnalysis += `Your selection did not properly balance budget constraints, latency thresholds, and topographical physical limits. Review the blueprint constraints and try again.`;
+                }
+                elements.feedbackResultAnalysis.innerText = customAnalysis;
+            }
+        }
+
+        // Quiz Logic: Render Question
+        function renderQuizQuestion() {
+            if (state.quizCompleted) {
+                showQuizCertification();
+                return;
+            }
+
+            elements.quizFeedbackBox.classList.add('hidden');
+            const currentQ = quizQuestions[state.quizIndex];
+            
+            // Progress Bar
+            const progPercent = ((state.quizIndex) / quizQuestions.length) * 100;
+            elements.quizProgress.style.width = `${progPercent}%`;
+
+            elements.quizQuestionNum.innerText = `Question ${state.quizIndex + 1} of ${quizQuestions.length}`;
+            elements.quizQuestionText.innerText = currentQ.text;
+            
+            // Clear and Render options
+            elements.quizOptionsGrid.innerHTML = '';
+            state.quizSelectedOption = null;
+
+            currentQ.options.forEach((opt, idx) => {
+                const optBtn = document.createElement('button');
+                optBtn.className = "option-btn w-full text-left p-3.5 rounded-lg border-2 border-gray-150 hover:border-accent hover:bg-gray-50 transition-all flex items-start gap-3 bg-white";
+                optBtn.innerHTML = `
+                    <span class="opt-indicator bg-primary text-white font-mono text-xs w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">${opt.key}</span>
+                    <span class="text-xs text-gray-700">${opt.text}</span>
+                `;
+                optBtn.onclick = () => selectQuizOption(idx, optBtn);
+                elements.quizOptionsGrid.appendChild(optBtn);
+            });
+
+            elements.quizEvalBtn.innerText = "Submit Answer";
+            elements.quizEvalBtn.onclick = evaluateQuizAnswer;
+        }
+
+        // Quiz Action: Select Option
+        function selectQuizOption(index, element) {
+            state.quizSelectedOption = index;
+            
+            // Reset borders
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('border-accent', 'bg-green-50/30');
+                btn.classList.add('border-gray-150');
+                btn.querySelector('.opt-indicator').className = "opt-indicator bg-primary text-white font-mono text-xs w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5";
+            });
+
+            // Highlight selected
+            element.classList.remove('border-gray-150');
+            element.classList.add('border-accent', 'bg-green-50/30');
+            element.querySelector('.opt-indicator').className = "opt-indicator bg-accent text-primary font-mono text-xs w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5";
+        }
+
+        // Quiz Action: Submit & Evaluate
+        function evaluateQuizAnswer() {
+            if (state.quizSelectedOption === null) return;
+
+            const q = quizQuestions[state.quizIndex];
+            const isCorrect = q.options[state.quizSelectedOption].correct;
+
+            elements.quizFeedbackBox.classList.remove('hidden');
+
+            if (isCorrect) {
+                elements.quizFeedbackIcon.className = "p-2 bg-green-100 text-green-800 rounded-full";
+                elements.quizFeedbackIcon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>`;
+                elements.quizFeedbackTitle.innerText = "Correct Analysis!";
+                elements.quizFeedbackTitle.className = "font-extrabold text-sm text-green-900";
+                elements.quizFeedbackBody.innerText = q.explanation;
+
+                // Assign Points on first attempt
+                if (state.quizFirstAttempts[state.quizIndex]) {
+                    state.quizScores[state.quizIndex] = 10; // 10 points per correct answer
+                    addScore(10);
+                }
+
+                // Adjust Action Button to Next
+                elements.quizEvalBtn.innerText = (state.quizIndex === quizQuestions.length - 1) ? "View Final Results" : "Next Question";
+                elements.quizEvalBtn.onclick = nextQuizQuestion;
+
+            } else {
+                elements.quizFeedbackIcon.className = "p-2 bg-red-100 text-red-800 rounded-full";
+                elements.quizFeedbackIcon.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                elements.quizFeedbackTitle.innerText = "Incorrect Design Concept";
+                elements.quizFeedbackTitle.className = "font-extrabold text-sm text-red-900";
+                elements.quizFeedbackBody.innerText = "Review the Explorer specifications or retry your choice before proceeding.";
+                
+                // Track attempt
+                state.quizFirstAttempts[state.quizIndex] = false;
+            }
+        }
+
+        // Advance Quiz State
+        function nextQuizQuestion() {
+            if (state.quizIndex < quizQuestions.length - 1) {
+                state.quizIndex++;
+                renderQuizQuestion();
+            } else {
+                state.quizCompleted = true;
+                showQuizCertification();
+            }
+        }
+
+        // End Game State: Show Certification Card
+        function showQuizCertification() {
+            elements.quizProgress.style.width = "100%";
+            elements.quizQuestionContainer.classList.add('hidden');
+            elements.quizFeedbackBox.classList.add('hidden');
+            elements.quizCertBox.classList.remove('hidden');
+            elements.certFinalScore.innerText = `${state.score} / 100 XP`;
+        }
+
+        // Reset Lab State
+        function resetLab() {
+            state.score = 0;
+            state.activeTech = 'mpls';
+            state.activeClient = 1;
+            state.completedScenarios = { 1: false, 2: false, 3: false };
+            state.quizIndex = 0;
+            state.quizSelectedOption = null;
+            state.quizCompleted = false;
+            state.quizFirstAttempts = { 0: true, 1: true, 2: true, 3: true };
+            state.quizScores = { 0: 0, 1: 0, 2: 0, 3: 0 };
+
+            // Reset client tags
+            for(let i=1; i<=3; i++) {
+                document.getElementById(`status-badge-${i}`).innerText = "Pending";
+                document.getElementById(`status-badge-${i}`).className = "bg-gray-200 text-gray-700 text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider";
+            }
+
+            elements.quizCertBox.classList.add('hidden');
+            elements.quizQuestionContainer.classList.remove('hidden');
+            elements.hudScore.innerText = `0 / 100 XP`;
+            updateArchitectBadge();
+            switchTab('explorer');
+        }
+
+        // INITIALIZATION
+        window.onload = function() {
+            selectTech('mpls');
+        };
+    </script>
+</body>
+</html>
