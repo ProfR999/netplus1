@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prof. Reyes | Network Science Repository</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Inter & JetBrains Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- MathJax for rendering LaTeX-style math notations beautifully -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es6/tex-mml-chtml.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        github: {
+                            dark: '#0d1117',
+                            darkSecondary: '#161b22',
+                            darkBorder: '#30363d',
+                            darkText: '#c9d1d9',
+                            darkMuted: '#8b949e',
+                            blue: '#58a6ff',
+                            green: '#2ea44f',
+                            greenHover: '#2c974b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        /* Custom scrollbar for GitHub vibe */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8b949e;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-blue-500/30 selection:text-blue-200">
+
+    <!-- TOP GLOW EFFECT -->
+    <div class="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none"></div>
+
+    <!-- MAIN HEADER (GitHub styled) -->
+    <header class="border-b border-github-darkBorder bg-github-darkSecondary/90 backdrop-blur sticky top-0 z-50 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Left: Logo & Repository Breadcrumb -->
+                <div class="flex items-center space-x-3">
+                    <svg class="h-8 w-8 text-white fill-current" viewBox="0 0 16 16" version="1.1" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                    </svg>
+                    <div class="flex items-center space-x-1.5 text-sm sm:text-base">
+                        <a href="#" class="text-github-blue hover:underline font-semibold">ProfReyes</a>
+                        <span class="text-github-darkMuted">/</span>
+                        <a href="#" class="text-white hover:underline font-bold tracking-tight">network-science-hub</a>
+                        <span class="hidden sm:inline-flex ml-2 px-2 py-0.5 text-xs font-medium text-github-darkMuted border border-github-darkBorder rounded-full">Public</span>
+                    </div>
+                </div>
+
+                <!-- Right: CC-BY-NC Quick Badge & Repo Actions -->
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <div class="hidden md:flex items-center bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs px-2.5 py-1 rounded-md">
+                        <svg class="w-4 h-4 mr-1.5 fill-current" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        </svg>
+                        <span>CC BY-NC 4.0 Shared</span>
+                    </div>
+                    <div class="flex items-center space-x-1 bg-github-darkSecondary border border-github-darkBorder rounded-md text-xs font-semibold text-white">
+                        <button class="px-2.5 py-1.5 hover:bg-github-darkBorder flex items-center space-x-1.5 border-r border-github-darkBorder transition">
+                            <svg class="w-3.5 h-3.5 text-github-darkMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <span>Watch</span>
+                            <span class="bg-github-darkBorder px-1.5 py-0.2 rounded-full text-[10px] ml-1">12</span>
+                        </button>
+                        <button onclick="incrementCounter('stars')" class="px-2.5 py-1.5 hover:bg-github-darkBorder flex items-center space-x-1.5 transition">
+                            <svg class="w-3.5 h-3.5 text-yellow-500 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <span>Star</span>
+                            <span id="star-count" class="bg-github-darkBorder px-1.5 py-0.2 rounded-full text-[10px] ml-1">142</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- INFO BANNER (Creative Commons & Course Banner) -->
+    <div class="bg-gradient-to-r from-blue-900/40 via-indigo-950/40 to-github-darkSecondary border-b border-github-darkBorder py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Course Repository</span>
+                    <span class="bg-purple-500/10 text-purple-400 border border-purple-500/30 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Networks I</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Applied Network Science & Graph Foundations</h1>
+                <p class="text-sm sm:text-base text-github-darkMuted max-w-2xl">
+                    Lectures, interactive modules, and shared resources created by <span class="text-github-darkText font-medium">Prof. Reyes</span>. Explore connectivity, flows, and spectral theories.
+                </p>
+            </div>
+            
+            <!-- Academic CC Notice Card -->
+            <div class="w-full md:w-80 bg-github-dark/90 border border-github-darkBorder p-4 rounded-xl flex flex-col space-y-3 shadow-lg">
+                <div class="flex items-center space-x-2">
+                    <!-- Custom Creative Commons Badges -->
+                    <div class="flex space-x-1">
+                        <span class="w-6 h-6 rounded-full bg-github-darkBorder text-xs flex items-center justify-center font-bold text-github-darkText" title="Creative Commons">CC</span>
+                        <span class="w-6 h-6 rounded-full bg-github-darkBorder text-xs flex items-center justify-center font-bold text-github-darkText" title="Attribution">BY</span>
+                        <span class="w-6 h-6 rounded-full bg-github-darkBorder text-xs flex items-center justify-center font-bold text-github-darkText" title="Non-Commercial">NC</span>
+                    </div>
+                    <span class="text-xs font-bold text-github-darkText">CC BY-NC 4.0 License</span>
+                </div>
+                <p class="text-xs text-github-darkMuted leading-relaxed">
+                    Free to share, adapt, and build upon. <strong class="text-red-400 font-semibold">Strictly non-commercial</strong>. Any derivative distribution must attribute Prof. Reyes.
+                </p>
+                <a href="#license" class="text-xs text-github-blue hover:underline inline-flex items-center space-x-1">
+                    <span>Read License Terms</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION TOAST (Modern design, no browser alerts used) -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- MAIN BODY LAYOUT -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- LEFT 3 COLUMNS: Repo Explorer, Link Registry, Document Reader -->
+            <div class="lg:col-span-3 space-y-8">
+                
+                <!-- REPOSITORY NAVIGATION TABS -->
+                <div class="border-b border-github-darkBorder flex space-x-6 text-sm">
+                    <button id="tab-code-btn" onclick="switchTab('code')" class="pb-3 text-white border-b-2 border-orange-500 font-semibold flex items-center space-x-2 focus:outline-none">
+                        <svg class="w-4 h-4 text-github-darkMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                        <span>Code / Files</span>
+                    </button>
+                    <button id="tab-networks-btn" onclick="switchTab('networks')" class="pb-3 text-github-darkMuted hover:text-white font-medium flex items-center space-x-2 focus:outline-none transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        <span class="flex items-center gap-1.5">
+                            Intro to Networks 
+                            <span class="bg-blue-500/20 text-blue-400 text-[10px] px-1.5 py-0.2 rounded-full font-bold">Featured README</span>
+                        </span>
+                    </button>
+                    <button id="tab-generator-btn" onclick="switchTab('generator')" class="pb-3 text-github-darkMuted hover:text-white font-medium flex items-center space-x-2 focus:outline-none transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Link Generator Tool</span>
+                    </button>
+                </div>
+
+                <!-- TAB CONTAINER: CODE & FILES -->
+                <div id="tab-code" class="space-y-6 block">
+                    <!-- File Explorer Header / Commit Status -->
+                    <div class="flex items-center justify-between text-xs sm:text-sm text-github-darkMuted bg-github-darkSecondary border border-github-darkBorder p-4 rounded-t-xl">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center font-bold text-blue-400">R</span>
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+                                <span class="text-github-darkText font-semibold">Prof. Reyes</span>
+                                <span class="hidden sm:inline">•</span>
+                                <span class="text-xs text-github-darkMuted hover:text-github-blue cursor-pointer">Update repo metadata & embed academic introduction to networks module</span>
+                            </div>
+                        </div>
+                        <div class="text-right text-xs">
+                            <span class="text-github-darkMuted">Latest Commit: </span>
+                            <span class="text-github-darkText font-mono bg-github-darkBorder px-1.5 py-0.5 rounded text-[11px]">8bc32a1</span>
+                        </div>
+                    </div>
+
+                    <!-- Repository File Table -->
+                    <div class="border border-t-0 border-github-darkBorder rounded-b-xl overflow-hidden bg-github-darkSecondary/30">
+                        <!-- Header Row -->
+                        <div class="grid grid-cols-12 gap-2 px-4 py-2 bg-github-darkSecondary border-b border-github-darkBorder text-xs font-semibold text-github-darkMuted tracking-wider uppercase">
+                            <div class="col-span-6 sm:col-span-5">Name</div>
+                            <div class="col-span-6 sm:col-span-4">Commit Message</div>
+                            <div class="col-span-3 text-right hidden sm:block">Date Modified</div>
+                        </div>
+                        <!-- File List Loop Container -->
+                        <div id="repo-file-rows" class="divide-y divide-github-darkBorder text-sm">
+                            <!-- Populated Dynamically via Javascript -->
+                        </div>
+                    </div>
+
+                    <!-- QUICK INSTRUCTION BANNER -->
+                    <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-blue-200">How to use this interactive repository</h4>
+                            <p class="text-xs text-github-darkMuted leading-relaxed">
+                                You can use the <strong class="text-blue-300">Link Generator Tool</strong> tab to dynamically register new HTML pages, slides, or syllabus files into this directory interface. Registered items instantly update the repository's files tree above and generate shareable links containing your parameters.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB CONTAINER: INTRO TO NETWORKS README (Directly viewable markdown rendering) -->
+                <div id="tab-networks" class="hidden space-y-6">
+                    <div class="bg-github-darkSecondary border border-github-darkBorder rounded-xl overflow-hidden">
+                        <!-- Top Header File Bar -->
+                        <div class="bg-github-darkSecondary/50 px-4 py-3 border-b border-github-darkBorder flex items-center justify-between">
+                            <div class="flex items-center space-x-2 text-sm">
+                                <svg class="w-4 h-4 text-github-darkMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <span class="font-mono text-github-darkText font-medium">README.md</span>
+                                <span class="text-xs text-github-darkMuted">(Rendered Academic Markdown)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="copyToClipboard('https://github.com/ProfReyes/network-science-hub/blob/main/README.md', 'README link copied!')" class="p-1 text-github-darkMuted hover:text-white bg-github-darkBorder/40 hover:bg-github-darkBorder rounded transition" title="Copy raw file link">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                                </button>
+                                <span class="text-xs text-github-darkMuted border border-github-darkBorder px-2 py-0.5 rounded bg-github-dark/50">4.2 KB</span>
+                            </div>
+                        </div>
+
+                        <!-- Rendered Markdown Body -->
+                        <div class="p-6 sm:p-8 space-y-8 text-github-darkText leading-relaxed">
+                            <!-- Document Header -->
+                            <div class="border-b border-github-darkBorder pb-6">
+                                <h1 class="text-3xl font-extrabold text-white tracking-tight mb-2">Introduction to Networks & Graph Theory</h1>
+                                <p class="text-github-darkMuted text-sm">Course Module &bull; Prepared by Prof. Reyes &bull; CC BY-NC 4.0 Licensed</p>
+                            </div>
+
+                            <!-- Abstract / Intended Learning -->
+                            <div class="bg-blue-500/5 border-l-4 border-blue-500 p-4 rounded-r-lg space-y-1">
+                                <h4 class="text-sm font-semibold text-blue-200">Session Abstract</h4>
+                                <p class="text-xs text-github-darkMuted leading-relaxed">
+                                    Networks represent the structural skeleton of complex systems. From social networks and information cascades to power grids and metabolic pathing, understanding the foundational principles of graph theory allows us to systematically analyze how interactions shape macroscopic behaviors.
+                                </p>
+                            </div>
+
+                            <!-- Section 1: Definition of a Network -->
+                            <div class="space-y-4">
+                                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="text-github-darkMuted font-normal text-lg">1.</span> 
+                                    What is a Network?
+                                </h2>
+                                <p class="text-sm">
+                                    Mathematically, a network is represented as a <strong>graph</strong> $G = (V, E)$, which is a structure consisting of a set of elements called <strong>vertices (or nodes)</strong> $V$, joined by a set of connections called <strong>edges (or links)</strong> $E$.
+                                </p>
+                                <div class="bg-github-darkSecondary border border-github-darkBorder p-4 rounded-xl text-center space-y-1 my-4">
+                                    <div class="text-sm font-mono text-blue-400">G = (V, E)</div>
+                                    <div class="text-xs text-github-darkMuted">Where $V = \{v_1, v_2, \dots, v_n\}$ and $E \subseteq \{(v_i, v_j) \mid v_i, v_j \in V\}$</div>
+                                </div>
+                            </div>
+
+                            <!-- Section 2: Types of Graphs -->
+                            <div class="space-y-4">
+                                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="text-github-darkMuted font-normal text-lg">2.</span> 
+                                    Structural Classification of Graphs
+                                </h2>
+                                <p class="text-sm">
+                                    Depending on the properties of the relationships (edges) between elements, networks are classified into several configurations:
+                                </p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-github-darkSecondary/60 border border-github-darkBorder p-4 rounded-lg space-y-2">
+                                        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Directed vs. Undirected</h3>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed">
+                                            In <strong>undirected graphs</strong>, links are symmetric (e.g., peer friendships). In <strong>directed graphs (digraphs)</strong>, relationships flow one-way, meaning $(v_i, v_j) \neq (v_j, v_i)$ (e.g., following on social media).
+                                        </p>
+                                    </div>
+                                    <div class="bg-github-darkSecondary/60 border border-github-darkBorder p-4 rounded-lg space-y-2">
+                                        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Weighted vs. Unweighted</h3>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed">
+                                            In <strong>weighted graphs</strong>, each link carries a numerical value representing distance, capacity, intensity, or cost. In unweighted networks, edges denote binary existence ($0$ or $1$).
+                                        </p>
+                                    </div>
+                                    <div class="bg-github-darkSecondary/60 border border-github-darkBorder p-4 rounded-lg space-y-2">
+                                        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Bipartite Networks</h3>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed">
+                                            A network where nodes are partitioned into two disjoint sets, say $U$ and $V$, such that every edge connects a node in $U$ to one in $V$. No links exist between nodes of the same set (e.g., authors and publications).
+                                        </p>
+                                    </div>
+                                    <div class="bg-github-darkSecondary/60 border border-github-darkBorder p-4 rounded-lg space-y-2">
+                                        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Sparse vs. Dense</h3>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed">
+                                            A graph is dense if the actual number of edges $|E|$ approaches the maximum possible edges, i.e., $|E| \approx \frac{|V|(|V|-1)}{2}$. Real-world large networks are almost universally sparse.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 3: Essential Metrics -->
+                            <div class="space-y-4">
+                                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="text-github-darkMuted font-normal text-lg">3.</span> 
+                                    Key Topology & Network Metrics
+                                </h2>
+                                <p class="text-sm">
+                                    To evaluate the role of single elements or characterize macroscopic topological features, we utilize key mathematical equations:
+                                </p>
+
+                                <div class="space-y-4 mt-2">
+                                    <!-- Metric A -->
+                                    <div class="border-l-2 border-github-darkBorder pl-4 py-1">
+                                        <h4 class="text-sm font-semibold text-white">Degree and Degree Distribution ($k_i$)</h4>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed mb-2">
+                                            The degree $k_i$ of a node $i$ is the count of edges connected to it. In a directed network, we measure In-degree ($k_i^{in}$) and Out-degree ($k_i^{out}$).
+                                        </p>
+                                        <div class="text-xs font-mono text-github-blue">$$k_i = \sum_{j=1}^{N} A_{ij}$$</div>
+                                    </div>
+                                    <!-- Metric B -->
+                                    <div class="border-l-2 border-github-darkBorder pl-4 py-1">
+                                        <h4 class="text-sm font-semibold text-white">Average Path Length ($L$)</h4>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed mb-2">
+                                            Calculates the mean shortest path distance between all node pairs. It shows the speed of navigation or flow over the network structure.
+                                        </p>
+                                        <div class="text-xs font-mono text-github-blue">$$L = \frac{1}{N(N-1)} \sum_{i \neq j} d(i, j)$$</div>
+                                    </div>
+                                    <!-- Metric C -->
+                                    <div class="border-l-2 border-github-darkBorder pl-4 py-1">
+                                        <h4 class="text-sm font-semibold text-white">Clustering Coefficient ($C_i$)</h4>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed mb-2">
+                                            Reflects the transitivity of linkages, measuring the ratio of closed triangles centered at node $i$ relative to the total possible connections amongst its immediate neighbors.
+                                        </p>
+                                        <div class="text-xs font-mono text-github-blue">$$C_i = \frac{2 T_i}{k_i(k_i - 1)}$$</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Simple Interactive Demo within Network Tab -->
+                            <div class="bg-github-dark border border-github-darkBorder p-5 rounded-xl space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-green-400">Network Simulation Playground</h3>
+                                    <span class="text-[10px] text-github-darkMuted bg-github-darkBorder px-2 py-0.5 rounded">Interactive JS Module</span>
+                                </div>
+                                <p class="text-xs text-github-darkMuted">
+                                    Add nodes dynamically to calculate graph density $D = \frac{2|E|}{|V|(|V|-1)}$ for a simple undirected graph.
+                                </p>
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <button onclick="updateSimpleGraph('add_node')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded font-medium transition">Add Node</button>
+                                    <button onclick="updateSimpleGraph('add_edge')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded font-medium transition">Add Random Edge</button>
+                                    <button onclick="updateSimpleGraph('reset')" class="bg-github-darkBorder hover:bg-red-950/40 text-github-darkText text-xs px-3 py-1.5 rounded font-medium transition">Reset Graph</button>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 bg-github-darkSecondary/80 p-3 rounded-lg text-center text-xs">
+                                    <div>
+                                        <div class="text-github-darkMuted">Nodes ($|V|$)</div>
+                                        <div id="sim-nodes" class="font-mono text-white text-base font-bold">5</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-github-darkMuted">Edges ($|E|$)</div>
+                                        <div id="sim-edges" class="font-mono text-white text-base font-bold">4</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-github-darkMuted">Density ($D$)</div>
+                                        <div id="sim-density" class="font-mono text-github-blue text-base font-bold">0.40</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB CONTAINER: LINK GENERATOR TOOL -->
+                <div id="tab-generator" class="hidden space-y-6">
+                    <div class="bg-github-darkSecondary border border-github-darkBorder p-6 rounded-xl space-y-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-white mb-1">Create Shareable File Links</h2>
+                            <p class="text-sm text-github-darkMuted">
+                                Register new files, notebooks, or resources. This updates the local repository landing page dynamically, simulating actual code-merges into `index.html`.
+                            </p>
+                        </div>
+
+                        <!-- Generator Form -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-bold text-github-darkText uppercase tracking-wider">Page / Document Title</label>
+                                <input type="text" id="gen-title" placeholder="e.g., Graph Spectral Theory" class="w-full bg-github-dark border border-github-darkBorder px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:border-github-blue transition">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-bold text-github-darkText uppercase tracking-wider">Target Filename / URL Path</label>
+                                <input type="text" id="gen-path" placeholder="e.g., lectures/spectral.html" class="w-full bg-github-dark border border-github-darkBorder px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:border-github-blue font-mono transition">
+                            </div>
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
+                                <label class="block text-xs font-bold text-github-darkText uppercase tracking-wider">Commit Message / Description</label>
+                                <input type="text" id="gen-desc" placeholder="e.g., Complete proof formulas for Laplacian eigenvalue structures" class="w-full bg-github-dark border border-github-darkBorder px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:border-github-blue transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-github-darkText uppercase tracking-wider mb-1.5">Category Class</label>
+                                <select id="gen-category" class="w-full bg-github-dark border border-github-darkBorder px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:border-github-blue transition">
+                                    <option value="Lecture Notes">Lecture Notes</option>
+                                    <option value="Lab & Exercises">Lab & Exercises</option>
+                                    <option value="Syllabus & Info">Syllabus & Info</option>
+                                    <option value="Supplemental Materials">Supplemental Materials</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-github-darkText uppercase tracking-wider mb-1.5">File Size Indicator</label>
+                                <input type="text" id="gen-size" placeholder="e.g., 2.1 MB, 412 KB" class="w-full bg-github-dark border border-github-darkBorder px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:border-github-blue font-mono transition">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button onclick="registerCustomLink()" class="bg-github-green hover:bg-github-greenHover text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                <span>Inject File into Repository</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- RECENT LINKS SHOWCASE (Generated HTML Clipboard Tool) -->
+                    <div class="bg-github-darkSecondary border border-github-darkBorder p-6 rounded-xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-white">Dynamic Share Links Dashboard</h3>
+                            <span class="text-xs text-github-darkMuted font-mono">Real-time persistence</span>
+                        </div>
+                        <p class="text-xs text-github-darkMuted leading-relaxed">
+                            These URLs point to your custom-generated files within the relative directory. Click "Copy HTML Code Block" to easily grab the formatted link anchor code to integrate straight into any other HTML page or portal.
+                        </p>
+                        
+                        <div id="generated-links-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Populated with dynamic share cards -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DETAILED LICENSE SECTION (Creative Commons Free Share BY-NC) -->
+                <div id="license" class="bg-github-darkSecondary border border-github-darkBorder rounded-xl p-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-github-darkBorder pb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-yellow-500/10 p-2.5 rounded-lg border border-yellow-500/20">
+                                <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-extrabold text-white">Creative Commons Attribution-NonCommercial 4.0</h3>
+                                <p class="text-xs text-github-darkMuted">Identifier: CC BY-NC 4.0</p>
+                            </div>
+                        </div>
+                        <span class="bg-red-500/10 text-red-400 border border-red-500/30 text-xs font-bold px-3 py-1 rounded-full text-center">
+                            NO Commercial Distribution Allowed
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-github-darkMuted">
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-white uppercase tracking-wider">You are free to:</h4>
+                            <ul class="space-y-1.5 list-disc list-inside">
+                                <li><strong>Share</strong> — copy and redistribute the material in any medium or format.</li>
+                                <li><strong>Adapt</strong> — remix, transform, and build upon the material for academic use.</li>
+                            </ul>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-white uppercase tracking-wider">Under the following conditions:</h4>
+                            <ul class="space-y-1.5 list-disc list-inside">
+                                <li><strong>Attribution</strong> — You must give appropriate credit to <span class="text-white font-medium">Prof. Reyes</span>.</li>
+                                <li><strong>Non-Commercial</strong> — You may NOT use the material or files for commercial purposes, online sale, or premium distributions.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: ABOUT & STATS & QUICK ADD WIDGET -->
+            <div class="space-y-6">
+                
+                <!-- REPO BIO CARD -->
+                <div class="bg-github-darkSecondary border border-github-darkBorder p-5 rounded-xl space-y-4">
+                    <h3 class="text-sm font-bold text-white">About</h3>
+                    <p class="text-xs text-github-darkMuted leading-relaxed">
+                        Educational repository detailing foundational theories of Graph Theory, Connectivity Matrices, and Complex Dynamic System Networks. Maintained by the Department of Applied Network Analytics.
+                    </p>
+                    <div class="space-y-2.5 text-xs">
+                        <div class="flex items-center space-x-2 text-github-darkMuted">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                            <a href="#" class="text-github-blue hover:underline font-mono">profreyes.networkscience.edu</a>
+                        </div>
+                        <div class="flex items-center space-x-2 text-github-darkMuted">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+                            <span>Creative Commons BY-NC 4.0</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-github-darkMuted">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span>Academic Fall Semester 2026</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIDEBAR QUICK ADD LINK WIDGET -->
+                <div class="bg-github-darkSecondary border border-github-darkBorder p-5 rounded-xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">Quick Injector</h3>
+                        <button onclick="switchTab('generator')" class="text-[11px] text-github-blue hover:underline">Full Tool</button>
+                    </div>
+                    <p class="text-xs text-github-darkMuted">
+                        Quickly register a new lesson page into this visual landing page directory.
+                    </p>
+                    <div class="space-y-3">
+                        <input type="text" id="quick-title" placeholder="Lesson Name" class="w-full bg-github-dark border border-github-darkBorder px-2.5 py-1.5 rounded text-xs text-white focus:outline-none focus:border-github-blue transition">
+                        <input type="text" id="quick-path" placeholder="URL Filename (e.g. lesson-02.html)" class="w-full bg-github-dark border border-github-darkBorder px-2.5 py-1.5 rounded text-xs text-white focus:outline-none focus:border-github-blue font-mono transition">
+                        <button onclick="quickRegisterLink()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-xs font-semibold transition">
+                            Merge Link
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONTRIBUTORS LIST -->
+                <div class="bg-github-darkSecondary border border-github-darkBorder p-5 rounded-xl space-y-3">
+                    <h3 class="text-sm font-bold text-white">Repository Steward</h3>
+                    <div class="flex items-center space-x-3 bg-github-dark/40 p-2 rounded-lg border border-github-darkBorder/40">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-800 flex items-center justify-center font-extrabold text-white shadow-md">
+                            PR
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-white">Prof. Reyes</div>
+                            <div class="text-[10px] text-github-darkMuted">Principal Curator</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REPO STATISTICS -->
+                <div class="bg-github-darkSecondary border border-github-darkBorder p-5 rounded-xl space-y-3 text-xs">
+                    <h3 class="text-sm font-bold text-white">Languages & Core</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-github-darkMuted">HTML / Interface</span>
+                            <span class="font-mono font-medium text-white">58.4%</span>
+                        </div>
+                        <div class="w-full bg-github-darkBorder h-2 rounded-full overflow-hidden">
+                            <div class="bg-orange-500 h-full rounded-full" style="width: 58.4%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-github-darkMuted">Network Markdown</span>
+                            <span class="font-mono font-medium text-white">41.6%</span>
+                        </div>
+                        <div class="w-full bg-github-darkBorder h-2 rounded-full overflow-hidden">
+                            <div class="bg-blue-500 h-full rounded-full" style="width: 41.6%"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- COMPREHENSIVE FOOTER -->
+    <footer class="mt-auto border-t border-github-darkBorder bg-github-dark/80 py-8 px-4 sm:px-6 lg:px-8 text-xs text-github-darkMuted">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <svg class="h-6 w-6 text-github-darkMuted fill-current" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+                <p>&copy; 2026 Prof. Reyes. Shared under <span class="text-github-darkText">Creative Commons Attribution-NonCommercial (CC BY-NC 4.0)</span>.</p>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a href="#license" class="hover:text-github-blue transition hover:underline">CC BY-NC License Details</a>
+                <span class="text-github-darkBorder">|</span>
+                <a href="#" onclick="switchTab('networks')" class="hover:text-github-blue transition hover:underline">Intro to Networks</a>
+                <span class="text-github-darkBorder">|</span>
+                <a href="#" onclick="switchTab('generator')" class="hover:text-github-blue transition hover:underline">Link Tool</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT STATE CONTROLLER -->
+    <script>
+        // Initial files structure in local memory.
+        const defaultRepoFiles = [
+            {
+                name: 'README.md',
+                type: 'markdown',
+                description: 'Embed academic introduction to networks and graph metrics',
+                category: 'Course Info',
+                size: '4.2 KB',
+                modified: 'Today',
+                customUrl: '#',
+                isDefaultReadme: true
+            },
+            {
+                name: 'syllabus.pdf',
+                type: 'document',
+                description: 'Course guidelines, grading metrics, and reading schedules',
+                category: 'Syllabus & Info',
+                size: '1.2 MB',
+                modified: '3 days ago',
+                customUrl: 'https://github.com/ProfReyes/network-science-hub/blob/main/syllabus.pdf'
+            },
+            {
+                name: 'lecture-01-foundations.html',
+                type: 'code',
+                description: 'Web slides exploring node-link matrices & basic structures',
+                category: 'Lecture Notes',
+                size: '342 KB',
+                modified: '5 days ago',
+                customUrl: 'lectures/lecture-01-foundations.html'
+            }
+        ];
+
+        // Hydrate from localStorage or default
+        let repoFiles = [];
+        try {
+            const saved = localStorage.getItem('reyes_repo_files_v2');
+            if (saved) {
+                repoFiles = JSON.parse(saved);
+            } else {
+                repoFiles = [...defaultRepoFiles];
+            }
+        } catch (e) {
+            repoFiles = [...defaultRepoFiles];
+        }
+
+        // Star Incrementer
+        let stars = 142;
+        function incrementCounter(type) {
+            stars++;
+            document.getElementById('star-count').innerText = stars;
+            showToast("Repository starred! Thank you for the support.", "success");
+        }
+
+        // Custom Link generator
+        function registerCustomLink() {
+            const titleInput = document.getElementById('gen-title');
+            const pathInput = document.getElementById('gen-path');
+            const descInput = document.getElementById('gen-desc');
+            const categorySelect = document.getElementById('gen-category');
+            const sizeInput = document.getElementById('gen-size');
+
+            const title = titleInput.value.trim();
+            const path = pathInput.value.trim();
+            const desc = descInput.value.trim() || 'New resource added';
+            const category = categorySelect.value;
+            const size = sizeInput.value.trim() || '15 KB';
+
+            if (!title || !path) {
+                showToast("Please enter at least a Page Title and Target Path.", "error");
+                return;
+            }
+
+            const newFile = {
+                name: path,
+                type: 'code',
+                description: `${title} - ${desc}`,
+                category: category,
+                size: size,
+                modified: 'Just now',
+                customUrl: path
+            };
+
+            repoFiles.push(newFile);
+            saveAndRender();
+            
+            // Clear fields
+            titleInput.value = '';
+            pathInput.value = '';
+            descInput.value = '';
+            sizeInput.value = '';
+
+            showToast(`Page "${title}" registered successfully!`, "success");
+            switchTab('code'); // show the updated code table
+        }
+
+        // Quick register from sidebar
+        function quickRegisterLink() {
+            const titleInput = document.getElementById('quick-title');
+            const pathInput = document.getElementById('quick-path');
+
+            const title = titleInput.value.trim();
+            const path = pathInput.value.trim();
+
+            if (!title || !path) {
+                showToast("Please fill in all quick injector fields.", "error");
+                return;
+            }
+
+            const newFile = {
+                name: path,
+                type: 'code',
+                description: `${title} - Shared learning document`,
+                category: 'Lecture Notes',
+                size: '22 KB',
+                modified: 'Just now',
+                customUrl: path
+            };
+
+            repoFiles.push(newFile);
+            saveAndRender();
+
+            titleInput.value = '';
+            pathInput.value = '';
+
+            showToast(`File merged! Check the directory table.`, "success");
+            switchTab('code');
+        }
+
+        function deleteFile(index, event) {
+            event.stopPropagation();
+            const deletedName = repoFiles[index].name;
+            repoFiles.splice(index, 1);
+            saveAndRender();
+            showToast(`Deleted ${deletedName} from local session view.`, "success");
+        }
+
+        function saveAndRender() {
+            try {
+                localStorage.setItem('reyes_repo_files_v2', JSON.stringify(repoFiles));
+            } catch(e) {}
+            renderFileTable();
+            renderLinksRegistry();
+        }
+
+        // UI Tab Switcher
+        function switchTab(tabId) {
+            // Reset active tabs style
+            document.getElementById('tab-code-btn').className = "pb-3 text-github-darkMuted hover:text-white font-medium flex items-center space-x-2 focus:outline-none transition";
+            document.getElementById('tab-networks-btn').className = "pb-3 text-github-darkMuted hover:text-white font-medium flex items-center space-x-2 focus:outline-none transition";
+            document.getElementById('tab-generator-btn').className = "pb-3 text-github-darkMuted hover:text-white font-medium flex items-center space-x-2 focus:outline-none transition";
+
+            // Hide all tab panels
+            document.getElementById('tab-code').classList.add('hidden');
+            document.getElementById('tab-networks').classList.add('hidden');
+            document.getElementById('tab-generator').classList.add('hidden');
+
+            // Set dynamic active
+            if (tabId === 'code') {
+                document.getElementById('tab-code-btn').className = "pb-3 text-white border-b-2 border-orange-500 font-semibold flex items-center space-x-2 focus:outline-none";
+                document.getElementById('tab-code').classList.remove('hidden');
+            } else if (tabId === 'networks') {
+                document.getElementById('tab-networks-btn').className = "pb-3 text-white border-b-2 border-orange-500 font-semibold flex items-center space-x-2 focus:outline-none";
+                document.getElementById('tab-networks').classList.remove('hidden');
+            } else if (tabId === 'generator') {
+                document.getElementById('tab-generator-btn').className = "pb-3 text-white border-b-2 border-orange-500 font-semibold flex items-center space-x-2 focus:outline-none";
+                document.getElementById('tab-generator').classList.remove('hidden');
+            }
+        }
+
+        // Clipboard Copy function that respects iframe safety principles using text area technique
+        function copyToClipboard(text, message) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'absolute';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast(message || "Copied to clipboard!", "success");
+                } else {
+                    showToast("Failed to copy link.", "error");
+                }
+            } catch (err) {
+                showToast("System copy failed.", "error");
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        // Clipboard Copy for complete dynamic HTML anchor tags
+        function copyHtmlAnchor(title, path) {
+            const htmlBlock = `<a href="${path}" class="text-blue-500 hover:underline font-semibold" target="_blank">${title}</a>`;
+            copyToClipboard(htmlBlock, `Copied complete HTML Anchor code block!`);
+        }
+
+        // Toast Engine
+        function showToast(text, type = "success") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-center space-x-3 p-4 rounded-xl border shadow-xl bg-github-darkSecondary transform translate-y-2 opacity-0 transition duration-300 pointer-events-auto max-w-sm ${
+                type === 'error' ? 'border-red-500/30 text-red-300' : 'border-green-500/30 text-green-300'
+            }`;
+            
+            const checkIcon = `<svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>`;
+            const errorIcon = `<svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+
+            toast.innerHTML = `
+                ${type === 'error' ? errorIcon : checkIcon}
+                <div class="text-xs font-semibold text-github-darkText flex-1">${text}</div>
+            `;
+            container.appendChild(toast);
+
+            // Trigger Animation
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            // Auto Remove
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        // File Rows Renderer
+        function renderFileTable() {
+            const container = document.getElementById('repo-file-rows');
+            container.innerHTML = '';
+
+            repoFiles.forEach((file, index) => {
+                // Determine Icon
+                let iconSvg = '';
+                if (file.type === 'markdown') {
+                    iconSvg = `<svg class="w-4 h-4 text-github-darkMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`;
+                } else if (file.type === 'document') {
+                    iconSvg = `<svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`;
+                } else {
+                    iconSvg = `<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>`;
+                }
+
+                const fileRow = document.createElement('div');
+                fileRow.className = "grid grid-cols-12 gap-2 px-4 py-3 hover:bg-github-darkSecondary/60 items-center transition cursor-pointer";
+                
+                // Clicking file row links to preview or dynamic behavior
+                fileRow.onclick = () => {
+                    if (file.isDefaultReadme) {
+                        switchTab('networks');
+                    } else {
+                        showToast(`Simulated Navigation to relative page: "${file.name}"`, "success");
+                    }
+                };
+
+                fileRow.innerHTML = `
+                    <div class="col-span-6 sm:col-span-5 flex items-center space-x-2.5 truncate">
+                        ${iconSvg}
+                        <span class="font-mono text-xs sm:text-sm font-semibold text-github-darkText hover:text-github-blue hover:underline">${file.name}</span>
+                    </div>
+                    <div class="col-span-6 sm:col-span-4 text-xs text-github-darkMuted truncate">
+                        ${file.description}
+                    </div>
+                    <div class="col-span-3 text-right hidden sm:flex items-center justify-end space-x-3 text-xs text-github-darkMuted">
+                        <span>${file.modified}</span>
+                        ${!file.isDefaultReadme ? `
+                            <button onclick="deleteFile(${index}, event)" class="p-1 hover:text-red-400 transition" title="Delete record">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        ` : '<span class="w-3.5"></span>'}
+                    </div>
+                `;
+
+                container.appendChild(fileRow);
+            });
+        }
+
+        // Links Registry Renderer (Cards layout under Link Generator tab)
+        function renderLinksRegistry() {
+            const grid = document.getElementById('generated-links-grid');
+            grid.innerHTML = '';
+
+            repoFiles.forEach((file) => {
+                // Determine badge color
+                let badgeClass = "bg-blue-500/10 text-blue-400 border border-blue-500/20";
+                if (file.category === 'Syllabus & Info') badgeClass = "bg-green-500/10 text-green-400 border border-green-500/20";
+                if (file.category === 'Lab & Exercises') badgeClass = "bg-purple-500/10 text-purple-400 border border-purple-500/20";
+                
+                const card = document.createElement('div');
+                card.className = "bg-github-dark border border-github-darkBorder p-4 rounded-xl flex flex-col justify-between space-y-4 hover:border-github-blue/40 transition";
+                card.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex items-start justify-between">
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${badgeClass}">
+                                ${file.category || 'General File'}
+                            </span>
+                            <span class="text-[10px] text-github-darkMuted font-mono">${file.size || '12 KB'}</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white leading-tight">${file.name}</h4>
+                            <p class="text-xs text-github-darkMuted leading-relaxed mt-1">${file.description}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 pt-2 border-t border-github-darkBorder/40">
+                        <button onclick="copyToClipboard('${file.customUrl}', 'Direct path copied!')" class="flex-1 bg-github-darkBorder/50 hover:bg-github-darkBorder text-github-darkText hover:text-white text-xs py-1.5 rounded font-medium transition flex items-center justify-center space-x-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                            <span>Copy Relative Link</span>
+                        </button>
+                        <button onclick="copyHtmlAnchor('${file.name}', '${file.customUrl}')" class="p-1.5 text-github-darkMuted hover:text-github-blue hover:bg-github-blue/10 rounded transition" title="Copy complete HTML anchor code block">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                        </button>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Mini Network Density Graph Simulator logic
+        let simNodesVal = 5;
+        let simEdgesVal = 4;
+        
+        function updateSimpleGraph(action) {
+            if (action === 'add_node') {
+                simNodesVal++;
+            } else if (action === 'add_edge') {
+                const maxEdges = (simNodesVal * (simNodesVal - 1)) / 2;
+                if (simEdgesVal < maxEdges) {
+                    simEdgesVal++;
+                } else {
+                    showToast("Fully saturated network. Cannot add more undirected edges.", "error");
+                }
+            } else if (action === 'reset') {
+                simNodesVal = 5;
+                simEdgesVal = 4;
+                showToast("Graph topology re-initialized.", "success");
+            }
+
+            const maxEdgesPossible = (simNodesVal * (simNodesVal - 1)) / 2;
+            const density = maxEdgesPossible > 0 ? (simEdgesVal / maxEdgesPossible).toFixed(3) : "0.000";
+
+            document.getElementById('sim-nodes').innerText = simNodesVal;
+            document.getElementById('sim-edges').innerText = simEdgesVal;
+            document.getElementById('sim-density').innerText = density;
+        }
+
+        // Initial setup on load
+        window.onload = function() {
+            renderFileTable();
+            renderLinksRegistry();
+        };
+    </script>
+</body>
+</html>
