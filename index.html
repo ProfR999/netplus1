@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CompTIA Network+ Port Master (N10-009)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: 'var(--user-primary)',
+            accent: 'var(--user-accent)',
+            bglight: 'var(--user-background)',
+            darkgreen: '#12351e',
+            goldlight: '#fdf9eb',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --user-primary: #1e5631;
+      --user-accent: #d4a017;
+      --user-background: #f5f7f2;
+    }
+
+    body {
+      background-color: var(--user-background);
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Custom Scrollbar for study deck */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.05);
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--user-primary);
+      border-radius: 4px;
+      opacity: 0.5;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(30, 86, 49, 0.08);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 selection:bg-accent selection:text-white">
+
+  <!-- TOP HEADER & BRANDING -->
+  <header class="bg-primary text-white shadow-lg border-b-4 border-accent sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-accent p-2 rounded-lg text-primary">
+          <i class="fa-solid fa-network-wired text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-lg sm:text-xl tracking-tight flex items-center gap-2">
+            Network+ Port Master <span class="bg-white/15 text-xs text-accent font-mono px-2 py-0.5 rounded uppercase font-bold tracking-widest">N10-009</span>
+          </h1>
+          <p class="text-xs text-slate-200 font-medium">Interactive Learning Suite &middot; CompTIA Objective 1.4</p>
+        </div>
+      </div>
+      
+      <!-- MODE SELECTION TABS -->
+      <nav class="flex space-x-1 bg-darkgreen p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
+        <button id="tab-study" onclick="switchMode('study')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-accent text-primary shadow-sm">
+          <i class="fa-solid fa-book-open"></i> Study Codex
+        </button>
+        <button id="tab-match" onclick="switchMode('match')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/5">
+          <i class="fa-solid fa-gamepad"></i> Match Game
+        </button>
+        <button id="tab-scenarios" onclick="switchMode('scenarios')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/5">
+          <i class="fa-solid fa-user-shield"></i> Scenarios
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col gap-6">
+    
+    <!-- LEVEL INDICATOR / PROGRESS SUMMARY BAR -->
+    <section class="glass-card rounded-2xl p-4 shadow-sm flex flex-wrap gap-4 items-center justify-between border-l-4 border-primary">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold" id="xp-badge">
+          01
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wider text-slate-400 font-bold">Your Academy Standing</div>
+          <div class="font-bold text-slate-700" id="xp-text">Junior SysAdmin &middot; 0 XP</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 flex-grow sm:flex-grow-0 justify-end">
+        <div class="w-32 bg-slate-200 h-2 rounded-full overflow-hidden hidden md:block">
+          <div id="xp-progress-bar" class="bg-accent h-full transition-all duration-300" style="width: 10%"></div>
+        </div>
+        <button onclick="resetProgress()" class="text-xs text-slate-400 hover:text-red-600 font-medium transition-colors">
+          <i class="fa-solid fa-rotate-left mr-1"></i> Reset Progress
+        </button>
+      </div>
+    </section>
+
+    <!-- SECTION 1: STUDY CODEX (UNDERSTAND) -->
+    <section id="view-study" class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-300">
+      
+      <!-- Side Filter Pane -->
+      <div class="lg:col-span-4 flex flex-col gap-4">
+        <div class="glass-card rounded-2xl p-5 shadow-sm">
+          <h2 class="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-filter text-primary"></i> Filter Protocol Deck
+          </h2>
+          <p class="text-xs text-slate-500 mb-4">Select categories to narrow down the interactive port directory.</p>
+          
+          <div class="flex flex-col gap-2">
+            <button onclick="filterDeck('all')" id="btn-filter-all" class="filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all bg-primary text-white shadow-sm">
+              <span>All Ports</span>
+              <span class="bg-black/20 text-xs px-2 py-0.5 rounded font-mono" id="count-all">20</span>
+            </button>
+            <button onclick="filterDeck('secure')" id="btn-filter-secure" class="filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all text-slate-600 hover:bg-slate-100">
+              <span class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-green-600"></i> Secure Protocols</span>
+              <span class="bg-slate-200 text-xs px-2 py-0.5 rounded font-mono" id="count-secure">8</span>
+            </button>
+            <button onclick="filterDeck('unsecure')" id="btn-filter-unsecure" class="filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all text-slate-600 hover:bg-slate-100">
+              <span class="flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Unsecure Protocols</span>
+              <span class="bg-slate-200 text-xs px-2 py-0.5 rounded font-mono" id="count-unsecure">12</span>
+            </button>
+            <button onclick="filterDeck('web-mail')" id="btn-filter-web-mail" class="filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all text-slate-600 hover:bg-slate-100">
+              <span class="flex items-center gap-2"><i class="fa-solid fa-envelope-open-text text-blue-500"></i> Web & Mail</span>
+              <span class="bg-slate-200 text-xs px-2 py-0.5 rounded font-mono" id="count-web-mail">6</span>
+            </button>
+            <button onclick="filterDeck('infra')" id="btn-filter-infra" class="filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all text-slate-600 hover:bg-slate-100">
+              <span class="flex items-center gap-2"><i class="fa-solid fa-gears text-purple-500"></i> Infrastructure & Directory</span>
+              <span class="bg-slate-200 text-xs px-2 py-0.5 rounded font-mono" id="count-infra">6</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-primary text-white rounded-2xl p-5 shadow-sm relative overflow-hidden">
+          <div class="absolute -right-8 -bottom-8 opacity-10 text-9xl">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <h3 class="font-extrabold text-accent text-sm tracking-wider uppercase mb-1">Network+ Exam Tip</h3>
+          <p class="text-xs text-emerald-100 leading-relaxed">
+            CompTIA questions frequently test your ability to recognize unsecure protocols and specify secure alternatives. Ensure you always look for secure replacements like SFTP instead of FTP, and SSH instead of Telnet.
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Protocol Codex Cards -->
+      <div class="lg:col-span-8 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-book-bookmark text-primary"></i> The Port Directory
+          </h2>
+          <span class="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">Interactive study deck</span>
+        </div>
+        
+        <div id="codex-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+          <!-- Cards will be populated dynamically -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION 2: MATCHING GAME (REMEMBER) -->
+    <section id="view-match" class="hidden flex-col gap-6 transition-all duration-300">
+      
+      <div class="glass-card rounded-2xl p-6 shadow-sm flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
+        <div>
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-lightning-bolt text-accent"></i> Real-Time Port Matcher
+          </h2>
+          <p class="text-sm text-slate-500 mt-1">Match the Protocol with the corresponding TCP/UDP Port. Double click/tap elements or click to pair them!</p>
+        </div>
+        
+        <div class="flex items-center gap-4 bg-slate-100 p-2 rounded-xl self-stretch md:self-auto justify-between">
+          <div class="px-3 py-1 bg-white rounded-lg shadow-sm">
+            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Time Elapsed</div>
+            <div id="match-timer" class="font-mono font-bold text-primary text-base">00:00</div>
+          </div>
+          <div class="px-3 py-1 bg-white rounded-lg shadow-sm">
+            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Perfect Matches</div>
+            <div id="match-streak" class="font-mono font-bold text-emerald-600 text-base">0 / 5</div>
+          </div>
+          <button onclick="initMatchGame()" class="bg-primary text-white hover:bg-darkgreen px-4 py-2 rounded-lg font-bold text-xs transition-all">
+            <i class="fa-solid fa-arrows-rotate mr-1"></i> Reshuffle
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-2">
+        
+        <!-- Left Side: Protocols -->
+        <div class="flex flex-col gap-3">
+          <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-blue-500"></span> Select Protocol
+          </h3>
+          <div id="matcher-protocols-container" class="flex flex-col gap-3">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Right Side: Ports -->
+        <div class="flex flex-col gap-3">
+          <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-2 flex-row-reverse md:flex-row">
+            <span class="h-2 w-2 rounded-full bg-amber-500"></span> Select Port / Suite
+          </h3>
+          <div id="matcher-ports-container" class="flex flex-col gap-3">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Match game completion overlay status -->
+      <div id="match-victory-overlay" class="hidden glass-card border-2 border-emerald-500/30 bg-emerald-50/90 rounded-2xl p-6 text-center max-w-xl mx-auto mt-4 transition-all duration-300">
+        <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-emerald-100 text-emerald-600 text-3xl mb-3">
+          <i class="fa-solid fa-trophy animate-bounce"></i>
+        </div>
+        <h4 class="text-xl font-bold text-emerald-900">Excellent Work, Port Master!</h4>
+        <p class="text-sm text-emerald-700 mt-2">You successfully mapped all active connections correctly. You've earned <span class="font-bold text-slate-900">+50 XP</span>!</p>
+        <button onclick="initMatchGame()" class="mt-4 bg-primary text-white hover:bg-darkgreen px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md">
+          <i class="fa-solid fa-play mr-2"></i> Play Next Set
+        </button>
+      </div>
+
+    </section>
+
+    <!-- SECTION 3: SCENARIO SIMULATOR (APPLY) -->
+    <section id="view-scenarios" class="hidden grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-300">
+      
+      <!-- Left side: The Scenario Challenge Card -->
+      <div class="lg:col-span-8 flex flex-col gap-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-terminal text-primary"></i> Application Scenario Lab
+          </h2>
+          <span id="scenario-progress" class="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">Scenario 1 of 5</span>
+        </div>
+
+        <!-- Active Scenario Card -->
+        <div class="glass-card rounded-2xl p-6 shadow-sm border-t-4 border-primary flex flex-col gap-4 relative overflow-hidden">
+          <div class="absolute -right-4 -top-4 text-slate-100 text-9xl font-extrabold select-none pointer-events-none" id="scenario-num-watermark">
+            01
+          </div>
+          
+          <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg text-xs font-mono text-slate-600 font-bold self-start border border-slate-200">
+            <i class="fa-solid fa-briefcase"></i> Real-World Deployment
+          </div>
+
+          <div id="scenario-prompt" class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed mt-2">
+            <!-- Populated via JS -->
+          </div>
+
+          <hr class="border-slate-100">
+
+          <!-- Multiple Choices -->
+          <div id="scenario-options" class="flex flex-col gap-3 my-2">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Explanation Alert Box -->
+          <div id="scenario-explanation" class="hidden rounded-xl p-4 transition-all duration-300">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Action buttons -->
+          <div class="flex justify-between items-center mt-4">
+            <button id="btn-next-scenario" onclick="nextScenario()" class="ml-auto bg-primary text-white hover:bg-darkgreen px-5 py-2.5 rounded-xl font-bold text-sm transition-all hidden">
+              Next Challenge <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Scoreboard / Stats -->
+      <div class="lg:col-span-4 flex flex-col gap-4">
+        <div class="glass-card rounded-2xl p-5 shadow-sm">
+          <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Scenario Diagnostics</h3>
+          
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-slate-600">Accuracy Score</span>
+              <span class="font-mono font-bold text-slate-800 text-base" id="stat-accuracy">0%</span>
+            </div>
+            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+              <div id="stat-accuracy-bar" class="bg-primary h-full" style="width: 0%"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
+                <span class="block text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Correct</span>
+                <span class="font-mono font-extrabold text-slate-800 text-xl" id="stat-correct">0</span>
+              </div>
+              <div class="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
+                <span class="block text-[10px] font-bold text-red-500 uppercase tracking-wider">Failed</span>
+                <span class="font-mono font-extrabold text-slate-800 text-xl" id="stat-failed">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Port Lookup Helper Tool -->
+        <div class="glass-card rounded-2xl p-5 shadow-sm flex flex-col gap-3">
+          <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-magnifying-glass text-accent"></i> Quick Port Finder
+          </h3>
+          <input type="text" id="quick-search" oninput="quickSearchPorts()" placeholder="Type port number or acronym..." class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+          <div id="quick-search-result" class="text-xs text-slate-500 italic font-medium min-h-[40px] flex items-center bg-slate-50 p-2.5 rounded-lg">
+            Search for ports instantly during questions (e.g. "22" or "DHCP")
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 mt-12 py-8 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center gap-3">
+      <div class="text-sm font-semibold text-slate-300">
+        Designed for Community College IT Systems & Networks Programs
+      </div>
+      <div class="text-xs max-w-lg leading-relaxed">
+        This platform aligns with official CompTIA Network+ N10-009 exam domains, promoting mastery over port standards and securing legacy infrastructures.
+      </div>
+      <div class="text-[10px] mt-4 text-slate-600">
+        &copy; 2026 Academy Network Labs. All Rights Reserved. Fully localized responsive environment.
+      </div>
+    </div>
+  </footer>
+
+  <!-- DATABASE AND SCRIPTING SYSTEM -->
+  <script>
+    // --- DATABASE ---
+    const protocols = [
+      { code: "FTP", port: "20/21", name: "File Transfer Protocol", secure: false, proto: "TCP", category: "file", desc: "Used for direct file transport transfer across hosts. Standard connection setup uses port 21 for control/commands, and port 20 for payload data transfers.", secureAlt: "SFTP (Port 22)" },
+      { code: "SFTP", port: "22", name: "Secure File Transfer Protocol", secure: true, proto: "TCP", category: "secure", desc: "Performs absolute, completely secure file transfers over an encrypted Secure Shell (SSH) connection.", unsecureAlt: "FTP (Ports 20/21)" },
+      { code: "SSH", port: "22", name: "Secure Shell", secure: true, proto: "TCP", category: "secure", desc: "Provides high-grade encrypted terminal sessions and command executions over hostile IP connections.", unsecureAlt: "Telnet (Port 23)" },
+      { code: "Telnet", port: "23", name: "Terminal Network", secure: false, proto: "TCP", category: "unsecure", desc: "A legacy command-line console protocol. Transmits credential handshakes and active prompts completely in cleartext.", secureAlt: "SSH (Port 22)" },
+      { code: "SMTP", port: "25", name: "Simple Mail Transfer Protocol", secure: false, proto: "TCP", category: "web-mail", desc: "Handles outbound electronic mail routing between mail servers.", secureAlt: "SMTPS (Port 587)" },
+      { code: "DNS", port: "53", name: "Domain Name System", secure: true, proto: "UDP/TCP", category: "infra", desc: "The internet directory system. Translates user-readable domains (google.com) to target machine IP addresses. Frequently runs on UDP, but drops to TCP for multi-packet Zone Transfers." },
+      { code: "DHCP", port: "67/68", name: "Dynamic Host Configuration Protocol", secure: false, proto: "UDP", category: "infra", desc: "Automaticaly lease IP addresses, gateway routing directions, subnets, and nameservers dynamically to workstations. Uses Port 67 for servers and Port 68 for clients." },
+      { code: "TFTP", port: "69", name: "Trivial File Transfer Protocol", secure: false, proto: "UDP", category: "file", desc: "A simple, unauthenticated file loader requiring no credentials. Stripped of advanced file structures. Relies purely on UDP, ideal for network-booting equipment setups." },
+      { code: "HTTP", port: "80", name: "Hypertext Transfer Protocol", secure: false, proto: "TCP", category: "web-mail", desc: "The core foundational protocol of the World Wide Web. Transmits payload assets in standard cleartext.", secureAlt: "HTTPS (Port 443)" },
+      { code: "NTP", port: "123", name: "Network Time Protocol", secure: false, proto: "UDP", category: "infra", desc: "Synchronizes internal system-clocks across remote routing hubs, firewalls, and active directories to within milliseconds of certified UTC standards." },
+      { code: "SNMP", port: "161/162", name: "Simple Network Management Protocol", secure: false, proto: "UDP", category: "infra", desc: "Remotely queries health metrics, alerts, and performance logs across network endpoints. Port 161 is for standard polls, Port 162 acts as the recipient for unsolicited system alarms (Traps)." },
+      { code: "LDAP", port: "389", name: "Lightweight Directory Access Protocol", secure: false, proto: "TCP/UDP", category: "infra", desc: "Used to search and manage enterprise network assets, user databases, and system rights across domain infrastructures.", secureAlt: "LDAPS (Port 636)" },
+      { code: "HTTPS", port: "443", name: "Hypertext Transfer Protocol Secure", secure: true, proto: "TCP", category: "secure", desc: "Secure encrypted web access. Protects and seals transmissions by running HTTP over modern cryptographic TLS tunnels.", unsecureAlt: "HTTP (Port 80)" },
+      { code: "SMB", port: "445", name: "Server Message Block", secure: false, proto: "TCP", category: "file", desc: "The native standard of local folder distributions, network printer sharing, and shared workstation communication." },
+      { code: "Syslog", port: "514", name: "System Logging", secure: false, proto: "UDP", category: "infra", desc: "Sends central system diagnostic logs, firewall triggers, and application behavior records from terminal systems over standard networks to log servers." },
+      { code: "SMTPS", port: "587", name: "Simple Mail Transfer Protocol Secure", secure: true, proto: "TCP", category: "secure", desc: "Enforces safe, secure out-going mail submission. Fully utilizes cryptographic security wrapping during mail routing operations.", unsecureAlt: "SMTP (Port 25)" },
+      { code: "LDAPS", port: "636", name: "Lightweight Directory Access Protocol over SSL", secure: true, proto: "TCP/UDP", category: "secure", desc: "Secures organization logins, access hierarchies, and active directory audits by wrapping LDAP tasks inside safe SSL/TLS connections.", unsecureAlt: "LDAP (Port 389)" },
+      { code: "SQL Server", port: "1433", name: "Structured Query Language Server", secure: true, proto: "TCP", category: "file", desc: "The standard server connection port utilized to direct command lines, queries, and structural storage requests with Microsoft SQL databases." },
+      { code: "RDP", port: "3389", name: "Remote Desktop Protocol", secure: true, proto: "TCP/UDP", category: "web-mail", desc: "Enables interactive, rich graphical virtual terminal user interfaces for remote operations across Windows network servers and computers." },
+      { code: "SIP", port: "5060/5061", name: "Session Initiation Protocol", secure: false, proto: "TCP/UDP", category: "web-mail", desc: "The structural driver standard that boots, configures, and terminates Voice over IP (VoIP) audio and video links. Runs unencrypted on Port 5060, or securely over TLS on Port 5061." }
+    ];
+
+    const scenarioQuiz = [
+      {
+        id: 1,
+        prompt: "Your community college campus security auditor discovers network logins and system authorization sequences are passing over LAN subnets in plaintext, violating security standards. They flag LDAP as the culprit. Which port configuration changes are required to address this finding?",
+        options: [
+          { text: "Shutdown Port 23 immediately and transition assets over to Port 22.", correct: false },
+          { text: "Decommission LDAP on Port 389 and mandate LDAP over SSL (LDAPS) using Port 636.", correct: true },
+          { text: "Redirect the system to run SMB processes across Port 445 instead.", correct: false },
+          { text: "Relocate directory queries over to DNSSEC configurations bound to Port 53.", correct: false }
+        ],
+        explanation: "Correct! Standard LDAP queries transit on Port 389 in cleartext. Transitioning directory access queries to LDAPS (Lightweight Directory Access Protocol over SSL/TLS) on **Port 636** ensures full encryption of credentials and queries."
+      },
+      {
+        id: 2,
+        prompt: "A system administration intern attempts to upload configuration scripts to a remote file depository using Port 69. However, they complain that files never reach the destination and no connection state is shown. What protocol issue explains this behavior?",
+        options: [
+          { text: "Port 69 uses HTTP, which is restricted to web content queries only.", correct: false },
+          { text: "Port 69 utilizes TFTP, which runs on connectionless UDP and lacks connection confirmations or robust packet verification.", correct: true },
+          { text: "The remote shell requires terminal routing maps to run over secure SSH Port 22.", correct: false },
+          { text: "Port 69 relies heavily on multi-factor TCP certificates that expire quickly.", correct: false }
+        ],
+        explanation: "Correct! Port 69 is allocated to **TFTP (Trivial File Transfer Protocol)**. Because TFTP utilizes **UDP (User Datagram Protocol)**, it has no active handshake, connection tracking, or guaranteed transport reliability, which can cause silently dropped transfers."
+      },
+      {
+        id: 3,
+        prompt: "A network architect is deploying a remote management architecture. They must allow graphical GUI interfaces to control server systems securely, but must strictly block unsecure command-line options. What firewall port policy should they implement?",
+        options: [
+          { text: "Allow Port 23 and reject Port 22.", correct: false },
+          { text: "Allow Port 3389 and reject Port 23.", correct: true },
+          { text: "Allow Port 22 and reject Port 443.", correct: false },
+          { text: "Allow Port 162 and reject Port 161.", correct: false }
+        ],
+        explanation: "Correct! **RDP (Remote Desktop Protocol)** operates over **Port 3389** and provides a graphical user interface (GUI) for system administration. Unencrypted remote access command lines like **Telnet (Port 23)** must be blocked as a fundamental security hardening practice."
+      },
+      {
+        id: 4,
+        prompt: "During routine network monitoring, an administrator notices a high volume of traffic over Port 123. Which action would this traffic most likely correspond to?",
+        options: [
+          { text: "A domain controller synchronizing timestamps with an external Stratum 1 time provider.", correct: true },
+          { text: "An attacker launching a denial of service attack by flooding remote terminal shells.", correct: false },
+          { text: "Workstations fetching dynamic network configurations from a local server pool.", correct: false },
+          { text: "Users browsing localized directory pages over encrypted browser portals.", correct: false }
+        ],
+        explanation: "Correct! **Port 123** is dedicated to **NTP (Network Time Protocol)**, which operates over UDP to distribute highly accurate timing synchronizations to local clocks."
+      },
+      {
+        id: 5,
+        prompt: "A security alert reports that an unauthorized device on the local network is capturing sensitive corporate emails. Investigation shows that the client email system is currently configured with SMTP. Which secure alternative port should you configure to enforce email security?",
+        options: [
+          { text: "Configure client outgoing mail to use Port 21 with explicit FTP commands.", correct: false },
+          { text: "Transition outbound traffic to SMTPS on Port 587, enabling encryption of outgoing mail.", correct: true },
+          { text: "Deploy standard SNMP logging parameters across Port 162.", correct: false },
+          { text: "Redirect incoming email queries directly to secure DNS on Port 53.", correct: false }
+        ],
+        explanation: "Correct! Outbound emails typically route via unencrypted **SMTP (Port 25)**. To ensure email security and encryption, administrators configure **SMTPS (Simple Mail Transfer Protocol Secure)**, typically utilizing **Port 587** (or port 465 legacy) to secure transmissions."
+      }
+    ];
+
+    // --- GAME & STATE SYSTEM ---
+    let xp = 0;
+    let selectedMode = 'study';
+    let currentFilter = 'all';
+
+    // Game 1: Matching Variables
+    let matchRoundItems = [];
+    let selectedProtocolElement = null;
+    let selectedPortElement = null;
+    let matchesCompleted = 0;
+    let matchSeconds = 0;
+    let matchTimerId = null;
+
+    // Game 2: Scenario Variables
+    let activeScenarioIdx = 0;
+    let scenarioCorrectCount = 0;
+    let scenarioFailedCount = 0;
+    let selectedOptionIdx = null;
+
+    // Initialize systems on load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadProgress();
+      renderCodex();
+      updateCategoryCounts();
+      initMatchGame();
+      initScenario();
+      quickSearchPorts();
+    });
+
+    // XP & Academy Rank System
+    function addXP(amount) {
+      xp += amount;
+      saveProgress();
+      updateXpUI();
+    }
+
+    function updateXpUI() {
+      const badge = document.getElementById('xp-badge');
+      const text = document.getElementById('xp-text');
+      const bar = document.getElementById('xp-progress-bar');
+
+      // Rank calculation
+      let rank = "Junior SysAdmin";
+      let level = 1;
+      if (xp >= 100 && xp < 250) {
+        rank = "Network Technician";
+        level = 2;
+      } else if (xp >= 250 && xp < 500) {
+        rank = "Senior Systems Engineer";
+        level = 3;
+      } else if (xp >= 500) {
+        rank = "CompTIA Port Master 🏆";
+        level = 4;
+      }
+
+      badge.innerText = String(level).padStart(2, '0');
+      text.innerHTML = `${rank} &middot; <span class="text-primary font-bold">${xp} XP</span>`;
+      
+      // Update progress bar
+      let progressPercent = (xp % 100);
+      if (level === 4) progressPercent = 100;
+      bar.style.width = `${progressPercent}%`;
+    }
+
+    function saveProgress() {
+      localStorage.setItem('cc_network_xp', xp);
+    }
+
+    function loadProgress() {
+      const savedXp = localStorage.getItem('cc_network_xp');
+      if (savedXp) {
+        xp = parseInt(savedXp, 10);
+      }
+      updateXpUI();
+    }
+
+    function resetProgress() {
+      if (confirm("Are you sure you want to reset your academy standing and XP?")) {
+        xp = 0;
+        saveProgress();
+        updateXpUI();
+        initMatchGame();
+        activeScenarioIdx = 0;
+        scenarioCorrectCount = 0;
+        scenarioFailedCount = 0;
+        initScenario();
+        updateScenarioStats();
+      }
+    }
+
+    // --- VIEW / TAB MANAGER ---
+    function switchMode(mode) {
+      selectedMode = mode;
+      
+      // Update Navbar States
+      const tabs = ['study', 'match', 'scenarios'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === mode) {
+          btn.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-accent text-primary shadow-sm";
+        } else {
+          btn.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/5";
+        }
+      });
+
+      // Update Screen Visibilities
+      document.getElementById('view-study').style.display = (mode === 'study') ? 'grid' : 'none';
+      document.getElementById('view-match').style.display = (mode === 'match') ? 'flex' : 'none';
+      document.getElementById('view-scenarios').style.display = (mode === 'scenarios') ? 'grid' : 'none';
+
+      if (mode === 'match') {
+        initMatchGame();
+      }
+    }
+
+    // --- MODE 1: STUDY CODEX ---
+    function filterDeck(category) {
+      currentFilter = category;
+      
+      // Update Filter Buttons Class Lists
+      const buttons = document.querySelectorAll('.filter-btn');
+      buttons.forEach(btn => {
+        if (btn.id === `btn-filter-${category}`) {
+          btn.className = "filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all bg-primary text-white shadow-sm";
+          // Update nested span background
+          const span = btn.querySelector('span:last-child');
+          if (span) {
+            span.className = "bg-black/20 text-xs px-2 py-0.5 rounded font-mono";
+          }
+        } else {
+          btn.className = "filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all text-slate-600 hover:bg-slate-100";
+          const span = btn.querySelector('span:last-child');
+          if (span) {
+            span.className = "bg-slate-200 text-xs px-2 py-0.5 rounded font-mono";
+          }
+        }
+      });
+
+      renderCodex();
+    }
+
+    function updateCategoryCounts() {
+      document.getElementById('count-all').innerText = protocols.length;
+      document.getElementById('count-secure').innerText = protocols.filter(p => p.secure).length;
+      document.getElementById('count-unsecure').innerText = protocols.filter(p => !p.secure).length;
+      document.getElementById('count-web-mail').innerText = protocols.filter(p => p.category === 'web-mail' || p.category === 'secure' && (p.code.includes('HTTP') || p.code.includes('SMTP') || p.code.includes('SIP'))).length;
+      document.getElementById('count-infra').innerText = protocols.filter(p => p.category === 'infra').length;
+    }
+
+    function renderCodex() {
+      const grid = document.getElementById('codex-grid');
+      grid.innerHTML = '';
+
+      let list = protocols;
+      if (currentFilter === 'secure') {
+        list = protocols.filter(p => p.secure);
+      } else if (currentFilter === 'unsecure') {
+        list = protocols.filter(p => !p.secure);
+      } else if (currentFilter === 'web-mail') {
+        list = protocols.filter(p => p.category === 'web-mail' || p.category === 'secure' && (p.code.includes('HTTP') || p.code.includes('SMTP') || p.code.includes('SIP')));
+      } else if (currentFilter === 'infra') {
+        list = protocols.filter(p => p.category === 'infra');
+      }
+
+      list.forEach(p => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative hover:shadow-md transition-all duration-300 flex flex-col gap-3 group hover:border-primary/20";
+        
+        const lockIcon = p.secure 
+          ? `<span class="bg-emerald-50 text-emerald-700 text-[10px] px-2 py-1 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-lock"></i> Secured</span>`
+          : `<span class="bg-amber-50 text-amber-700 text-[10px] px-2 py-1 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Legacy</span>`;
+
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-2.5">
+              <span class="font-mono text-2xl font-extrabold text-primary group-hover:scale-105 transition-transform">${p.code}</span>
+              <span class="text-xs bg-slate-100 font-mono px-1.5 py-0.5 rounded font-bold text-slate-500">${p.proto}</span>
+            </div>
+            <div class="text-right font-mono font-black text-xl text-accent flex flex-col items-end">
+              <span>Port ${p.port}</span>
+              ${lockIcon}
+            </div>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-500 mb-1">${p.name}</h4>
+            <p class="text-xs text-slate-600 leading-relaxed">${p.desc}</p>
+          </div>
+          ${p.secureAlt ? `
+            <div class="mt-auto pt-2 border-t border-dashed border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+              <span>Security Alternative:</span>
+              <span class="font-mono bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded">${p.secureAlt}</span>
+            </div>
+          ` : ''}
+          ${p.unsecureAlt ? `
+            <div class="mt-auto pt-2 border-t border-dashed border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+              <span>Unsecure Predecessor:</span>
+              <span class="font-mono bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded">${p.unsecureAlt}</span>
+            </div>
+          ` : ''}
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+
+    // --- MODE 2: MATCHING GAME ---
+    function initMatchGame() {
+      // Clear game states
+      selectedProtocolElement = null;
+      selectedPortElement = null;
+      matchesCompleted = 0;
+      matchSeconds = 0;
+      document.getElementById('match-victory-overlay').classList.add('hidden');
+      document.getElementById('match-streak').innerText = "0 / 5";
+      
+      // Start or Reset Timer
+      clearInterval(matchTimerId);
+      matchTimerId = setInterval(() => {
+        matchSeconds++;
+        const mins = String(Math.floor(matchSeconds / 60)).padStart(2, '0');
+        const secs = String(matchSeconds % 60).padStart(2, '0');
+        document.getElementById('match-timer').innerText = `${mins}:${secs}`;
+      }, 1000);
+
+      // Select 5 random protocol objects
+      const shuffled = [...protocols].sort(() => 0.5 - Math.random());
+      matchRoundItems = shuffled.slice(0, 5);
+
+      // Render Protocols (Left)
+      const protoContainer = document.getElementById('matcher-protocols-container');
+      protoContainer.innerHTML = '';
+      const displayProtos = [...matchRoundItems].sort(() => 0.5 - Math.random());
+      displayProtos.forEach(p => {
+        const btn = document.createElement('button');
+        btn.dataset.code = p.code;
+        btn.onclick = () => selectProtocol(btn);
+        btn.className = "flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-sm text-left font-bold text-slate-700 hover:border-primary hover:bg-slate-50/50 transition-all duration-200 w-full focus:outline-none";
+        btn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="bg-slate-100 h-8 w-8 rounded-lg flex items-center justify-center font-mono text-xs text-slate-500 group-hover:bg-primary/10">Code</span>
+            <span class="font-mono text-base font-extrabold text-slate-800">${p.code}</span>
+          </div>
+          <span class="text-xs font-normal text-slate-400 truncate max-w-[150px] sm:max-w-[200px]">${p.name}</span>
+        `;
+        protoContainer.appendChild(btn);
+      });
+
+      // Render Ports (Right)
+      const portContainer = document.getElementById('matcher-ports-container');
+      portContainer.innerHTML = '';
+      const displayPorts = [...matchRoundItems].sort(() => 0.5 - Math.random());
+      displayPorts.forEach(p => {
+        const btn = document.createElement('button');
+        btn.dataset.code = p.code;
+        btn.onclick = () => selectPort(btn);
+        btn.className = "flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-sm text-right flex-row-reverse md:flex-row font-bold text-slate-700 hover:border-accent hover:bg-slate-50/50 transition-all duration-200 w-full focus:outline-none";
+        btn.innerHTML = `
+          <div class="flex items-center gap-3 flex-row-reverse">
+            <span class="bg-goldlight h-8 w-8 rounded-lg flex items-center justify-center font-mono text-xs text-accent">TCP</span>
+            <span class="font-mono text-base font-black text-slate-800">Port ${p.port}</span>
+          </div>
+          <span class="text-xs font-semibold text-slate-400 font-mono">Service Interface</span>
+        `;
+        portContainer.appendChild(btn);
+      });
+    }
+
+    function selectProtocol(el) {
+      if (el.classList.contains('matched')) return;
+
+      // Reset previous selection UI
+      if (selectedProtocolElement) {
+        selectedProtocolElement.className = selectedProtocolElement.className.replace(' border-primary bg-primary/5 ring-2 ring-primary/20', '');
+      }
+
+      selectedProtocolElement = el;
+      el.className += " border-primary bg-primary/5 ring-2 ring-primary/20";
+
+      checkPairMatch();
+    }
+
+    function selectPort(el) {
+      if (el.classList.contains('matched')) return;
+
+      // Reset previous selection UI
+      if (selectedPortElement) {
+        selectedPortElement.className = selectedPortElement.className.replace(' border-accent bg-goldlight ring-2 ring-accent/20', '');
+      }
+
+      selectedPortElement = el;
+      el.className += " border-accent bg-goldlight ring-2 ring-accent/20";
+
+      checkPairMatch();
+    }
+
+    function checkPairMatch() {
+      if (!selectedProtocolElement || !selectedPortElement) return;
+
+      const protoCode = selectedProtocolElement.dataset.code;
+      const portCode = selectedPortElement.dataset.code;
+
+      if (protoCode === portCode) {
+        // MATCH SUCCESS
+        const itemObj = matchRoundItems.find(item => item.code === protoCode);
+
+        // Green Success Styling
+        selectedProtocolElement.className = "flex items-center justify-between p-4 bg-emerald-50 border-2 border-emerald-500 text-emerald-800 rounded-2xl shadow-sm text-left font-bold transition-all duration-200 w-full pointer-events-none matched";
+        selectedProtocolElement.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="bg-emerald-100 text-emerald-600 h-8 w-8 rounded-lg flex items-center justify-center"><i class="fa-solid fa-check"></i></span>
+            <span class="font-mono text-base font-extrabold text-emerald-900">${protoCode}</span>
+          </div>
+          <span class="text-xs font-medium text-emerald-600">Perfect Connection Match</span>
+        `;
+
+        selectedPortElement.className = "flex items-center justify-between p-4 bg-emerald-50 border-2 border-emerald-500 text-emerald-800 rounded-2xl shadow-sm text-right flex-row-reverse md:flex-row font-bold transition-all duration-200 w-full pointer-events-none matched";
+        selectedPortElement.innerHTML = `
+          <div class="flex items-center gap-3 flex-row-reverse">
+            <span class="bg-emerald-100 text-emerald-600 h-8 w-8 rounded-lg flex items-center justify-center"><i class="fa-solid fa-link"></i></span>
+            <span class="font-mono text-base font-black text-emerald-900">Port ${itemObj.port}</span>
+          </div>
+          <span class="text-xs font-medium text-emerald-600">Assigned Successfully</span>
+        `;
+
+        // Clear Selection States
+        selectedProtocolElement = null;
+        selectedPortElement = null;
+
+        // Add Points and progress
+        matchesCompleted++;
+        document.getElementById('match-streak').innerText = `${matchesCompleted} / 5`;
+        addXP(10); // +10 XP for each match
+
+        // Check Victory
+        if (matchesCompleted === 5) {
+          clearInterval(matchTimerId);
+          document.getElementById('match-victory-overlay').classList.remove('hidden');
+          addXP(50); // Mastery completion bonus
+        }
+      } else {
+        // MATCH FAILURE
+        const pEl = selectedProtocolElement;
+        const oEl = selectedPortElement;
+
+        // Apply error animations or styling temporarily
+        pEl.className += " border-red-500 bg-red-50 text-red-800";
+        oEl.className += " border-red-500 bg-red-50 text-red-800";
+
+        setTimeout(() => {
+          // Revert Styling
+          pEl.className = "flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-sm text-left font-bold text-slate-700 hover:border-primary hover:bg-slate-50/50 transition-all duration-200 w-full focus:outline-none";
+          oEl.className = "flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-sm text-right flex-row-reverse md:flex-row font-bold text-slate-700 hover:border-accent hover:bg-slate-50/50 transition-all duration-200 w-full focus:outline-none";
+        }, 1000);
+
+        // Clear Selection states
+        selectedProtocolElement = null;
+        selectedPortElement = null;
+      }
+    }
+
+
+    // --- MODE 3: SCENARIO CHALLENGES ---
+    function initScenario() {
+      // Handle bounds reset
+      if (activeScenarioIdx >= scenarioQuiz.length) {
+        activeScenarioIdx = 0;
+      }
+
+      const activeObj = scenarioQuiz[activeScenarioIdx];
+      selectedOptionIdx = null;
+
+      // Update Header Text & Watermark
+      document.getElementById('scenario-progress').innerText = `Challenge ${activeScenarioIdx + 1} of ${scenarioQuiz.length}`;
+      document.getElementById('scenario-num-watermark').innerText = String(activeScenarioIdx + 1).padStart(2, '0');
+      
+      // Load Prompts
+      document.getElementById('scenario-prompt').innerText = activeObj.prompt;
+
+      // Hide Feedback card
+      const feedbackBox = document.getElementById('scenario-explanation');
+      feedbackBox.classList.add('hidden');
+      document.getElementById('btn-next-scenario').classList.add('hidden');
+
+      // Build Option Buttons
+      const optsContainer = document.getElementById('scenario-options');
+      optsContainer.innerHTML = '';
+
+      activeObj.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.onclick = () => evaluateScenarioSelection(idx);
+        btn.className = "w-full text-left p-4 rounded-xl border border-slate-200 hover:border-primary hover:bg-slate-50 transition-all flex justify-between items-center bg-white group focus:outline-none";
+        btn.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="h-6 w-6 rounded-full border-2 border-slate-300 flex items-center justify-center font-bold text-xs text-slate-400 group-hover:border-primary group-hover:text-primary shrink-0">
+              ${String.fromCharCode(65 + idx)}
+            </span>
+            <span class="text-sm font-semibold text-slate-700 leading-relaxed">${opt.text}</span>
+          </div>
+          <i class="fa-solid fa-circle-chevron-right text-slate-300 group-hover:text-primary transition-colors shrink-0 ml-2"></i>
+        `;
+        optsContainer.appendChild(btn);
+      });
+    }
+
+    function evaluateScenarioSelection(selectedIdx) {
+      // Prevent multiple submissions on the same question
+      if (selectedOptionIdx !== null) return;
+      selectedOptionIdx = selectedIdx;
+
+      const activeObj = scenarioQuiz[activeScenarioIdx];
+      const isCorrect = activeObj.options[selectedIdx].correct;
+
+      const optsContainer = document.getElementById('scenario-options');
+      const buttons = optsContainer.querySelectorAll('button');
+
+      // Style Correct and Selected components
+      buttons.forEach((btn, idx) => {
+        btn.onclick = null; // Disable clicking
+        
+        if (activeObj.options[idx].correct) {
+          // Highlight target correct option
+          btn.className = "w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 flex justify-between items-center pointer-events-none";
+          btn.querySelector('span:first-child').className = "h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0";
+          btn.querySelector('span:first-child').innerHTML = `<i class="fa-solid fa-check"></i>`;
+          btn.querySelector('i').className = "fa-solid fa-circle-check text-emerald-500";
+        } else if (idx === selectedIdx) {
+          // Highlight incorrect selection
+          btn.className = "w-full text-left p-4 rounded-xl border-2 border-red-500 bg-red-50/50 flex justify-between items-center pointer-events-none";
+          btn.querySelector('span:first-child').className = "h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-xs shrink-0";
+          btn.querySelector('span:first-child').innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+          btn.querySelector('i').className = "fa-solid fa-circle-xmark text-red-500";
+        } else {
+          // Subdue unrelated options
+          btn.className = "w-full text-left p-4 rounded-xl border border-slate-100 bg-slate-50 opacity-40 flex justify-between items-center pointer-events-none";
+        }
+      });
+
+      // Update Diagnostics and Add XP
+      if (isCorrect) {
+        scenarioCorrectCount++;
+        addXP(25);
+      } else {
+        scenarioFailedCount++;
+      }
+
+      updateScenarioStats();
+
+      // Render Explanation Output Panel
+      const feedbackBox = document.getElementById('scenario-explanation');
+      feedbackBox.className = isCorrect 
+        ? "rounded-xl p-4 transition-all duration-300 bg-emerald-50 border border-emerald-100 text-slate-800"
+        : "rounded-xl p-4 transition-all duration-300 bg-red-50 border border-red-100 text-slate-800";
+      
+      const badgeIcon = isCorrect 
+        ? `<div class="font-black text-emerald-700 text-sm flex items-center gap-1.5 mb-1"><i class="fa-solid fa-circle-check"></i> Explanation Confirmed (+25 XP)</div>`
+        : `<div class="font-black text-red-700 text-sm flex items-center gap-1.5 mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Learning Moment</div>`;
+
+      feedbackBox.innerHTML = `
+        ${badgeIcon}
+        <p class="text-xs leading-relaxed font-medium text-slate-600">${activeObj.explanation}</p>
+      `;
+      feedbackBox.classList.remove('hidden');
+
+      // Expose Next button
+      document.getElementById('btn-next-scenario').classList.remove('hidden');
+    }
+
+    function updateScenarioStats() {
+      const total = scenarioCorrectCount + scenarioFailedCount;
+      const rate = total === 0 ? 0 : Math.round((scenarioCorrectCount / total) * 100);
+
+      document.getElementById('stat-accuracy').innerText = `${rate}%`;
+      document.getElementById('stat-accuracy-bar').style.width = `${rate}%`;
+      document.getElementById('stat-correct').innerText = scenarioCorrectCount;
+      document.getElementById('stat-failed').innerText = scenarioFailedCount;
+    }
+
+    function nextScenario() {
+      activeScenarioIdx++;
+      initScenario();
+    }
+
+
+    // --- PORT LOOKUP ASSISTANCE UTILITY ---
+    function quickSearchPorts() {
+      const raw = document.getElementById('quick-search').value.toLowerCase().trim();
+      const output = document.getElementById('quick-search-result');
+
+      if (!raw) {
+        output.innerHTML = `<span class="text-slate-400 font-normal">Search for ports instantly during questions (e.g. "22" or "DHCP")</span>`;
+        return;
+      }
+
+      // Check protocol objects database
+      const found = protocols.find(p => 
+        p.code.toLowerCase() === raw || 
+        p.port.includes(raw) || 
+        p.name.toLowerCase().includes(raw)
+      );
+
+      if (found) {
+        const shieldBadge = found.secure 
+          ? `<span class="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">Secured</span>`
+          : `<span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">Legacy</span>`;
+
+        output.innerHTML = `
+          <div class="flex flex-col gap-1 w-full text-slate-700 font-semibold">
+            <div class="flex justify-between items-center">
+              <span class="font-mono text-primary font-extrabold text-sm">${found.code} &middot; Port ${found.port}</span>
+              ${shieldBadge}
+            </div>
+            <div class="text-[10px] text-slate-500 font-normal line-clamp-1">${found.name} &middot; Mode: ${found.proto}</div>
+          </div>
+        `;
+      } else {
+        output.innerHTML = `<span class="text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> No match discovered in objectives list.</span>`;
+      }
+    }
+  </script>
+</body>
+</html>
