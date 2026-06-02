@@ -1,960 +1,940 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CompTIA Network+ Port Master (N10-009)</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: 'var(--user-primary)',
-            accent: 'var(--user-accent)',
-            bglight: 'var(--user-background)',
-            darkgreen: '#12351e',
-            goldlight: '#fdf9eb',
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          }
-        }
-      }
-    }
-  </script>
-
-  <style>
-    :root {
-      --user-primary: #1e5631;
-      --user-accent: #d4a017;
-      --user-background: #f5f7f2;
-    }
-
-    body {
-      background-color: var(--user-background);
-      font-family: 'Inter', sans-serif;
-    }
-
-    /* Custom Scrollbar for study deck */
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: rgba(0,0,0,0.05);
-      border-radius: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: var(--user-primary);
-      border-radius: 4px;
-      opacity: 0.5;
-    }
-
-    .glass-card {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(30, 86, 49, 0.08);
-    }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col text-slate-800 selection:bg-accent selection:text-white">
-
-  <!-- TOP HEADER & BRANDING -->
-  <header class="bg-primary text-white shadow-lg border-b-4 border-accent sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-      <div class="flex items-center space-x-3">
-        <div class="bg-accent p-2 rounded-lg text-primary">
-          <i class="fa-solid fa-network-wired text-xl"></i>
-        </div>
-        <div>
-          <h1 class="font-extrabold text-lg sm:text-xl tracking-tight flex items-center gap-2">
-            Network+ Port Master <span class="bg-white/15 text-xs text-accent font-mono px-2 py-0.5 rounded uppercase font-bold tracking-widest">N10-009</span>
-          </h1>
-          <p class="text-xs text-slate-200 font-medium">Interactive Learning Suite &middot; CompTIA Objective 1.4</p>
-        </div>
-      </div>
-      
-      <!-- MODE SELECTION TABS -->
-      <nav class="flex space-x-1 bg-darkgreen p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
-        <button id="tab-study" onclick="switchMode('study')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-accent text-primary shadow-sm">
-          <i class="fa-solid fa-book-open"></i> Study Codex
-        </button>
-        <button id="tab-match" onclick="switchMode('match')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/5">
-          <i class="fa-solid fa-gamepad"></i> Match Game
-        </button>
-        <button id="tab-scenarios" onclick="switchMode('scenarios')" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/5">
-          <i class="fa-solid fa-user-shield"></i> Scenarios
-        </button>
-      </nav>
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col gap-6">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prof. Reyes | Network Science Repository</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Inter & JetBrains Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- MathJax for rendering LaTeX-style math notations beautifully -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es6/tex-mml-chtml.js"></script>
     
-    <!-- LEVEL INDICATOR / PROGRESS SUMMARY BAR -->
-    <section class="glass-card rounded-2xl p-4 shadow-sm flex flex-wrap gap-4 items-center justify-between border-l-4 border-primary">
-      <div class="flex items-center gap-3">
-        <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold" id="xp-badge">
-          01
-        </div>
-        <div>
-          <div class="text-xs uppercase tracking-wider text-slate-400 font-bold">Your Academy Standing</div>
-          <div class="font-bold text-slate-700" id="xp-text">Junior SysAdmin &middot; 0 XP</div>
-        </div>
-      </div>
-      <div class="flex items-center gap-4 flex-grow sm:flex-grow-0 justify-end">
-        <div class="w-32 bg-slate-200 h-2 rounded-full overflow-hidden hidden md:block">
-          <div id="xp-progress-bar" class="bg-accent h-full transition-all duration-300" style="width: 10%"></div>
-        </div>
-        <button onclick="resetProgress()" class="text-xs text-slate-400 hover:text-red-600 font-medium transition-colors">
-          <i class="fa-solid fa-rotate-left mr-1"></i> Reset Progress
-        </button>
-      </div>
-    </section>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        github: {
+                            dark: '#0d1117',
+                            darkSecondary: '#161b22',
+                            darkBorder: '#30363d',
+                            darkText: '#c9d1d9',
+                            darkMuted: '#8b949e',
+                            blue: '#58a6ff',
+                            green: '#2ea44f',
+                            greenHover: '#2c974b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        /* Custom scrollbar for GitHub vibe */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8b949e;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-blue-500/30 selection:text-blue-200">
 
-    <!-- SECTION 1: STUDY CODEX (UNDERSTAND) -->
-    <section id="view-study" class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-300">
-      
-      <!-- Side Filter Pane -->
-      <div class="lg:col-span-4 flex flex-col gap-4">
-        <div class="glass-card rounded-2xl p-5 shadow-sm">
-          <h2 class="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
-            <i class="fa-solid fa-filter text-primary"></i> Filter Protocol Deck
-          </h2>
-          <p class="text-xs text-slate-500 mb-4">Select categories to narrow down the interactive port directory.</p>
-          
-          <div class="flex flex-col gap-2">
-            <button onclick="filterDeck('all')" id="btn-filter-all" class="filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all bg-primary text-white shadow-sm">
-              <span>All Ports</span>
-              <span class="bg-black/20 text-xs px-2 py-0.5 rounded font-mono" id="count-all">20</span>
-            </button>
-            <button onclick="filterDeck('secure')" id="btn-filter-secure" class="filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all text-slate-600 hover:bg-slate-100">
-              <span class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-green-600"></i> Secure Protocols</span>
-              <span class="bg-slate-200 text-xs px-2 py-0.5 rounded font-mono" id="count-secure">8</span>
-            </button>
-            <button onclick="filterDeck('unsecure')" id="btn-filter-unsecure" class="filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all text-slate-600 hover:bg-slate-100">
-              <span class="flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Unsecure Protocols</span>
-              <span class="bg-slate-200 text-xs px-2 py-0.5 rounded font-mono" id="count-unsecure">12</span>
-            </button>
-            <button onclick="filterDeck('web-mail')" id="btn-filter-web-mail" class="filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all text-slate-600 hover:bg-slate-100">
-              <span class="flex items-center gap-2"><i class="fa-solid fa-envelope-open-text text-blue-500"></i> Web & Mail</span>
-              <span class="bg-slate-200 text-xs px-2 py-0.5 rounded font-mono" id="count-web-mail">6</span>
-            </button>
-            <button onclick="filterDeck('infra')" id="btn-filter-infra" class="filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all text-slate-600 hover:bg-slate-100">
-              <span class="flex items-center gap-2"><i class="fa-solid fa-gears text-purple-500"></i> Infrastructure & Directory</span>
-              <span class="bg-slate-200 text-xs px-2 py-0.5 rounded font-mono" id="count-infra">6</span>
-            </button>
-          </div>
-        </div>
+    <!-- TOP GLOW EFFECT -->
+    <div class="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none"></div>
 
-        <div class="bg-primary text-white rounded-2xl p-5 shadow-sm relative overflow-hidden">
-          <div class="absolute -right-8 -bottom-8 opacity-10 text-9xl">
-            <i class="fa-solid fa-graduation-cap"></i>
-          </div>
-          <h3 class="font-extrabold text-accent text-sm tracking-wider uppercase mb-1">Network+ Exam Tip</h3>
-          <p class="text-xs text-emerald-100 leading-relaxed">
-            CompTIA questions frequently test your ability to recognize unsecure protocols and specify secure alternatives. Ensure you always look for secure replacements like SFTP instead of FTP, and SSH instead of Telnet.
-          </p>
-        </div>
-      </div>
+    <!-- MAIN HEADER (GitHub styled) -->
+    <header class="border-b border-github-darkBorder bg-github-darkSecondary/90 backdrop-blur sticky top-0 z-50 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Left: Logo & Repository Breadcrumb -->
+                <div class="flex items-center space-x-3">
+                    <svg class="h-8 w-8 text-white fill-current" viewBox="0 0 16 16" version="1.1" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                    </svg>
+                    <div class="flex items-center space-x-1.5 text-sm sm:text-base">
+                        <a href="#" class="text-github-blue hover:underline font-semibold">ProfReyes</a>
+                        <span class="text-github-darkMuted">/</span>
+                        <a href="#" class="text-white hover:underline font-bold tracking-tight">network-science-hub</a>
+                        <span class="hidden sm:inline-flex ml-2 px-2 py-0.5 text-xs font-medium text-github-darkMuted border border-github-darkBorder rounded-full">Public</span>
+                    </div>
+                </div>
 
-      <!-- Main Protocol Codex Cards -->
-      <div class="lg:col-span-8 flex flex-col gap-4">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-book-bookmark text-primary"></i> The Port Directory
-          </h2>
-          <span class="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">Interactive study deck</span>
-        </div>
-        
-        <div id="codex-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-          <!-- Cards will be populated dynamically -->
-        </div>
-      </div>
-
-    </section>
-
-    <!-- SECTION 2: MATCHING GAME (REMEMBER) -->
-    <section id="view-match" class="hidden flex-col gap-6 transition-all duration-300">
-      
-      <div class="glass-card rounded-2xl p-6 shadow-sm flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
-        <div>
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-lightning-bolt text-accent"></i> Real-Time Port Matcher
-          </h2>
-          <p class="text-sm text-slate-500 mt-1">Match the Protocol with the corresponding TCP/UDP Port. Double click/tap elements or click to pair them!</p>
-        </div>
-        
-        <div class="flex items-center gap-4 bg-slate-100 p-2 rounded-xl self-stretch md:self-auto justify-between">
-          <div class="px-3 py-1 bg-white rounded-lg shadow-sm">
-            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Time Elapsed</div>
-            <div id="match-timer" class="font-mono font-bold text-primary text-base">00:00</div>
-          </div>
-          <div class="px-3 py-1 bg-white rounded-lg shadow-sm">
-            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Perfect Matches</div>
-            <div id="match-streak" class="font-mono font-bold text-emerald-600 text-base">0 / 5</div>
-          </div>
-          <button onclick="initMatchGame()" class="bg-primary text-white hover:bg-darkgreen px-4 py-2 rounded-lg font-bold text-xs transition-all">
-            <i class="fa-solid fa-arrows-rotate mr-1"></i> Reshuffle
-          </button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-2">
-        
-        <!-- Left Side: Protocols -->
-        <div class="flex flex-col gap-3">
-          <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-2">
-            <span class="h-2 w-2 rounded-full bg-blue-500"></span> Select Protocol
-          </h3>
-          <div id="matcher-protocols-container" class="flex flex-col gap-3">
-            <!-- Populated via JS -->
-          </div>
-        </div>
-
-        <!-- Right Side: Ports -->
-        <div class="flex flex-col gap-3">
-          <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-2 flex-row-reverse md:flex-row">
-            <span class="h-2 w-2 rounded-full bg-amber-500"></span> Select Port / Suite
-          </h3>
-          <div id="matcher-ports-container" class="flex flex-col gap-3">
-            <!-- Populated via JS -->
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Match game completion overlay status -->
-      <div id="match-victory-overlay" class="hidden glass-card border-2 border-emerald-500/30 bg-emerald-50/90 rounded-2xl p-6 text-center max-w-xl mx-auto mt-4 transition-all duration-300">
-        <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-emerald-100 text-emerald-600 text-3xl mb-3">
-          <i class="fa-solid fa-trophy animate-bounce"></i>
-        </div>
-        <h4 class="text-xl font-bold text-emerald-900">Excellent Work, Port Master!</h4>
-        <p class="text-sm text-emerald-700 mt-2">You successfully mapped all active connections correctly. You've earned <span class="font-bold text-slate-900">+50 XP</span>!</p>
-        <button onclick="initMatchGame()" class="mt-4 bg-primary text-white hover:bg-darkgreen px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md">
-          <i class="fa-solid fa-play mr-2"></i> Play Next Set
-        </button>
-      </div>
-
-    </section>
-
-    <!-- SECTION 3: SCENARIO SIMULATOR (APPLY) -->
-    <section id="view-scenarios" class="hidden grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-300">
-      
-      <!-- Left side: The Scenario Challenge Card -->
-      <div class="lg:col-span-8 flex flex-col gap-4">
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-terminal text-primary"></i> Application Scenario Lab
-          </h2>
-          <span id="scenario-progress" class="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">Scenario 1 of 5</span>
-        </div>
-
-        <!-- Active Scenario Card -->
-        <div class="glass-card rounded-2xl p-6 shadow-sm border-t-4 border-primary flex flex-col gap-4 relative overflow-hidden">
-          <div class="absolute -right-4 -top-4 text-slate-100 text-9xl font-extrabold select-none pointer-events-none" id="scenario-num-watermark">
-            01
-          </div>
-          
-          <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg text-xs font-mono text-slate-600 font-bold self-start border border-slate-200">
-            <i class="fa-solid fa-briefcase"></i> Real-World Deployment
-          </div>
-
-          <div id="scenario-prompt" class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed mt-2">
-            <!-- Populated via JS -->
-          </div>
-
-          <hr class="border-slate-100">
-
-          <!-- Multiple Choices -->
-          <div id="scenario-options" class="flex flex-col gap-3 my-2">
-            <!-- Populated via JS -->
-          </div>
-
-          <!-- Explanation Alert Box -->
-          <div id="scenario-explanation" class="hidden rounded-xl p-4 transition-all duration-300">
-            <!-- Populated via JS -->
-          </div>
-
-          <!-- Action buttons -->
-          <div class="flex justify-between items-center mt-4">
-            <button id="btn-next-scenario" onclick="nextScenario()" class="ml-auto bg-primary text-white hover:bg-darkgreen px-5 py-2.5 rounded-xl font-bold text-sm transition-all hidden">
-              Next Challenge <i class="fa-solid fa-arrow-right ml-1"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right side: Scoreboard / Stats -->
-      <div class="lg:col-span-4 flex flex-col gap-4">
-        <div class="glass-card rounded-2xl p-5 shadow-sm">
-          <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Scenario Diagnostics</h3>
-          
-          <div class="space-y-4">
-            <div class="flex justify-between items-center">
-              <span class="text-sm font-medium text-slate-600">Accuracy Score</span>
-              <span class="font-mono font-bold text-slate-800 text-base" id="stat-accuracy">0%</span>
+                <!-- Right: CC-BY-NC Quick Badge & Repo Actions -->
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <div class="hidden md:flex items-center bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs px-2.5 py-1 rounded-md">
+                        <svg class="w-4 h-4 mr-1.5 fill-current" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        </svg>
+                        <span>CC BY-NC 4.0 Shared</span>
+                    </div>
+                    <div class="flex items-center space-x-1 bg-github-darkSecondary border border-github-darkBorder rounded-md text-xs font-semibold text-white">
+                        <button class="px-2.5 py-1.5 hover:bg-github-darkBorder flex items-center space-x-1.5 border-r border-github-darkBorder transition">
+                            <svg class="w-3.5 h-3.5 text-github-darkMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <span>Watch</span>
+                            <span class="bg-github-darkBorder px-1.5 py-0.2 rounded-full text-[10px] ml-1">12</span>
+                        </button>
+                        <button onclick="incrementCounter('stars')" class="px-2.5 py-1.5 hover:bg-github-darkBorder flex items-center space-x-1.5 transition">
+                            <svg class="w-3.5 h-3.5 text-yellow-500 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                            <span>Star</span>
+                            <span id="star-count" class="bg-github-darkBorder px-1.5 py-0.2 rounded-full text-[10px] ml-1">142</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-              <div id="stat-accuracy-bar" class="bg-primary h-full" style="width: 0%"></div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 pt-2">
-              <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
-                <span class="block text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Correct</span>
-                <span class="font-mono font-extrabold text-slate-800 text-xl" id="stat-correct">0</span>
-              </div>
-              <div class="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
-                <span class="block text-[10px] font-bold text-red-500 uppercase tracking-wider">Failed</span>
-                <span class="font-mono font-extrabold text-slate-800 text-xl" id="stat-failed">0</span>
-              </div>
-            </div>
-          </div>
         </div>
+    </header>
 
-        <!-- Port Lookup Helper Tool -->
-        <div class="glass-card rounded-2xl p-5 shadow-sm flex flex-col gap-3">
-          <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-magnifying-glass text-accent"></i> Quick Port Finder
-          </h3>
-          <input type="text" id="quick-search" oninput="quickSearchPorts()" placeholder="Type port number or acronym..." class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-          <div id="quick-search-result" class="text-xs text-slate-500 italic font-medium min-h-[40px] flex items-center bg-slate-50 p-2.5 rounded-lg">
-            Search for ports instantly during questions (e.g. "22" or "DHCP")
-          </div>
+    <!-- INFO BANNER (Creative Commons & Course Banner) -->
+    <div class="bg-gradient-to-r from-blue-900/40 via-indigo-950/40 to-github-darkSecondary border-b border-github-darkBorder py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div class="space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="bg-blue-500/10 text-blue-400 border border-blue-500/30 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Course Repository</span>
+                    <span class="bg-purple-500/10 text-purple-400 border border-purple-500/30 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Networks I</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Applied Network Science & Graph Foundations</h1>
+                <p class="text-sm sm:text-base text-github-darkMuted max-w-2xl">
+                    Lectures, interactive modules, and shared resources created by <span class="text-github-darkText font-medium">Prof. Reyes</span>. Explore connectivity, flows, and spectral theories.
+                </p>
+            </div>
+            
+            <!-- Academic CC Notice Card -->
+            <div class="w-full md:w-80 bg-github-dark/90 border border-github-darkBorder p-4 rounded-xl flex flex-col space-y-3 shadow-lg">
+                <div class="flex items-center space-x-2">
+                    <!-- Custom Creative Commons Badges -->
+                    <div class="flex space-x-1">
+                        <span class="w-6 h-6 rounded-full bg-github-darkBorder text-xs flex items-center justify-center font-bold text-github-darkText" title="Creative Commons">CC</span>
+                        <span class="w-6 h-6 rounded-full bg-github-darkBorder text-xs flex items-center justify-center font-bold text-github-darkText" title="Attribution">BY</span>
+                        <span class="w-6 h-6 rounded-full bg-github-darkBorder text-xs flex items-center justify-center font-bold text-github-darkText" title="Non-Commercial">NC</span>
+                    </div>
+                    <span class="text-xs font-bold text-github-darkText">CC BY-NC 4.0 License</span>
+                </div>
+                <p class="text-xs text-github-darkMuted leading-relaxed">
+                    Free to share, adapt, and build upon. <strong class="text-red-400 font-semibold">Strictly non-commercial</strong>. Any derivative distribution must attribute Prof. Reyes.
+                </p>
+                <a href="#license" class="text-xs text-github-blue hover:underline inline-flex items-center space-x-1">
+                    <span>Read License Terms</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+            </div>
         </div>
-      </div>
-
-    </section>
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="bg-slate-900 text-slate-400 mt-12 py-8 border-t border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center gap-3">
-      <div class="text-sm font-semibold text-slate-300">
-        Designed for Community College IT Systems & Networks Programs
-      </div>
-      <div class="text-xs max-w-lg leading-relaxed">
-        This platform aligns with official CompTIA Network+ N10-009 exam domains, promoting mastery over port standards and securing legacy infrastructures.
-      </div>
-      <div class="text-[10px] mt-4 text-slate-600">
-        &copy; 2026 Academy Network Labs. All Rights Reserved. Fully localized responsive environment.
-      </div>
     </div>
-  </footer>
 
-  <!-- DATABASE AND SCRIPTING SYSTEM -->
-  <script>
-    // --- DATABASE ---
-    const protocols = [
-      { code: "FTP", port: "20/21", name: "File Transfer Protocol", secure: false, proto: "TCP", category: "file", desc: "Used for direct file transport transfer across hosts. Standard connection setup uses port 21 for control/commands, and port 20 for payload data transfers.", secureAlt: "SFTP (Port 22)" },
-      { code: "SFTP", port: "22", name: "Secure File Transfer Protocol", secure: true, proto: "TCP", category: "secure", desc: "Performs absolute, completely secure file transfers over an encrypted Secure Shell (SSH) connection.", unsecureAlt: "FTP (Ports 20/21)" },
-      { code: "SSH", port: "22", name: "Secure Shell", secure: true, proto: "TCP", category: "secure", desc: "Provides high-grade encrypted terminal sessions and command executions over hostile IP connections.", unsecureAlt: "Telnet (Port 23)" },
-      { code: "Telnet", port: "23", name: "Terminal Network", secure: false, proto: "TCP", category: "unsecure", desc: "A legacy command-line console protocol. Transmits credential handshakes and active prompts completely in cleartext.", secureAlt: "SSH (Port 22)" },
-      { code: "SMTP", port: "25", name: "Simple Mail Transfer Protocol", secure: false, proto: "TCP", category: "web-mail", desc: "Handles outbound electronic mail routing between mail servers.", secureAlt: "SMTPS (Port 587)" },
-      { code: "DNS", port: "53", name: "Domain Name System", secure: true, proto: "UDP/TCP", category: "infra", desc: "The internet directory system. Translates user-readable domains (google.com) to target machine IP addresses. Frequently runs on UDP, but drops to TCP for multi-packet Zone Transfers." },
-      { code: "DHCP", port: "67/68", name: "Dynamic Host Configuration Protocol", secure: false, proto: "UDP", category: "infra", desc: "Automaticaly lease IP addresses, gateway routing directions, subnets, and nameservers dynamically to workstations. Uses Port 67 for servers and Port 68 for clients." },
-      { code: "TFTP", port: "69", name: "Trivial File Transfer Protocol", secure: false, proto: "UDP", category: "file", desc: "A simple, unauthenticated file loader requiring no credentials. Stripped of advanced file structures. Relies purely on UDP, ideal for network-booting equipment setups." },
-      { code: "HTTP", port: "80", name: "Hypertext Transfer Protocol", secure: false, proto: "TCP", category: "web-mail", desc: "The core foundational protocol of the World Wide Web. Transmits payload assets in standard cleartext.", secureAlt: "HTTPS (Port 443)" },
-      { code: "NTP", port: "123", name: "Network Time Protocol", secure: false, proto: "UDP", category: "infra", desc: "Synchronizes internal system-clocks across remote routing hubs, firewalls, and active directories to within milliseconds of certified UTC standards." },
-      { code: "SNMP", port: "161/162", name: "Simple Network Management Protocol", secure: false, proto: "UDP", category: "infra", desc: "Remotely queries health metrics, alerts, and performance logs across network endpoints. Port 161 is for standard polls, Port 162 acts as the recipient for unsolicited system alarms (Traps)." },
-      { code: "LDAP", port: "389", name: "Lightweight Directory Access Protocol", secure: false, proto: "TCP/UDP", category: "infra", desc: "Used to search and manage enterprise network assets, user databases, and system rights across domain infrastructures.", secureAlt: "LDAPS (Port 636)" },
-      { code: "HTTPS", port: "443", name: "Hypertext Transfer Protocol Secure", secure: true, proto: "TCP", category: "secure", desc: "Secure encrypted web access. Protects and seals transmissions by running HTTP over modern cryptographic TLS tunnels.", unsecureAlt: "HTTP (Port 80)" },
-      { code: "SMB", port: "445", name: "Server Message Block", secure: false, proto: "TCP", category: "file", desc: "The native standard of local folder distributions, network printer sharing, and shared workstation communication." },
-      { code: "Syslog", port: "514", name: "System Logging", secure: false, proto: "UDP", category: "infra", desc: "Sends central system diagnostic logs, firewall triggers, and application behavior records from terminal systems over standard networks to log servers." },
-      { code: "SMTPS", port: "587", name: "Simple Mail Transfer Protocol Secure", secure: true, proto: "TCP", category: "secure", desc: "Enforces safe, secure out-going mail submission. Fully utilizes cryptographic security wrapping during mail routing operations.", unsecureAlt: "SMTP (Port 25)" },
-      { code: "LDAPS", port: "636", name: "Lightweight Directory Access Protocol over SSL", secure: true, proto: "TCP/UDP", category: "secure", desc: "Secures organization logins, access hierarchies, and active directory audits by wrapping LDAP tasks inside safe SSL/TLS connections.", unsecureAlt: "LDAP (Port 389)" },
-      { code: "SQL Server", port: "1433", name: "Structured Query Language Server", secure: true, proto: "TCP", category: "file", desc: "The standard server connection port utilized to direct command lines, queries, and structural storage requests with Microsoft SQL databases." },
-      { code: "RDP", port: "3389", name: "Remote Desktop Protocol", secure: true, proto: "TCP/UDP", category: "web-mail", desc: "Enables interactive, rich graphical virtual terminal user interfaces for remote operations across Windows network servers and computers." },
-      { code: "SIP", port: "5060/5061", name: "Session Initiation Protocol", secure: false, proto: "TCP/UDP", category: "web-mail", desc: "The structural driver standard that boots, configures, and terminates Voice over IP (VoIP) audio and video links. Runs unencrypted on Port 5060, or securely over TLS on Port 5061." }
-    ];
+    <!-- NOTIFICATION TOAST (Modern design, no browser alerts used) -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    const scenarioQuiz = [
-      {
-        id: 1,
-        prompt: "Your community college campus security auditor discovers network logins and system authorization sequences are passing over LAN subnets in plaintext, violating security standards. They flag LDAP as the culprit. Which port configuration changes are required to address this finding?",
-        options: [
-          { text: "Shutdown Port 23 immediately and transition assets over to Port 22.", correct: false },
-          { text: "Decommission LDAP on Port 389 and mandate LDAP over SSL (LDAPS) using Port 636.", correct: true },
-          { text: "Redirect the system to run SMB processes across Port 445 instead.", correct: false },
-          { text: "Relocate directory queries over to DNSSEC configurations bound to Port 53.", correct: false }
-        ],
-        explanation: "Correct! Standard LDAP queries transit on Port 389 in cleartext. Transitioning directory access queries to LDAPS (Lightweight Directory Access Protocol over SSL/TLS) on **Port 636** ensures full encryption of credentials and queries."
-      },
-      {
-        id: 2,
-        prompt: "A system administration intern attempts to upload configuration scripts to a remote file depository using Port 69. However, they complain that files never reach the destination and no connection state is shown. What protocol issue explains this behavior?",
-        options: [
-          { text: "Port 69 uses HTTP, which is restricted to web content queries only.", correct: false },
-          { text: "Port 69 utilizes TFTP, which runs on connectionless UDP and lacks connection confirmations or robust packet verification.", correct: true },
-          { text: "The remote shell requires terminal routing maps to run over secure SSH Port 22.", correct: false },
-          { text: "Port 69 relies heavily on multi-factor TCP certificates that expire quickly.", correct: false }
-        ],
-        explanation: "Correct! Port 69 is allocated to **TFTP (Trivial File Transfer Protocol)**. Because TFTP utilizes **UDP (User Datagram Protocol)**, it has no active handshake, connection tracking, or guaranteed transport reliability, which can cause silently dropped transfers."
-      },
-      {
-        id: 3,
-        prompt: "A network architect is deploying a remote management architecture. They must allow graphical GUI interfaces to control server systems securely, but must strictly block unsecure command-line options. What firewall port policy should they implement?",
-        options: [
-          { text: "Allow Port 23 and reject Port 22.", correct: false },
-          { text: "Allow Port 3389 and reject Port 23.", correct: true },
-          { text: "Allow Port 22 and reject Port 443.", correct: false },
-          { text: "Allow Port 162 and reject Port 161.", correct: false }
-        ],
-        explanation: "Correct! **RDP (Remote Desktop Protocol)** operates over **Port 3389** and provides a graphical user interface (GUI) for system administration. Unencrypted remote access command lines like **Telnet (Port 23)** must be blocked as a fundamental security hardening practice."
-      },
-      {
-        id: 4,
-        prompt: "During routine network monitoring, an administrator notices a high volume of traffic over Port 123. Which action would this traffic most likely correspond to?",
-        options: [
-          { text: "A domain controller synchronizing timestamps with an external Stratum 1 time provider.", correct: true },
-          { text: "An attacker launching a denial of service attack by flooding remote terminal shells.", correct: false },
-          { text: "Workstations fetching dynamic network configurations from a local server pool.", correct: false },
-          { text: "Users browsing localized directory pages over encrypted browser portals.", correct: false }
-        ],
-        explanation: "Correct! **Port 123** is dedicated to **NTP (Network Time Protocol)**, which operates over UDP to distribute highly accurate timing synchronizations to local clocks."
-      },
-      {
-        id: 5,
-        prompt: "A security alert reports that an unauthorized device on the local network is capturing sensitive corporate emails. Investigation shows that the client email system is currently configured with SMTP. Which secure alternative port should you configure to enforce email security?",
-        options: [
-          { text: "Configure client outgoing mail to use Port 21 with explicit FTP commands.", correct: false },
-          { text: "Transition outbound traffic to SMTPS on Port 587, enabling encryption of outgoing mail.", correct: true },
-          { text: "Deploy standard SNMP logging parameters across Port 162.", correct: false },
-          { text: "Redirect incoming email queries directly to secure DNS on Port 53.", correct: false }
-        ],
-        explanation: "Correct! Outbound emails typically route via unencrypted **SMTP (Port 25)**. To ensure email security and encryption, administrators configure **SMTPS (Simple Mail Transfer Protocol Secure)**, typically utilizing **Port 587** (or port 465 legacy) to secure transmissions."
-      }
-    ];
+    <!-- MAIN BODY LAYOUT -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- LEFT 3 COLUMNS: Repo Explorer, Link Registry, Document Reader -->
+            <div class="lg:col-span-3 space-y-8">
+                
+                <!-- REPOSITORY NAVIGATION TABS -->
+                <div class="border-b border-github-darkBorder flex space-x-6 text-sm">
+                    <button id="tab-code-btn" onclick="switchTab('code')" class="pb-3 text-white border-b-2 border-orange-500 font-semibold flex items-center space-x-2 focus:outline-none">
+                        <svg class="w-4 h-4 text-github-darkMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                        <span>Code / Files</span>
+                    </button>
+                    <button id="tab-networks-btn" onclick="switchTab('networks')" class="pb-3 text-github-darkMuted hover:text-white font-medium flex items-center space-x-2 focus:outline-none transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        <span class="flex items-center gap-1.5">
+                            Intro to Networks 
+                            <span class="bg-blue-500/20 text-blue-400 text-[10px] px-1.5 py-0.2 rounded-full font-bold">Featured README</span>
+                        </span>
+                    </button>
+                    <button id="tab-generator-btn" onclick="switchTab('generator')" class="pb-3 text-github-darkMuted hover:text-white font-medium flex items-center space-x-2 focus:outline-none transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Link Generator Tool</span>
+                    </button>
+                </div>
 
-    // --- GAME & STATE SYSTEM ---
-    let xp = 0;
-    let selectedMode = 'study';
-    let currentFilter = 'all';
+                <!-- TAB CONTAINER: CODE & FILES -->
+                <div id="tab-code" class="space-y-6 block">
+                    <!-- File Explorer Header / Commit Status -->
+                    <div class="flex items-center justify-between text-xs sm:text-sm text-github-darkMuted bg-github-darkSecondary border border-github-darkBorder p-4 rounded-t-xl">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center font-bold text-blue-400">R</span>
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+                                <span class="text-github-darkText font-semibold">Prof. Reyes</span>
+                                <span class="hidden sm:inline">•</span>
+                                <span class="text-xs text-github-darkMuted hover:text-github-blue cursor-pointer">Update repo metadata & embed academic introduction to networks module</span>
+                            </div>
+                        </div>
+                        <div class="text-right text-xs">
+                            <span class="text-github-darkMuted">Latest Commit: </span>
+                            <span class="text-github-darkText font-mono bg-github-darkBorder px-1.5 py-0.5 rounded text-[11px]">8bc32a1</span>
+                        </div>
+                    </div>
 
-    // Game 1: Matching Variables
-    let matchRoundItems = [];
-    let selectedProtocolElement = null;
-    let selectedPortElement = null;
-    let matchesCompleted = 0;
-    let matchSeconds = 0;
-    let matchTimerId = null;
+                    <!-- Repository File Table -->
+                    <div class="border border-t-0 border-github-darkBorder rounded-b-xl overflow-hidden bg-github-darkSecondary/30">
+                        <!-- Header Row -->
+                        <div class="grid grid-cols-12 gap-2 px-4 py-2 bg-github-darkSecondary border-b border-github-darkBorder text-xs font-semibold text-github-darkMuted tracking-wider uppercase">
+                            <div class="col-span-6 sm:col-span-5">Name</div>
+                            <div class="col-span-6 sm:col-span-4">Commit Message</div>
+                            <div class="col-span-3 text-right hidden sm:block">Date Modified</div>
+                        </div>
+                        <!-- File List Loop Container -->
+                        <div id="repo-file-rows" class="divide-y divide-github-darkBorder text-sm">
+                            <!-- Populated Dynamically via Javascript -->
+                        </div>
+                    </div>
 
-    // Game 2: Scenario Variables
-    let activeScenarioIdx = 0;
-    let scenarioCorrectCount = 0;
-    let scenarioFailedCount = 0;
-    let selectedOptionIdx = null;
+                    <!-- QUICK INSTRUCTION BANNER -->
+                    <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="space-y-1">
+                            <h4 class="text-sm font-semibold text-blue-200">How to use this interactive repository</h4>
+                            <p class="text-xs text-github-darkMuted leading-relaxed">
+                                You can use the <strong class="text-blue-300">Link Generator Tool</strong> tab to dynamically register new HTML pages, slides, or syllabus files into this directory interface. Registered items instantly update the repository's files tree above and generate shareable links containing your parameters.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-    // Initialize systems on load
-    window.addEventListener('DOMContentLoaded', () => {
-      loadProgress();
-      renderCodex();
-      updateCategoryCounts();
-      initMatchGame();
-      initScenario();
-      quickSearchPorts();
-    });
+                <!-- TAB CONTAINER: INTRO TO NETWORKS README (Directly viewable markdown rendering) -->
+                <div id="tab-networks" class="hidden space-y-6">
+                    <div class="bg-github-darkSecondary border border-github-darkBorder rounded-xl overflow-hidden">
+                        <!-- Top Header File Bar -->
+                        <div class="bg-github-darkSecondary/50 px-4 py-3 border-b border-github-darkBorder flex items-center justify-between">
+                            <div class="flex items-center space-x-2 text-sm">
+                                <svg class="w-4 h-4 text-github-darkMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <span class="font-mono text-github-darkText font-medium">README.md</span>
+                                <span class="text-xs text-github-darkMuted">(Rendered Academic Markdown)</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="copyToClipboard('https://github.com/ProfReyes/network-science-hub/blob/main/README.md', 'README link copied!')" class="p-1 text-github-darkMuted hover:text-white bg-github-darkBorder/40 hover:bg-github-darkBorder rounded transition" title="Copy raw file link">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                                </button>
+                                <span class="text-xs text-github-darkMuted border border-github-darkBorder px-2 py-0.5 rounded bg-github-dark/50">4.2 KB</span>
+                            </div>
+                        </div>
 
-    // XP & Academy Rank System
-    function addXP(amount) {
-      xp += amount;
-      saveProgress();
-      updateXpUI();
-    }
+                        <!-- Rendered Markdown Body -->
+                        <div class="p-6 sm:p-8 space-y-8 text-github-darkText leading-relaxed">
+                            <!-- Document Header -->
+                            <div class="border-b border-github-darkBorder pb-6">
+                                <h1 class="text-3xl font-extrabold text-white tracking-tight mb-2">Introduction to Networks & Graph Theory</h1>
+                                <p class="text-github-darkMuted text-sm">Course Module &bull; Prepared by Prof. Reyes &bull; CC BY-NC 4.0 Licensed</p>
+                            </div>
 
-    function updateXpUI() {
-      const badge = document.getElementById('xp-badge');
-      const text = document.getElementById('xp-text');
-      const bar = document.getElementById('xp-progress-bar');
+                            <!-- Abstract / Intended Learning -->
+                            <div class="bg-blue-500/5 border-l-4 border-blue-500 p-4 rounded-r-lg space-y-1">
+                                <h4 class="text-sm font-semibold text-blue-200">Session Abstract</h4>
+                                <p class="text-xs text-github-darkMuted leading-relaxed">
+                                    Networks represent the structural skeleton of complex systems. From social networks and information cascades to power grids and metabolic pathing, understanding the foundational principles of graph theory allows us to systematically analyze how interactions shape macroscopic behaviors.
+                                </p>
+                            </div>
 
-      // Rank calculation
-      let rank = "Junior SysAdmin";
-      let level = 1;
-      if (xp >= 100 && xp < 250) {
-        rank = "Network Technician";
-        level = 2;
-      } else if (xp >= 250 && xp < 500) {
-        rank = "Senior Systems Engineer";
-        level = 3;
-      } else if (xp >= 500) {
-        rank = "CompTIA Port Master 🏆";
-        level = 4;
-      }
+                            <!-- Section 1: Definition of a Network -->
+                            <div class="space-y-4">
+                                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="text-github-darkMuted font-normal text-lg">1.</span> 
+                                    What is a Network?
+                                </h2>
+                                <p class="text-sm">
+                                    Mathematically, a network is represented as a <strong>graph</strong> $G = (V, E)$, which is a structure consisting of a set of elements called <strong>vertices (or nodes)</strong> $V$, joined by a set of connections called <strong>edges (or links)</strong> $E$.
+                                </p>
+                                <div class="bg-github-darkSecondary border border-github-darkBorder p-4 rounded-xl text-center space-y-1 my-4">
+                                    <div class="text-sm font-mono text-blue-400">G = (V, E)</div>
+                                    <div class="text-xs text-github-darkMuted">Where $V = \{v_1, v_2, \dots, v_n\}$ and $E \subseteq \{(v_i, v_j) \mid v_i, v_j \in V\}$</div>
+                                </div>
+                            </div>
 
-      badge.innerText = String(level).padStart(2, '0');
-      text.innerHTML = `${rank} &middot; <span class="text-primary font-bold">${xp} XP</span>`;
-      
-      // Update progress bar
-      let progressPercent = (xp % 100);
-      if (level === 4) progressPercent = 100;
-      bar.style.width = `${progressPercent}%`;
-    }
+                            <!-- Section 2: Types of Graphs -->
+                            <div class="space-y-4">
+                                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="text-github-darkMuted font-normal text-lg">2.</span> 
+                                    Structural Classification of Graphs
+                                </h2>
+                                <p class="text-sm">
+                                    Depending on the properties of the relationships (edges) between elements, networks are classified into several configurations:
+                                </p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-github-darkSecondary/60 border border-github-darkBorder p-4 rounded-lg space-y-2">
+                                        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Directed vs. Undirected</h3>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed">
+                                            In <strong>undirected graphs</strong>, links are symmetric (e.g., peer friendships). In <strong>directed graphs (digraphs)</strong>, relationships flow one-way, meaning $(v_i, v_j) \neq (v_j, v_i)$ (e.g., following on social media).
+                                        </p>
+                                    </div>
+                                    <div class="bg-github-darkSecondary/60 border border-github-darkBorder p-4 rounded-lg space-y-2">
+                                        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Weighted vs. Unweighted</h3>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed">
+                                            In <strong>weighted graphs</strong>, each link carries a numerical value representing distance, capacity, intensity, or cost. In unweighted networks, edges denote binary existence ($0$ or $1$).
+                                        </p>
+                                    </div>
+                                    <div class="bg-github-darkSecondary/60 border border-github-darkBorder p-4 rounded-lg space-y-2">
+                                        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Bipartite Networks</h3>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed">
+                                            A network where nodes are partitioned into two disjoint sets, say $U$ and $V$, such that every edge connects a node in $U$ to one in $V$. No links exist between nodes of the same set (e.g., authors and publications).
+                                        </p>
+                                    </div>
+                                    <div class="bg-github-darkSecondary/60 border border-github-darkBorder p-4 rounded-lg space-y-2">
+                                        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400">Sparse vs. Dense</h3>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed">
+                                            A graph is dense if the actual number of edges $|E|$ approaches the maximum possible edges, i.e., $|E| \approx \frac{|V|(|V|-1)}{2}$. Real-world large networks are almost universally sparse.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
 
-    function saveProgress() {
-      localStorage.setItem('cc_network_xp', xp);
-    }
+                            <!-- Section 3: Essential Metrics -->
+                            <div class="space-y-4">
+                                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="text-github-darkMuted font-normal text-lg">3.</span> 
+                                    Key Topology & Network Metrics
+                                </h2>
+                                <p class="text-sm">
+                                    To evaluate the role of single elements or characterize macroscopic topological features, we utilize key mathematical equations:
+                                </p>
 
-    function loadProgress() {
-      const savedXp = localStorage.getItem('cc_network_xp');
-      if (savedXp) {
-        xp = parseInt(savedXp, 10);
-      }
-      updateXpUI();
-    }
+                                <div class="space-y-4 mt-2">
+                                    <!-- Metric A -->
+                                    <div class="border-l-2 border-github-darkBorder pl-4 py-1">
+                                        <h4 class="text-sm font-semibold text-white">Degree and Degree Distribution ($k_i$)</h4>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed mb-2">
+                                            The degree $k_i$ of a node $i$ is the count of edges connected to it. In a directed network, we measure In-degree ($k_i^{in}$) and Out-degree ($k_i^{out}$).
+                                        </p>
+                                        <div class="text-xs font-mono text-github-blue">$$k_i = \sum_{j=1}^{N} A_{ij}$$</div>
+                                    </div>
+                                    <!-- Metric B -->
+                                    <div class="border-l-2 border-github-darkBorder pl-4 py-1">
+                                        <h4 class="text-sm font-semibold text-white">Average Path Length ($L$)</h4>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed mb-2">
+                                            Calculates the mean shortest path distance between all node pairs. It shows the speed of navigation or flow over the network structure.
+                                        </p>
+                                        <div class="text-xs font-mono text-github-blue">$$L = \frac{1}{N(N-1)} \sum_{i \neq j} d(i, j)$$</div>
+                                    </div>
+                                    <!-- Metric C -->
+                                    <div class="border-l-2 border-github-darkBorder pl-4 py-1">
+                                        <h4 class="text-sm font-semibold text-white">Clustering Coefficient ($C_i$)</h4>
+                                        <p class="text-xs text-github-darkMuted leading-relaxed mb-2">
+                                            Reflects the transitivity of linkages, measuring the ratio of closed triangles centered at node $i$ relative to the total possible connections amongst its immediate neighbors.
+                                        </p>
+                                        <div class="text-xs font-mono text-github-blue">$$C_i = \frac{2 T_i}{k_i(k_i - 1)}$$</div>
+                                    </div>
+                                </div>
+                            </div>
 
-    function resetProgress() {
-      if (confirm("Are you sure you want to reset your academy standing and XP?")) {
-        xp = 0;
-        saveProgress();
-        updateXpUI();
-        initMatchGame();
-        activeScenarioIdx = 0;
-        scenarioCorrectCount = 0;
-        scenarioFailedCount = 0;
-        initScenario();
-        updateScenarioStats();
-      }
-    }
+                            <!-- Simple Interactive Demo within Network Tab -->
+                            <div class="bg-github-dark border border-github-darkBorder p-5 rounded-xl space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-green-400">Network Simulation Playground</h3>
+                                    <span class="text-[10px] text-github-darkMuted bg-github-darkBorder px-2 py-0.5 rounded">Interactive JS Module</span>
+                                </div>
+                                <p class="text-xs text-github-darkMuted">
+                                    Add nodes dynamically to calculate graph density $D = \frac{2|E|}{|V|(|V|-1)}$ for a simple undirected graph.
+                                </p>
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <button onclick="updateSimpleGraph('add_node')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded font-medium transition">Add Node</button>
+                                    <button onclick="updateSimpleGraph('add_edge')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1.5 rounded font-medium transition">Add Random Edge</button>
+                                    <button onclick="updateSimpleGraph('reset')" class="bg-github-darkBorder hover:bg-red-950/40 text-github-darkText text-xs px-3 py-1.5 rounded font-medium transition">Reset Graph</button>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 bg-github-darkSecondary/80 p-3 rounded-lg text-center text-xs">
+                                    <div>
+                                        <div class="text-github-darkMuted">Nodes ($|V|$)</div>
+                                        <div id="sim-nodes" class="font-mono text-white text-base font-bold">5</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-github-darkMuted">Edges ($|E|$)</div>
+                                        <div id="sim-edges" class="font-mono text-white text-base font-bold">4</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-github-darkMuted">Density ($D$)</div>
+                                        <div id="sim-density" class="font-mono text-github-blue text-base font-bold">0.40</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    // --- VIEW / TAB MANAGER ---
-    function switchMode(mode) {
-      selectedMode = mode;
-      
-      // Update Navbar States
-      const tabs = ['study', 'match', 'scenarios'];
-      tabs.forEach(t => {
-        const btn = document.getElementById(`tab-${t}`);
-        if (t === mode) {
-          btn.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-accent text-primary shadow-sm";
-        } else {
-          btn.className = "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/5";
+                <!-- TAB CONTAINER: LINK GENERATOR TOOL -->
+                <div id="tab-generator" class="hidden space-y-6">
+                    <div class="bg-github-darkSecondary border border-github-darkBorder p-6 rounded-xl space-y-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-white mb-1">Create Shareable File Links</h2>
+                            <p class="text-sm text-github-darkMuted">
+                                Register new files, notebooks, or resources. This updates the local repository landing page dynamically, simulating actual code-merges into `index.html`.
+                            </p>
+                        </div>
+
+                        <!-- Generator Form -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-bold text-github-darkText uppercase tracking-wider">Page / Document Title</label>
+                                <input type="text" id="gen-title" placeholder="e.g., Graph Spectral Theory" class="w-full bg-github-dark border border-github-darkBorder px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:border-github-blue transition">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-bold text-github-darkText uppercase tracking-wider">Target Filename / URL Path</label>
+                                <input type="text" id="gen-path" placeholder="e.g., lectures/spectral.html" class="w-full bg-github-dark border border-github-darkBorder px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:border-github-blue font-mono transition">
+                            </div>
+                            <div class="col-span-1 md:col-span-2 space-y-1.5">
+                                <label class="block text-xs font-bold text-github-darkText uppercase tracking-wider">Commit Message / Description</label>
+                                <input type="text" id="gen-desc" placeholder="e.g., Complete proof formulas for Laplacian eigenvalue structures" class="w-full bg-github-dark border border-github-darkBorder px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:border-github-blue transition">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-github-darkText uppercase tracking-wider mb-1.5">Category Class</label>
+                                <select id="gen-category" class="w-full bg-github-dark border border-github-darkBorder px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:border-github-blue transition">
+                                    <option value="Lecture Notes">Lecture Notes</option>
+                                    <option value="Lab & Exercises">Lab & Exercises</option>
+                                    <option value="Syllabus & Info">Syllabus & Info</option>
+                                    <option value="Supplemental Materials">Supplemental Materials</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-github-darkText uppercase tracking-wider mb-1.5">File Size Indicator</label>
+                                <input type="text" id="gen-size" placeholder="e.g., 2.1 MB, 412 KB" class="w-full bg-github-dark border border-github-darkBorder px-3 py-2 rounded-lg text-sm text-white focus:outline-none focus:border-github-blue font-mono transition">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-2">
+                            <button onclick="registerCustomLink()" class="bg-github-green hover:bg-github-greenHover text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                <span>Inject File into Repository</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- RECENT LINKS SHOWCASE (Generated HTML Clipboard Tool) -->
+                    <div class="bg-github-darkSecondary border border-github-darkBorder p-6 rounded-xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-white">Dynamic Share Links Dashboard</h3>
+                            <span class="text-xs text-github-darkMuted font-mono">Real-time persistence</span>
+                        </div>
+                        <p class="text-xs text-github-darkMuted leading-relaxed">
+                            These URLs point to your custom-generated files within the relative directory. Click "Copy HTML Code Block" to easily grab the formatted link anchor code to integrate straight into any other HTML page or portal.
+                        </p>
+                        
+                        <div id="generated-links-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Populated with dynamic share cards -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DETAILED LICENSE SECTION (Creative Commons Free Share BY-NC) -->
+                <div id="license" class="bg-github-darkSecondary border border-github-darkBorder rounded-xl p-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-github-darkBorder pb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-yellow-500/10 p-2.5 rounded-lg border border-yellow-500/20">
+                                <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-extrabold text-white">Creative Commons Attribution-NonCommercial 4.0</h3>
+                                <p class="text-xs text-github-darkMuted">Identifier: CC BY-NC 4.0</p>
+                            </div>
+                        </div>
+                        <span class="bg-red-500/10 text-red-400 border border-red-500/30 text-xs font-bold px-3 py-1 rounded-full text-center">
+                            NO Commercial Distribution Allowed
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-github-darkMuted">
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-white uppercase tracking-wider">You are free to:</h4>
+                            <ul class="space-y-1.5 list-disc list-inside">
+                                <li><strong>Share</strong> — copy and redistribute the material in any medium or format.</li>
+                                <li><strong>Adapt</strong> — remix, transform, and build upon the material for academic use.</li>
+                            </ul>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-bold text-white uppercase tracking-wider">Under the following conditions:</h4>
+                            <ul class="space-y-1.5 list-disc list-inside">
+                                <li><strong>Attribution</strong> — You must give appropriate credit to <span class="text-white font-medium">Prof. Reyes</span>.</li>
+                                <li><strong>Non-Commercial</strong> — You may NOT use the material or files for commercial purposes, online sale, or premium distributions.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: ABOUT & STATS & QUICK ADD WIDGET -->
+            <div class="space-y-6">
+                
+                <!-- REPO BIO CARD -->
+                <div class="bg-github-darkSecondary border border-github-darkBorder p-5 rounded-xl space-y-4">
+                    <h3 class="text-sm font-bold text-white">About</h3>
+                    <p class="text-xs text-github-darkMuted leading-relaxed">
+                        Educational repository detailing foundational theories of Graph Theory, Connectivity Matrices, and Complex Dynamic System Networks. Maintained by the Department of Applied Network Analytics.
+                    </p>
+                    <div class="space-y-2.5 text-xs">
+                        <div class="flex items-center space-x-2 text-github-darkMuted">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                            <a href="#" class="text-github-blue hover:underline font-mono">profreyes.networkscience.edu</a>
+                        </div>
+                        <div class="flex items-center space-x-2 text-github-darkMuted">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+                            <span>Creative Commons BY-NC 4.0</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-github-darkMuted">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span>Academic Fall Semester 2026</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIDEBAR QUICK ADD LINK WIDGET -->
+                <div class="bg-github-darkSecondary border border-github-darkBorder p-5 rounded-xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider">Quick Injector</h3>
+                        <button onclick="switchTab('generator')" class="text-[11px] text-github-blue hover:underline">Full Tool</button>
+                    </div>
+                    <p class="text-xs text-github-darkMuted">
+                        Quickly register a new lesson page into this visual landing page directory.
+                    </p>
+                    <div class="space-y-3">
+                        <input type="text" id="quick-title" placeholder="Lesson Name" class="w-full bg-github-dark border border-github-darkBorder px-2.5 py-1.5 rounded text-xs text-white focus:outline-none focus:border-github-blue transition">
+                        <input type="text" id="quick-path" placeholder="URL Filename (e.g. lesson-02.html)" class="w-full bg-github-dark border border-github-darkBorder px-2.5 py-1.5 rounded text-xs text-white focus:outline-none focus:border-github-blue font-mono transition">
+                        <button onclick="quickRegisterLink()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-xs font-semibold transition">
+                            Merge Link
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONTRIBUTORS LIST -->
+                <div class="bg-github-darkSecondary border border-github-darkBorder p-5 rounded-xl space-y-3">
+                    <h3 class="text-sm font-bold text-white">Repository Steward</h3>
+                    <div class="flex items-center space-x-3 bg-github-dark/40 p-2 rounded-lg border border-github-darkBorder/40">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-800 flex items-center justify-center font-extrabold text-white shadow-md">
+                            PR
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-white">Prof. Reyes</div>
+                            <div class="text-[10px] text-github-darkMuted">Principal Curator</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REPO STATISTICS -->
+                <div class="bg-github-darkSecondary border border-github-darkBorder p-5 rounded-xl space-y-3 text-xs">
+                    <h3 class="text-sm font-bold text-white">Languages & Core</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-github-darkMuted">HTML / Interface</span>
+                            <span class="font-mono font-medium text-white">58.4%</span>
+                        </div>
+                        <div class="w-full bg-github-darkBorder h-2 rounded-full overflow-hidden">
+                            <div class="bg-orange-500 h-full rounded-full" style="width: 58.4%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-github-darkMuted">Network Markdown</span>
+                            <span class="font-mono font-medium text-white">41.6%</span>
+                        </div>
+                        <div class="w-full bg-github-darkBorder h-2 rounded-full overflow-hidden">
+                            <div class="bg-blue-500 h-full rounded-full" style="width: 41.6%"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- COMPREHENSIVE FOOTER -->
+    <footer class="mt-auto border-t border-github-darkBorder bg-github-dark/80 py-8 px-4 sm:px-6 lg:px-8 text-xs text-github-darkMuted">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <svg class="h-6 w-6 text-github-darkMuted fill-current" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+                <p>&copy; 2026 Prof. Reyes. Shared under <span class="text-github-darkText">Creative Commons Attribution-NonCommercial (CC BY-NC 4.0)</span>.</p>
+            </div>
+            <div class="flex items-center space-x-6">
+                <a href="#license" class="hover:text-github-blue transition hover:underline">CC BY-NC License Details</a>
+                <span class="text-github-darkBorder">|</span>
+                <a href="#" onclick="switchTab('networks')" class="hover:text-github-blue transition hover:underline">Intro to Networks</a>
+                <span class="text-github-darkBorder">|</span>
+                <a href="#" onclick="switchTab('generator')" class="hover:text-github-blue transition hover:underline">Link Tool</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT STATE CONTROLLER -->
+    <script>
+        // Initial files structure in local memory.
+        const defaultRepoFiles = [
+            {
+                name: 'README.md',
+                type: 'markdown',
+                description: 'Embed academic introduction to networks and graph metrics',
+                category: 'Course Info',
+                size: '4.2 KB',
+                modified: 'Today',
+                customUrl: '#',
+                isDefaultReadme: true
+            },
+            {
+                name: 'syllabus.pdf',
+                type: 'document',
+                description: 'Course guidelines, grading metrics, and reading schedules',
+                category: 'Syllabus & Info',
+                size: '1.2 MB',
+                modified: '3 days ago',
+                customUrl: 'https://github.com/ProfReyes/network-science-hub/blob/main/syllabus.pdf'
+            },
+            {
+                name: 'lecture-01-foundations.html',
+                type: 'code',
+                description: 'Web slides exploring node-link matrices & basic structures',
+                category: 'Lecture Notes',
+                size: '342 KB',
+                modified: '5 days ago',
+                customUrl: 'lectures/lecture-01-foundations.html'
+            }
+        ];
+
+        // Hydrate from localStorage or default
+        let repoFiles = [];
+        try {
+            const saved = localStorage.getItem('reyes_repo_files_v2');
+            if (saved) {
+                repoFiles = JSON.parse(saved);
+            } else {
+                repoFiles = [...defaultRepoFiles];
+            }
+        } catch (e) {
+            repoFiles = [...defaultRepoFiles];
         }
-      });
 
-      // Update Screen Visibilities
-      document.getElementById('view-study').style.display = (mode === 'study') ? 'grid' : 'none';
-      document.getElementById('view-match').style.display = (mode === 'match') ? 'flex' : 'none';
-      document.getElementById('view-scenarios').style.display = (mode === 'scenarios') ? 'grid' : 'none';
-
-      if (mode === 'match') {
-        initMatchGame();
-      }
-    }
-
-    // --- MODE 1: STUDY CODEX ---
-    function filterDeck(category) {
-      currentFilter = category;
-      
-      // Update Filter Buttons Class Lists
-      const buttons = document.querySelectorAll('.filter-btn');
-      buttons.forEach(btn => {
-        if (btn.id === `btn-filter-${category}`) {
-          btn.className = "filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all bg-primary text-white shadow-sm";
-          // Update nested span background
-          const span = btn.querySelector('span:last-child');
-          if (span) {
-            span.className = "bg-black/20 text-xs px-2 py-0.5 rounded font-mono";
-          }
-        } else {
-          btn.className = "filter-btn text-left px-4 py-2.5 rounded-xl font-medium text-sm flex justify-between items-center transition-all text-slate-600 hover:bg-slate-100";
-          const span = btn.querySelector('span:last-child');
-          if (span) {
-            span.className = "bg-slate-200 text-xs px-2 py-0.5 rounded font-mono";
-          }
+        // Star Incrementer
+        let stars = 142;
+        function incrementCounter(type) {
+            stars++;
+            document.getElementById('star-count').innerText = stars;
+            showToast("Repository starred! Thank you for the support.", "success");
         }
-      });
 
-      renderCodex();
-    }
+        // Custom Link generator
+        function registerCustomLink() {
+            const titleInput = document.getElementById('gen-title');
+            const pathInput = document.getElementById('gen-path');
+            const descInput = document.getElementById('gen-desc');
+            const categorySelect = document.getElementById('gen-category');
+            const sizeInput = document.getElementById('gen-size');
 
-    function updateCategoryCounts() {
-      document.getElementById('count-all').innerText = protocols.length;
-      document.getElementById('count-secure').innerText = protocols.filter(p => p.secure).length;
-      document.getElementById('count-unsecure').innerText = protocols.filter(p => !p.secure).length;
-      document.getElementById('count-web-mail').innerText = protocols.filter(p => p.category === 'web-mail' || p.category === 'secure' && (p.code.includes('HTTP') || p.code.includes('SMTP') || p.code.includes('SIP'))).length;
-      document.getElementById('count-infra').innerText = protocols.filter(p => p.category === 'infra').length;
-    }
+            const title = titleInput.value.trim();
+            const path = pathInput.value.trim();
+            const desc = descInput.value.trim() || 'New resource added';
+            const category = categorySelect.value;
+            const size = sizeInput.value.trim() || '15 KB';
 
-    function renderCodex() {
-      const grid = document.getElementById('codex-grid');
-      grid.innerHTML = '';
+            if (!title || !path) {
+                showToast("Please enter at least a Page Title and Target Path.", "error");
+                return;
+            }
 
-      let list = protocols;
-      if (currentFilter === 'secure') {
-        list = protocols.filter(p => p.secure);
-      } else if (currentFilter === 'unsecure') {
-        list = protocols.filter(p => !p.secure);
-      } else if (currentFilter === 'web-mail') {
-        list = protocols.filter(p => p.category === 'web-mail' || p.category === 'secure' && (p.code.includes('HTTP') || p.code.includes('SMTP') || p.code.includes('SIP')));
-      } else if (currentFilter === 'infra') {
-        list = protocols.filter(p => p.category === 'infra');
-      }
+            const newFile = {
+                name: path,
+                type: 'code',
+                description: `${title} - ${desc}`,
+                category: category,
+                size: size,
+                modified: 'Just now',
+                customUrl: path
+            };
 
-      list.forEach(p => {
-        const card = document.createElement('div');
-        card.className = "bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative hover:shadow-md transition-all duration-300 flex flex-col gap-3 group hover:border-primary/20";
+            repoFiles.push(newFile);
+            saveAndRender();
+            
+            // Clear fields
+            titleInput.value = '';
+            pathInput.value = '';
+            descInput.value = '';
+            sizeInput.value = '';
+
+            showToast(`Page "${title}" registered successfully!`, "success");
+            switchTab('code'); // show the updated code table
+        }
+
+        // Quick register from sidebar
+        function quickRegisterLink() {
+            const titleInput = document.getElementById('quick-title');
+            const pathInput = document.getElementById('quick-path');
+
+            const title = titleInput.value.trim();
+            const path = pathInput.value.trim();
+
+            if (!title || !path) {
+                showToast("Please fill in all quick injector fields.", "error");
+                return;
+            }
+
+            const newFile = {
+                name: path,
+                type: 'code',
+                description: `${title} - Shared learning document`,
+                category: 'Lecture Notes',
+                size: '22 KB',
+                modified: 'Just now',
+                customUrl: path
+            };
+
+            repoFiles.push(newFile);
+            saveAndRender();
+
+            titleInput.value = '';
+            pathInput.value = '';
+
+            showToast(`File merged! Check the directory table.`, "success");
+            switchTab('code');
+        }
+
+        function deleteFile(index, event) {
+            event.stopPropagation();
+            const deletedName = repoFiles[index].name;
+            repoFiles.splice(index, 1);
+            saveAndRender();
+            showToast(`Deleted ${deletedName} from local session view.`, "success");
+        }
+
+        function saveAndRender() {
+            try {
+                localStorage.setItem('reyes_repo_files_v2', JSON.stringify(repoFiles));
+            } catch(e) {}
+            renderFileTable();
+            renderLinksRegistry();
+        }
+
+        // UI Tab Switcher
+        function switchTab(tabId) {
+            // Reset active tabs style
+            document.getElementById('tab-code-btn').className = "pb-3 text-github-darkMuted hover:text-white font-medium flex items-center space-x-2 focus:outline-none transition";
+            document.getElementById('tab-networks-btn').className = "pb-3 text-github-darkMuted hover:text-white font-medium flex items-center space-x-2 focus:outline-none transition";
+            document.getElementById('tab-generator-btn').className = "pb-3 text-github-darkMuted hover:text-white font-medium flex items-center space-x-2 focus:outline-none transition";
+
+            // Hide all tab panels
+            document.getElementById('tab-code').classList.add('hidden');
+            document.getElementById('tab-networks').classList.add('hidden');
+            document.getElementById('tab-generator').classList.add('hidden');
+
+            // Set dynamic active
+            if (tabId === 'code') {
+                document.getElementById('tab-code-btn').className = "pb-3 text-white border-b-2 border-orange-500 font-semibold flex items-center space-x-2 focus:outline-none";
+                document.getElementById('tab-code').classList.remove('hidden');
+            } else if (tabId === 'networks') {
+                document.getElementById('tab-networks-btn').className = "pb-3 text-white border-b-2 border-orange-500 font-semibold flex items-center space-x-2 focus:outline-none";
+                document.getElementById('tab-networks').classList.remove('hidden');
+            } else if (tabId === 'generator') {
+                document.getElementById('tab-generator-btn').className = "pb-3 text-white border-b-2 border-orange-500 font-semibold flex items-center space-x-2 focus:outline-none";
+                document.getElementById('tab-generator').classList.remove('hidden');
+            }
+        }
+
+        // Clipboard Copy function that respects iframe safety principles using text area technique
+        function copyToClipboard(text, message) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'absolute';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast(message || "Copied to clipboard!", "success");
+                } else {
+                    showToast("Failed to copy link.", "error");
+                }
+            } catch (err) {
+                showToast("System copy failed.", "error");
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        // Clipboard Copy for complete dynamic HTML anchor tags
+        function copyHtmlAnchor(title, path) {
+            const htmlBlock = `<a href="${path}" class="text-blue-500 hover:underline font-semibold" target="_blank">${title}</a>`;
+            copyToClipboard(htmlBlock, `Copied complete HTML Anchor code block!`);
+        }
+
+        // Toast Engine
+        function showToast(text, type = "success") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-center space-x-3 p-4 rounded-xl border shadow-xl bg-github-darkSecondary transform translate-y-2 opacity-0 transition duration-300 pointer-events-auto max-w-sm ${
+                type === 'error' ? 'border-red-500/30 text-red-300' : 'border-green-500/30 text-green-300'
+            }`;
+            
+            const checkIcon = `<svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>`;
+            const errorIcon = `<svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+
+            toast.innerHTML = `
+                ${type === 'error' ? errorIcon : checkIcon}
+                <div class="text-xs font-semibold text-github-darkText flex-1">${text}</div>
+            `;
+            container.appendChild(toast);
+
+            // Trigger Animation
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            // Auto Remove
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        // File Rows Renderer
+        function renderFileTable() {
+            const container = document.getElementById('repo-file-rows');
+            container.innerHTML = '';
+
+            repoFiles.forEach((file, index) => {
+                // Determine Icon
+                let iconSvg = '';
+                if (file.type === 'markdown') {
+                    iconSvg = `<svg class="w-4 h-4 text-github-darkMuted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`;
+                } else if (file.type === 'document') {
+                    iconSvg = `<svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`;
+                } else {
+                    iconSvg = `<svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>`;
+                }
+
+                const fileRow = document.createElement('div');
+                fileRow.className = "grid grid-cols-12 gap-2 px-4 py-3 hover:bg-github-darkSecondary/60 items-center transition cursor-pointer";
+                
+                // Clicking file row links to preview or dynamic behavior
+                fileRow.onclick = () => {
+                    if (file.isDefaultReadme) {
+                        switchTab('networks');
+                    } else {
+                        showToast(`Simulated Navigation to relative page: "${file.name}"`, "success");
+                    }
+                };
+
+                fileRow.innerHTML = `
+                    <div class="col-span-6 sm:col-span-5 flex items-center space-x-2.5 truncate">
+                        ${iconSvg}
+                        <span class="font-mono text-xs sm:text-sm font-semibold text-github-darkText hover:text-github-blue hover:underline">${file.name}</span>
+                    </div>
+                    <div class="col-span-6 sm:col-span-4 text-xs text-github-darkMuted truncate">
+                        ${file.description}
+                    </div>
+                    <div class="col-span-3 text-right hidden sm:flex items-center justify-end space-x-3 text-xs text-github-darkMuted">
+                        <span>${file.modified}</span>
+                        ${!file.isDefaultReadme ? `
+                            <button onclick="deleteFile(${index}, event)" class="p-1 hover:text-red-400 transition" title="Delete record">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        ` : '<span class="w-3.5"></span>'}
+                    </div>
+                `;
+
+                container.appendChild(fileRow);
+            });
+        }
+
+        // Links Registry Renderer (Cards layout under Link Generator tab)
+        function renderLinksRegistry() {
+            const grid = document.getElementById('generated-links-grid');
+            grid.innerHTML = '';
+
+            repoFiles.forEach((file) => {
+                // Determine badge color
+                let badgeClass = "bg-blue-500/10 text-blue-400 border border-blue-500/20";
+                if (file.category === 'Syllabus & Info') badgeClass = "bg-green-500/10 text-green-400 border border-green-500/20";
+                if (file.category === 'Lab & Exercises') badgeClass = "bg-purple-500/10 text-purple-400 border border-purple-500/20";
+                
+                const card = document.createElement('div');
+                card.className = "bg-github-dark border border-github-darkBorder p-4 rounded-xl flex flex-col justify-between space-y-4 hover:border-github-blue/40 transition";
+                card.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex items-start justify-between">
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${badgeClass}">
+                                ${file.category || 'General File'}
+                            </span>
+                            <span class="text-[10px] text-github-darkMuted font-mono">${file.size || '12 KB'}</span>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white leading-tight">${file.name}</h4>
+                            <p class="text-xs text-github-darkMuted leading-relaxed mt-1">${file.description}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 pt-2 border-t border-github-darkBorder/40">
+                        <button onclick="copyToClipboard('${file.customUrl}', 'Direct path copied!')" class="flex-1 bg-github-darkBorder/50 hover:bg-github-darkBorder text-github-darkText hover:text-white text-xs py-1.5 rounded font-medium transition flex items-center justify-center space-x-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                            <span>Copy Relative Link</span>
+                        </button>
+                        <button onclick="copyHtmlAnchor('${file.name}', '${file.customUrl}')" class="p-1.5 text-github-darkMuted hover:text-github-blue hover:bg-github-blue/10 rounded transition" title="Copy complete HTML anchor code block">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                        </button>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Mini Network Density Graph Simulator logic
+        let simNodesVal = 5;
+        let simEdgesVal = 4;
         
-        const lockIcon = p.secure 
-          ? `<span class="bg-emerald-50 text-emerald-700 text-[10px] px-2 py-1 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-lock"></i> Secured</span>`
-          : `<span class="bg-amber-50 text-amber-700 text-[10px] px-2 py-1 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> Legacy</span>`;
+        function updateSimpleGraph(action) {
+            if (action === 'add_node') {
+                simNodesVal++;
+            } else if (action === 'add_edge') {
+                const maxEdges = (simNodesVal * (simNodesVal - 1)) / 2;
+                if (simEdgesVal < maxEdges) {
+                    simEdgesVal++;
+                } else {
+                    showToast("Fully saturated network. Cannot add more undirected edges.", "error");
+                }
+            } else if (action === 'reset') {
+                simNodesVal = 5;
+                simEdgesVal = 4;
+                showToast("Graph topology re-initialized.", "success");
+            }
 
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div class="flex items-center gap-2.5">
-              <span class="font-mono text-2xl font-extrabold text-primary group-hover:scale-105 transition-transform">${p.code}</span>
-              <span class="text-xs bg-slate-100 font-mono px-1.5 py-0.5 rounded font-bold text-slate-500">${p.proto}</span>
-            </div>
-            <div class="text-right font-mono font-black text-xl text-accent flex flex-col items-end">
-              <span>Port ${p.port}</span>
-              ${lockIcon}
-            </div>
-          </div>
-          <div>
-            <h4 class="text-xs font-bold text-slate-500 mb-1">${p.name}</h4>
-            <p class="text-xs text-slate-600 leading-relaxed">${p.desc}</p>
-          </div>
-          ${p.secureAlt ? `
-            <div class="mt-auto pt-2 border-t border-dashed border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
-              <span>Security Alternative:</span>
-              <span class="font-mono bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded">${p.secureAlt}</span>
-            </div>
-          ` : ''}
-          ${p.unsecureAlt ? `
-            <div class="mt-auto pt-2 border-t border-dashed border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
-              <span>Unsecure Predecessor:</span>
-              <span class="font-mono bg-amber-50 text-amber-800 font-bold px-2 py-0.5 rounded">${p.unsecureAlt}</span>
-            </div>
-          ` : ''}
-        `;
-        grid.appendChild(card);
-      });
-    }
+            const maxEdgesPossible = (simNodesVal * (simNodesVal - 1)) / 2;
+            const density = maxEdgesPossible > 0 ? (simEdgesVal / maxEdgesPossible).toFixed(3) : "0.000";
 
-
-    // --- MODE 2: MATCHING GAME ---
-    function initMatchGame() {
-      // Clear game states
-      selectedProtocolElement = null;
-      selectedPortElement = null;
-      matchesCompleted = 0;
-      matchSeconds = 0;
-      document.getElementById('match-victory-overlay').classList.add('hidden');
-      document.getElementById('match-streak').innerText = "0 / 5";
-      
-      // Start or Reset Timer
-      clearInterval(matchTimerId);
-      matchTimerId = setInterval(() => {
-        matchSeconds++;
-        const mins = String(Math.floor(matchSeconds / 60)).padStart(2, '0');
-        const secs = String(matchSeconds % 60).padStart(2, '0');
-        document.getElementById('match-timer').innerText = `${mins}:${secs}`;
-      }, 1000);
-
-      // Select 5 random protocol objects
-      const shuffled = [...protocols].sort(() => 0.5 - Math.random());
-      matchRoundItems = shuffled.slice(0, 5);
-
-      // Render Protocols (Left)
-      const protoContainer = document.getElementById('matcher-protocols-container');
-      protoContainer.innerHTML = '';
-      const displayProtos = [...matchRoundItems].sort(() => 0.5 - Math.random());
-      displayProtos.forEach(p => {
-        const btn = document.createElement('button');
-        btn.dataset.code = p.code;
-        btn.onclick = () => selectProtocol(btn);
-        btn.className = "flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-sm text-left font-bold text-slate-700 hover:border-primary hover:bg-slate-50/50 transition-all duration-200 w-full focus:outline-none";
-        btn.innerHTML = `
-          <div class="flex items-center gap-3">
-            <span class="bg-slate-100 h-8 w-8 rounded-lg flex items-center justify-center font-mono text-xs text-slate-500 group-hover:bg-primary/10">Code</span>
-            <span class="font-mono text-base font-extrabold text-slate-800">${p.code}</span>
-          </div>
-          <span class="text-xs font-normal text-slate-400 truncate max-w-[150px] sm:max-w-[200px]">${p.name}</span>
-        `;
-        protoContainer.appendChild(btn);
-      });
-
-      // Render Ports (Right)
-      const portContainer = document.getElementById('matcher-ports-container');
-      portContainer.innerHTML = '';
-      const displayPorts = [...matchRoundItems].sort(() => 0.5 - Math.random());
-      displayPorts.forEach(p => {
-        const btn = document.createElement('button');
-        btn.dataset.code = p.code;
-        btn.onclick = () => selectPort(btn);
-        btn.className = "flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-sm text-right flex-row-reverse md:flex-row font-bold text-slate-700 hover:border-accent hover:bg-slate-50/50 transition-all duration-200 w-full focus:outline-none";
-        btn.innerHTML = `
-          <div class="flex items-center gap-3 flex-row-reverse">
-            <span class="bg-goldlight h-8 w-8 rounded-lg flex items-center justify-center font-mono text-xs text-accent">TCP</span>
-            <span class="font-mono text-base font-black text-slate-800">Port ${p.port}</span>
-          </div>
-          <span class="text-xs font-semibold text-slate-400 font-mono">Service Interface</span>
-        `;
-        portContainer.appendChild(btn);
-      });
-    }
-
-    function selectProtocol(el) {
-      if (el.classList.contains('matched')) return;
-
-      // Reset previous selection UI
-      if (selectedProtocolElement) {
-        selectedProtocolElement.className = selectedProtocolElement.className.replace(' border-primary bg-primary/5 ring-2 ring-primary/20', '');
-      }
-
-      selectedProtocolElement = el;
-      el.className += " border-primary bg-primary/5 ring-2 ring-primary/20";
-
-      checkPairMatch();
-    }
-
-    function selectPort(el) {
-      if (el.classList.contains('matched')) return;
-
-      // Reset previous selection UI
-      if (selectedPortElement) {
-        selectedPortElement.className = selectedPortElement.className.replace(' border-accent bg-goldlight ring-2 ring-accent/20', '');
-      }
-
-      selectedPortElement = el;
-      el.className += " border-accent bg-goldlight ring-2 ring-accent/20";
-
-      checkPairMatch();
-    }
-
-    function checkPairMatch() {
-      if (!selectedProtocolElement || !selectedPortElement) return;
-
-      const protoCode = selectedProtocolElement.dataset.code;
-      const portCode = selectedPortElement.dataset.code;
-
-      if (protoCode === portCode) {
-        // MATCH SUCCESS
-        const itemObj = matchRoundItems.find(item => item.code === protoCode);
-
-        // Green Success Styling
-        selectedProtocolElement.className = "flex items-center justify-between p-4 bg-emerald-50 border-2 border-emerald-500 text-emerald-800 rounded-2xl shadow-sm text-left font-bold transition-all duration-200 w-full pointer-events-none matched";
-        selectedProtocolElement.innerHTML = `
-          <div class="flex items-center gap-3">
-            <span class="bg-emerald-100 text-emerald-600 h-8 w-8 rounded-lg flex items-center justify-center"><i class="fa-solid fa-check"></i></span>
-            <span class="font-mono text-base font-extrabold text-emerald-900">${protoCode}</span>
-          </div>
-          <span class="text-xs font-medium text-emerald-600">Perfect Connection Match</span>
-        `;
-
-        selectedPortElement.className = "flex items-center justify-between p-4 bg-emerald-50 border-2 border-emerald-500 text-emerald-800 rounded-2xl shadow-sm text-right flex-row-reverse md:flex-row font-bold transition-all duration-200 w-full pointer-events-none matched";
-        selectedPortElement.innerHTML = `
-          <div class="flex items-center gap-3 flex-row-reverse">
-            <span class="bg-emerald-100 text-emerald-600 h-8 w-8 rounded-lg flex items-center justify-center"><i class="fa-solid fa-link"></i></span>
-            <span class="font-mono text-base font-black text-emerald-900">Port ${itemObj.port}</span>
-          </div>
-          <span class="text-xs font-medium text-emerald-600">Assigned Successfully</span>
-        `;
-
-        // Clear Selection States
-        selectedProtocolElement = null;
-        selectedPortElement = null;
-
-        // Add Points and progress
-        matchesCompleted++;
-        document.getElementById('match-streak').innerText = `${matchesCompleted} / 5`;
-        addXP(10); // +10 XP for each match
-
-        // Check Victory
-        if (matchesCompleted === 5) {
-          clearInterval(matchTimerId);
-          document.getElementById('match-victory-overlay').classList.remove('hidden');
-          addXP(50); // Mastery completion bonus
+            document.getElementById('sim-nodes').innerText = simNodesVal;
+            document.getElementById('sim-edges').innerText = simEdgesVal;
+            document.getElementById('sim-density').innerText = density;
         }
-      } else {
-        // MATCH FAILURE
-        const pEl = selectedProtocolElement;
-        const oEl = selectedPortElement;
 
-        // Apply error animations or styling temporarily
-        pEl.className += " border-red-500 bg-red-50 text-red-800";
-        oEl.className += " border-red-500 bg-red-50 text-red-800";
-
-        setTimeout(() => {
-          // Revert Styling
-          pEl.className = "flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-sm text-left font-bold text-slate-700 hover:border-primary hover:bg-slate-50/50 transition-all duration-200 w-full focus:outline-none";
-          oEl.className = "flex items-center justify-between p-4 bg-white border border-slate-200 rounded-2xl shadow-sm text-right flex-row-reverse md:flex-row font-bold text-slate-700 hover:border-accent hover:bg-slate-50/50 transition-all duration-200 w-full focus:outline-none";
-        }, 1000);
-
-        // Clear Selection states
-        selectedProtocolElement = null;
-        selectedPortElement = null;
-      }
-    }
-
-
-    // --- MODE 3: SCENARIO CHALLENGES ---
-    function initScenario() {
-      // Handle bounds reset
-      if (activeScenarioIdx >= scenarioQuiz.length) {
-        activeScenarioIdx = 0;
-      }
-
-      const activeObj = scenarioQuiz[activeScenarioIdx];
-      selectedOptionIdx = null;
-
-      // Update Header Text & Watermark
-      document.getElementById('scenario-progress').innerText = `Challenge ${activeScenarioIdx + 1} of ${scenarioQuiz.length}`;
-      document.getElementById('scenario-num-watermark').innerText = String(activeScenarioIdx + 1).padStart(2, '0');
-      
-      // Load Prompts
-      document.getElementById('scenario-prompt').innerText = activeObj.prompt;
-
-      // Hide Feedback card
-      const feedbackBox = document.getElementById('scenario-explanation');
-      feedbackBox.classList.add('hidden');
-      document.getElementById('btn-next-scenario').classList.add('hidden');
-
-      // Build Option Buttons
-      const optsContainer = document.getElementById('scenario-options');
-      optsContainer.innerHTML = '';
-
-      activeObj.options.forEach((opt, idx) => {
-        const btn = document.createElement('button');
-        btn.onclick = () => evaluateScenarioSelection(idx);
-        btn.className = "w-full text-left p-4 rounded-xl border border-slate-200 hover:border-primary hover:bg-slate-50 transition-all flex justify-between items-center bg-white group focus:outline-none";
-        btn.innerHTML = `
-          <div class="flex items-center gap-3">
-            <span class="h-6 w-6 rounded-full border-2 border-slate-300 flex items-center justify-center font-bold text-xs text-slate-400 group-hover:border-primary group-hover:text-primary shrink-0">
-              ${String.fromCharCode(65 + idx)}
-            </span>
-            <span class="text-sm font-semibold text-slate-700 leading-relaxed">${opt.text}</span>
-          </div>
-          <i class="fa-solid fa-circle-chevron-right text-slate-300 group-hover:text-primary transition-colors shrink-0 ml-2"></i>
-        `;
-        optsContainer.appendChild(btn);
-      });
-    }
-
-    function evaluateScenarioSelection(selectedIdx) {
-      // Prevent multiple submissions on the same question
-      if (selectedOptionIdx !== null) return;
-      selectedOptionIdx = selectedIdx;
-
-      const activeObj = scenarioQuiz[activeScenarioIdx];
-      const isCorrect = activeObj.options[selectedIdx].correct;
-
-      const optsContainer = document.getElementById('scenario-options');
-      const buttons = optsContainer.querySelectorAll('button');
-
-      // Style Correct and Selected components
-      buttons.forEach((btn, idx) => {
-        btn.onclick = null; // Disable clicking
-        
-        if (activeObj.options[idx].correct) {
-          // Highlight target correct option
-          btn.className = "w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 flex justify-between items-center pointer-events-none";
-          btn.querySelector('span:first-child').className = "h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0";
-          btn.querySelector('span:first-child').innerHTML = `<i class="fa-solid fa-check"></i>`;
-          btn.querySelector('i').className = "fa-solid fa-circle-check text-emerald-500";
-        } else if (idx === selectedIdx) {
-          // Highlight incorrect selection
-          btn.className = "w-full text-left p-4 rounded-xl border-2 border-red-500 bg-red-50/50 flex justify-between items-center pointer-events-none";
-          btn.querySelector('span:first-child').className = "h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-xs shrink-0";
-          btn.querySelector('span:first-child').innerHTML = `<i class="fa-solid fa-xmark"></i>`;
-          btn.querySelector('i').className = "fa-solid fa-circle-xmark text-red-500";
-        } else {
-          // Subdue unrelated options
-          btn.className = "w-full text-left p-4 rounded-xl border border-slate-100 bg-slate-50 opacity-40 flex justify-between items-center pointer-events-none";
-        }
-      });
-
-      // Update Diagnostics and Add XP
-      if (isCorrect) {
-        scenarioCorrectCount++;
-        addXP(25);
-      } else {
-        scenarioFailedCount++;
-      }
-
-      updateScenarioStats();
-
-      // Render Explanation Output Panel
-      const feedbackBox = document.getElementById('scenario-explanation');
-      feedbackBox.className = isCorrect 
-        ? "rounded-xl p-4 transition-all duration-300 bg-emerald-50 border border-emerald-100 text-slate-800"
-        : "rounded-xl p-4 transition-all duration-300 bg-red-50 border border-red-100 text-slate-800";
-      
-      const badgeIcon = isCorrect 
-        ? `<div class="font-black text-emerald-700 text-sm flex items-center gap-1.5 mb-1"><i class="fa-solid fa-circle-check"></i> Explanation Confirmed (+25 XP)</div>`
-        : `<div class="font-black text-red-700 text-sm flex items-center gap-1.5 mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Learning Moment</div>`;
-
-      feedbackBox.innerHTML = `
-        ${badgeIcon}
-        <p class="text-xs leading-relaxed font-medium text-slate-600">${activeObj.explanation}</p>
-      `;
-      feedbackBox.classList.remove('hidden');
-
-      // Expose Next button
-      document.getElementById('btn-next-scenario').classList.remove('hidden');
-    }
-
-    function updateScenarioStats() {
-      const total = scenarioCorrectCount + scenarioFailedCount;
-      const rate = total === 0 ? 0 : Math.round((scenarioCorrectCount / total) * 100);
-
-      document.getElementById('stat-accuracy').innerText = `${rate}%`;
-      document.getElementById('stat-accuracy-bar').style.width = `${rate}%`;
-      document.getElementById('stat-correct').innerText = scenarioCorrectCount;
-      document.getElementById('stat-failed').innerText = scenarioFailedCount;
-    }
-
-    function nextScenario() {
-      activeScenarioIdx++;
-      initScenario();
-    }
-
-
-    // --- PORT LOOKUP ASSISTANCE UTILITY ---
-    function quickSearchPorts() {
-      const raw = document.getElementById('quick-search').value.toLowerCase().trim();
-      const output = document.getElementById('quick-search-result');
-
-      if (!raw) {
-        output.innerHTML = `<span class="text-slate-400 font-normal">Search for ports instantly during questions (e.g. "22" or "DHCP")</span>`;
-        return;
-      }
-
-      // Check protocol objects database
-      const found = protocols.find(p => 
-        p.code.toLowerCase() === raw || 
-        p.port.includes(raw) || 
-        p.name.toLowerCase().includes(raw)
-      );
-
-      if (found) {
-        const shieldBadge = found.secure 
-          ? `<span class="bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">Secured</span>`
-          : `<span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">Legacy</span>`;
-
-        output.innerHTML = `
-          <div class="flex flex-col gap-1 w-full text-slate-700 font-semibold">
-            <div class="flex justify-between items-center">
-              <span class="font-mono text-primary font-extrabold text-sm">${found.code} &middot; Port ${found.port}</span>
-              ${shieldBadge}
-            </div>
-            <div class="text-[10px] text-slate-500 font-normal line-clamp-1">${found.name} &middot; Mode: ${found.proto}</div>
-          </div>
-        `;
-      } else {
-        output.innerHTML = `<span class="text-red-500 font-bold"><i class="fa-solid fa-triangle-exclamation"></i> No match discovered in objectives list.</span>`;
-      }
-    }
-  </script>
+        // Initial setup on load
+        window.onload = function() {
+            renderFileTable();
+            renderLinksRegistry();
+        };
+    </script>
 </body>
 </html>
