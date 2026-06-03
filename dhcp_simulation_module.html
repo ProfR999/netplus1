@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHCP Advanced Interactive Simulation & Study Module</title>
+    <!-- Tailwind CSS for modern responsive UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for typography hierarchy -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        .packet-transition {
+            transition: all 0.75s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        @keyframes network-broadcast {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+        .broadcast-wave {
+            animation: network-broadcast 1.2s infinite ease-out;
+        }
+        @keyframes server-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        }
+        .rogue-active-pulse {
+            animation: server-pulse 1.4s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
+
+    <!-- Header containing Layout Switcher -->
+    <header class="border-b border-slate-800 bg-slate-950 px-6 py-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <span class="px-2.5 py-1 text-xs font-semibold bg-violet-500/10 text-violet-400 rounded-full border border-violet-500/20">Advanced Multi-Scenario Lab</span>
+                <h1 class="text-2xl font-extrabold tracking-tight mt-1 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">CompTIA Network+ DHCP Lab Simulator</h1>
+                <p class="text-sm text-slate-400 mt-0.5">Interact with standard D-O-R-A, APIPA boundaries, Relay IP Helpers, and Snooping mitigation techniques.</p>
+            </div>
+            <!-- View Mode Switchers -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="toggleViewMode('student')" id="view-student" class="px-4 py-2 text-xs font-semibold rounded-lg bg-violet-600 text-white transition-all shadow-md shadow-violet-900/30">
+                    Interactive Lab Simulator
+                </button>
+                <button onclick="toggleViewMode('reference')" id="view-reference" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-all">
+                    Network+ Study Reference
+                </button>
+                <button onclick="toggleViewMode('quiz')" id="view-quiz" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-all">
+                    Practice Exam (10 Qs)
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout Grid (Interactive Lab Simulator) -->
+    <main id="simulation-viewport" class="flex-grow max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left 2 Columns: Visual Simulation Board & Inspector -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+
+            <!-- Scenario Configurator Panel -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-violet-500 to-indigo-600"></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Column 1: Scenario Selector -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">1. Select Lab Scenario:</label>
+                        <select id="config-scenario" onchange="changeScenario()" class="w-full bg-slate-900 border border-violet-500/30 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 font-semibold cursor-pointer">
+                            <option value="scenario-dora">1. Standard D-O-R-A & UDP Ports</option>
+                            <option value="scenario-apipa">2. APIPA Auto-Fallback (169.254.x.x)</option>
+                            <option value="scenario-relay">3. DHCP Relay Agent (IP Helper)</option>
+                            <option value="scenario-snooping">4. DHCP Spoofing & Switch Snooping</option>
+                            <option value="scenario-ipam">5. IPAM Address Conflict Management</option>
+                        </select>
+                    </div>
+                    <!-- Column 2: Client Device select -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">2. Client Hardware Profile:</label>
+                        <select id="config-device" onchange="resetToStart()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 cursor-pointer">
+                            <option value="desktop">Workstation (MAC: 00:1A:2B:3C:4D:5E)</option>
+                            <option value="phone">Smartphone (MAC: A1:B2:C3:D4:E5:F6)</option>
+                            <option value="tv">IoT Smart TV (MAC: 70:EE:50:99:AA:BB)</option>
+                        </select>
+                    </div>
+                    <!-- Column 3: Lease Policy select -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">3. Lease Policy Limit:</label>
+                        <select id="config-lease" onchange="resetToStart()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 cursor-pointer">
+                            <option value="normal">8 Days (Standard Enterprise)</option>
+                            <option value="short">12 Minutes (Public Wi-Fi)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Scenario contextual description banner -->
+                <div class="mt-4 p-3 bg-slate-900/50 rounded-lg border border-slate-800/80 text-xs text-slate-400 leading-relaxed" id="scenario-banner">
+                    Loading Scenario Meta info...
+                </div>
+            </div>
+
+            <!-- The Visual Network Canvas Arena -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-xl flex-grow flex flex-col justify-between min-h-[460px] relative overflow-hidden">
+                
+                <!-- Zone Indicators (Addressing boundaries dynamically rendered) -->
+                <div id="zone-lan" class="absolute inset-y-0 left-0 w-[42%] bg-blue-500/5 border-r border-dashed border-blue-500/20 pointer-events-none flex items-end p-4">
+                    <span class="text-xs font-bold tracking-widest text-blue-400/30 uppercase">Subnet A (Client LAN)</span>
+                </div>
+                <div id="zone-wan" class="absolute inset-y-0 right-0 w-[58%] bg-purple-500/5 pointer-events-none flex items-end justify-end p-4">
+                    <span class="text-xs font-bold tracking-widest text-purple-400/30 uppercase" id="zone-right-label">DHCP Server Infrastructure</span>
+                </div>
+
+                <!-- Custom Grid Overlay background -->
+                <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 pointer-events-none"></div>
+
+                <!-- Logical Physical Connection Lines (SVG Backing, paths updated dynamically) -->
+                <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg" id="canvas-svg-lines">
+                    <!-- Standard Switch connections -->
+                    <path d="M 120,180 L 290,180" stroke="#475569" stroke-width="2" stroke-dasharray="3 3" fill="none" id="line-client-switch"/>
+                    <path d="M 290,180 L 490,90" stroke="#475569" stroke-width="2" stroke-dasharray="3 3" fill="none" id="line-switch-server"/>
+                    <path d="M 290,180 L 490,270" stroke="#ef4444" stroke-dasharray="3 3" stroke-width="1.5" class="hidden" fill="none" id="line-switch-rogue"/>
+                </svg>
+
+                <!-- Switch Hardware Configuration Option Controls (Visible in Snooping Scenario) -->
+                <div id="switch-snooping-toggle" class="absolute left-[40%] top-6 -translate-x-1/2 bg-slate-900/90 border border-slate-800 p-2.5 rounded-lg z-20 text-center hidden">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">DHCP Snooping (L2 Security)</span>
+                    <button onclick="toggleSnoopingOnSwitch()" id="btn-snooping-toggle" class="px-2.5 py-1 text-[10px] font-extrabold rounded uppercase tracking-wider bg-rose-600/25 border border-rose-500/40 text-rose-400 hover:bg-rose-600/40 transition-all">
+                        DISABLED (UNSECURED)
+                    </button>
+                </div>
+
+                <!-- Network Nodes Container -->
+                <div class="relative w-full h-80 z-10">
+
+                    <!-- Client Node (Left Side) -->
+                    <div id="node-client" class="absolute left-6 top-32 w-32 text-center">
+                        <div class="relative">
+                            <div id="client-broadcast-wave" class="absolute inset-0 rounded-full bg-blue-500/20 scale-0 pointer-events-none"></div>
+                            <div id="client-icon" class="w-16 h-16 mx-auto rounded-2xl bg-slate-900 border-2 border-slate-700 flex items-center justify-center shadow-lg transition-all duration-300">
+                                <svg class="w-8 h-8 text-slate-400 transition-colors" id="client-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <p id="client-name" class="text-[11px] font-bold text-slate-300 mt-2">Workstation PC</p>
+                        <p id="client-ip-badge" class="text-[10px] code-font font-semibold text-slate-500 mt-0.5">No IP (0.0.0.0)</p>
+                        <p id="client-mac-badge" class="text-[9px] code-font text-slate-500">00:1A:2B:3C:4D:5E</p>
+                    </div>
+
+                    <!-- Switch Node (Center) -->
+                    <div id="node-switch" class="absolute left-[40%] top-32 w-24 -translate-x-1/2 text-center">
+                        <div class="w-12 h-12 mx-auto rounded-lg bg-slate-950 border-2 border-slate-700 flex items-center justify-center shadow-md">
+                            <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <p class="text-[9px] font-semibold text-slate-400 mt-1.5 uppercase tracking-wide">LAN Switch</p>
+                    </div>
+
+                    <!-- Node 3: Authorized Server / Router (Right Top) -->
+                    <div id="node-server" class="absolute right-6 top-4 w-40 text-center">
+                        <div id="server-icon" class="w-16 h-16 mx-auto rounded-2xl bg-slate-900 border-2 border-violet-500/50 flex flex-col items-center justify-center shadow-xl shadow-violet-950/20">
+                            <svg class="w-8 h-8 text-violet-400" id="server-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
+                            </svg>
+                        </div>
+                        <p id="server-title" class="text-[11px] font-extrabold text-slate-300 mt-2">DHCP Server (LAN)</p>
+                        <p id="server-ip" class="text-[9px] code-font text-violet-400">IP: 192.168.1.10</p>
+                        <p id="server-extra" class="text-[8px] text-slate-500 mt-0.5">Pool: 192.168.1.100 - .150</p>
+                    </div>
+
+                    <!-- Node 4: Rogue Server / WAN Router (Right Bottom, Scenario-dependent) -->
+                    <div id="node-rogue" class="absolute right-6 top-52 w-40 text-center opacity-30 pointer-events-none transition-all duration-300">
+                        <div id="rogue-card" class="w-16 h-16 mx-auto rounded-2xl bg-slate-900 border-2 border-slate-800 flex flex-col items-center justify-center shadow-xl relative overflow-hidden">
+                            <div id="rogue-bg-overlay" class="absolute inset-0 bg-red-500/5 pointer-events-none"></div>
+                            <svg class="w-8 h-8 text-slate-600 transition-colors" id="rogue-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-[11px] font-extrabold text-slate-500 mt-2" id="rogue-title">Rogue Server (Deactivated)</p>
+                        <p class="text-[9px] code-font text-slate-600" id="rogue-ip">IP: 10.0.0.6</p>
+                        <p class="text-[8px] text-slate-600 mt-0.5" id="rogue-pool">Pool: 10.0.0.100 - .150</p>
+                    </div>
+
+                    <!-- Packets -->
+                    <div id="packet" class="packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg shadow-violet-500/50 z-30 transform -translate-x-1/2 -translate-y-1/2 scale-0 border border-white/10">
+                        D
+                    </div>
+                    <div id="packet-rogue" class="packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg shadow-red-500/50 z-30 transform -translate-x-1/2 -translate-y-1/2 scale-0 border border-white/10">
+                        D
+                    </div>
+
+                </div>
+
+                <!-- Simulation Stepper UI Controls -->
+                <div class="border-t border-slate-800 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400">Timeline Progress:</span>
+                        <div class="flex items-center gap-1.5" id="step-indicator-container">
+                            <!-- Progressive dots loaded dynamically -->
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                        <button onclick="prevStep()" id="btn-prev" disabled class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors disabled:opacity-30 disabled:pointer-events-none">
+                            Back
+                        </button>
+                        <button onclick="nextStep()" id="btn-next" class="px-5 py-2 text-xs font-semibold rounded-lg bg-violet-600 text-white hover:bg-violet-500 transition-all shadow-md shadow-violet-900/25">
+                            Start Lab Execution
+                        </button>
+                        <button onclick="resetSimulation()" class="p-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors" title="Reset Current Lab">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.27 15M21 12h-5m2 2l-2-2"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Dynamic Packet Header Inspector (Deep packet data parsing layer) -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl relative">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2.5">
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-300 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-violet-500 animate-pulse"></span>
+                        LAN Wire Header Inspector (Layer 2 & Layer 3)
+                    </h3>
+                    <span id="header-direction" class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-slate-800 text-slate-400">
+                        Awaiting Init
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <!-- Layer 2 Parameters -->
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Source MAC Address</span>
+                        <div id="hdr-src-mac" class="text-xs code-font font-semibold text-slate-500">-</div>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Destination MAC</span>
+                        <div id="hdr-dst-mac" class="text-xs code-font font-semibold text-slate-500">-</div>
+                    </div>
+                    <!-- Layer 3 Parameters -->
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5" id="hdr-ip-src-lbl">Source IP (Layer 3)</span>
+                        <div id="hdr-src-ip" class="text-xs code-font font-semibold text-slate-500">-</div>
+                    </div>
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5" id="hdr-ip-dst-lbl">Destination IP</span>
+                        <div id="hdr-dst-ip" class="text-xs code-font font-semibold text-slate-500">-</div>
+                    </div>
+                </div>
+
+                <!-- DHCP Options / Port Info Payload Area -->
+                <div class="bg-slate-900/40 p-4 rounded-lg border border-slate-800">
+                    <span class="block text-[10px] font-bold text-violet-400 uppercase tracking-wider mb-2" id="payload-title">DHCP BootP Message Payload Options</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-y-2 gap-x-4 text-xs">
+                        <div class="flex justify-between border-b border-slate-800 pb-1.5">
+                            <span class="text-slate-400" id="payload-meta-1-lbl">UDP Src/Dst Port:</span>
+                            <span id="opt-msg-type" class="code-font font-semibold text-slate-500">-</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-800 pb-1.5">
+                            <span class="text-slate-400" id="payload-meta-2-lbl">Offered IP:</span>
+                            <span id="opt-client-ip" class="code-font font-semibold text-slate-500">-</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-800 pb-1.5">
+                            <span class="text-slate-400">Subnet Mask:</span>
+                            <span id="opt-subnet" class="code-font font-semibold text-slate-500">-</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-800 pb-1.5 sm:border-0 sm:pb-0">
+                            <span class="text-slate-400">Router Gateway:</span>
+                            <span id="opt-gateway" class="code-font font-semibold text-slate-500">-</span>
+                        </div>
+                        <div class="flex justify-between border-b border-slate-800 pb-1.5 sm:border-0 sm:pb-0">
+                            <span class="text-slate-400">DNS Resolver:</span>
+                            <span id="opt-dns" class="code-font font-semibold text-slate-500">-</span>
+                        </div>
+                        <div class="flex justify-between sm:border-0">
+                            <span class="text-slate-400">Lease Policy:</span>
+                            <span id="opt-lease-time" class="code-font font-semibold text-slate-500">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Interactive Logs, Lease Table, and Instructional Prompts -->
+        <div class="flex flex-col gap-6">
+
+            <!-- Active Interactive Instructional / Narrative Guide -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl flex-grow flex flex-col justify-between min-h-[220px]">
+                <div>
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-300 mb-2 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Lab Progress Explainer
+                    </h3>
+                    <p id="narrative-text" class="text-sm text-slate-300 leading-relaxed">
+                        Ready to start. Setup your client variables above, and click "Start D-O-R-A Setup" to boot the client host.
+                    </p>
+                </div>
+                <!-- Concept Callout Card inside Narrative -->
+                <div id="narrative-concept" class="mt-4 p-3 bg-violet-950/20 border border-violet-500/20 rounded-lg hidden">
+                    <span class="block text-[10px] font-bold text-violet-400 uppercase tracking-wider mb-1">Network+ Exam Focus Point</span>
+                    <p id="narrative-concept-text" class="text-xs text-slate-400 leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Server Dynamic Address Pool Table (Active Bindings) -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl flex-grow flex flex-col">
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-300 flex items-center gap-1.5" id="pool-table-title">
+                        <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        DHCP Server active leases
+                    </h3>
+                    <span class="text-[9px] text-violet-400/80 bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/20 font-bold uppercase tracking-wider" id="pool-table-badge">MAPPED DATABASE</span>
+                </div>
+                <div class="overflow-x-auto flex-grow">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-slate-400 text-[10px] font-bold uppercase" id="pool-table-headers">
+                                <th class="py-2.5">Hardware MAC</th>
+                                <th class="py-2.5">Leased IP</th>
+                                <th class="py-2.5">Lease Time Remaining</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lease-table-rows" class="code-font text-slate-300 divide-y divide-slate-900">
+                            <!-- Loaded on state activation -->
+                            <tr id="lease-empty-row">
+                                <td colspan="3" class="py-8 text-center text-slate-500 italic text-[11px]">
+                                    No active leases. Initiate client request to compile lease mapping.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- COMPTIA NETWORK+ EXAM REFERENCE VIEW (RE-DESIGNED INTO INFOGRAPHICS) -->
+    <section id="net-plus-reference" class="hidden max-w-7xl w-full mx-auto p-4 lg:p-6 flex-grow flex flex-col gap-6">
+        
+        <!-- High-Impact Visual Dashboard Header -->
+        <div class="bg-gradient-to-r from-slate-950 to-slate-900 border border-violet-500/20 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            <div class="absolute right-0 bottom-0 top-0 w-1/3 bg-radial-gradient from-violet-500/10 to-transparent pointer-events-none"></div>
+            <span class="px-2.5 py-1 text-[10px] font-black bg-violet-500/10 text-violet-400 rounded-full border border-violet-500/20 uppercase tracking-wider">
+                N10-009 High-Yield Dashboard
+            </span>
+            <h2 class="text-2xl font-black text-white mt-2 tracking-tight">Interactive DHCP Infographic System</h2>
+            <p class="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                Review core dynamic addressing parameters, port mechanics, fallback trees, security filters, and IPAM allocation states through dynamic structural diagrams.
+            </p>
+
+            <!-- Quick Metrics Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-xl flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 font-extrabold text-sm code-font border border-amber-500/20">67</div>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Server UDP</span>
+                        <span class="text-xs text-slate-300 font-medium">Inbound Listen</span>
+                    </div>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-xl flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 font-extrabold text-sm code-font border border-blue-500/20">68</div>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Client UDP</span>
+                        <span class="text-xs text-slate-300 font-medium">Outbound Port</span>
+                    </div>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-xl flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-extrabold text-xs code-font border border-emerald-500/20">/16</div>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">APIPA Mask</span>
+                        <span class="text-xs text-slate-300 font-medium">169.254.0.0</span>
+                    </div>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-xl flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center text-violet-400 font-extrabold text-sm code-font border border-violet-500/20">FF</div>
+                    <div>
+                        <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Layer 2 BC</span>
+                        <span class="text-xs text-slate-300 font-medium">FF:FF:FF:FF:FF:FF</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Infographics Canvas Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Infographic 1: D-O-R-A Sequential Timeline Packet flow -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span>
+                        1. The D-O-R-A Packet Exchange Process
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                        Visualizing the classic four-step handshake, layer boundaries, and transition scopes.
+                    </p>
+                </div>
+
+                <div class="relative py-6 my-4 bg-slate-900/30 rounded-xl border border-slate-900/80 flex flex-col gap-4">
+                    <!-- Column Titles -->
+                    <div class="flex justify-between px-6 border-b border-slate-900 pb-2">
+                        <span class="text-[10px] font-black text-blue-400 uppercase tracking-widest">Unconfigured Client (UDP 68)</span>
+                        <span class="text-[10px] font-black text-violet-400 uppercase tracking-widest">Active Server (UDP 67)</span>
+                    </div>
+
+                    <!-- Step 1: Discover -->
+                    <div class="flex items-center justify-between px-4">
+                        <div class="text-left w-24 shrink-0">
+                            <span class="block text-[10px] font-extrabold text-slate-500">IP: 0.0.0.0</span>
+                        </div>
+                        <div class="flex-grow flex flex-col items-center relative px-2">
+                            <span class="text-[10px] text-blue-300 font-black tracking-wider uppercase code-font flex items-center gap-1 bg-blue-950/40 px-2 py-0.5 rounded border border-blue-800/30">
+                                1. DISCOVER <span class="text-slate-500 font-light">(Broadcast)</span>
+                            </span>
+                            <div class="w-full h-0.5 bg-gradient-to-r from-blue-500 to-transparent relative mt-1.5">
+                                <div class="absolute right-0 -top-1 w-2.5 h-2.5 border-t-2 border-r-2 border-blue-400 rotate-45"></div>
+                            </div>
+                            <span class="text-[8px] text-slate-500 mt-1">L3 Dst: 255.255.255.255 | L2 Dst: FF:FF:FF:FF:FF:FF</span>
+                        </div>
+                        <div class="text-right w-24 shrink-0">
+                            <span class="block text-[10px] font-semibold text-slate-600">Listening...</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Offer -->
+                    <div class="flex items-center justify-between px-4">
+                        <div class="text-left w-24 shrink-0">
+                            <span class="block text-[10px] font-semibold text-slate-600">Evaluating...</span>
+                        </div>
+                        <div class="flex-grow flex flex-col items-center relative px-2">
+                            <span class="text-[10px] text-violet-300 font-black tracking-wider uppercase code-font flex items-center gap-1 bg-violet-950/40 px-2 py-0.5 rounded border border-violet-800/30">
+                                2. OFFER <span class="text-slate-500 font-light">(Unicast / BC)</span>
+                            </span>
+                            <div class="w-full h-0.5 bg-gradient-to-l from-violet-500 to-transparent relative mt-1.5">
+                                <div class="absolute left-0 -top-1 w-2.5 h-2.5 border-b-2 border-l-2 border-violet-400 rotate-45"></div>
+                            </div>
+                            <span class="text-[8px] text-slate-500 mt-1">Proposed IP: 192.168.1.135 | DNS | Mask | GW Router</span>
+                        </div>
+                        <div class="text-right w-24 shrink-0">
+                            <span class="block text-[10px] font-extrabold text-violet-400">IP: 192.168.1.10</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Request -->
+                    <div class="flex items-center justify-between px-4">
+                        <div class="text-left w-24 shrink-0">
+                            <span class="block text-[10px] font-semibold text-slate-500">Choosing Offer</span>
+                        </div>
+                        <div class="flex-grow flex flex-col items-center relative px-2">
+                            <span class="text-[10px] text-blue-300 font-black tracking-wider uppercase code-font flex items-center gap-1 bg-blue-950/40 px-2 py-0.5 rounded border border-blue-800/30">
+                                3. REQUEST <span class="text-slate-500 font-light">(Broadcast)</span>
+                            </span>
+                            <div class="w-full h-0.5 bg-gradient-to-r from-blue-500 to-transparent relative mt-1.5">
+                                <div class="absolute right-0 -top-1 w-2.5 h-2.5 border-t-2 border-r-2 border-blue-400 rotate-45"></div>
+                            </div>
+                            <span class="text-[8px] text-slate-500 mt-1">Declares Selected Lease | Alerts Other Subnet Servers</span>
+                        </div>
+                        <div class="text-right w-24 shrink-0">
+                            <span class="block text-[10px] font-semibold text-slate-600">Locking Lease</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Acknowledge -->
+                    <div class="flex items-center justify-between px-4">
+                        <div class="text-left w-24 shrink-0">
+                            <span class="block text-[10px] font-black text-emerald-400">Binds interface</span>
+                        </div>
+                        <div class="flex-grow flex flex-col items-center relative px-2">
+                            <span class="text-[10px] text-emerald-300 font-black tracking-wider uppercase code-font flex items-center gap-1 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/30">
+                                4. ACKNOWLEDGE <span class="text-slate-500 font-light">(Unicast / BC)</span>
+                            </span>
+                            <div class="w-full h-0.5 bg-gradient-to-l from-emerald-500 to-transparent relative mt-1.5">
+                                <div class="absolute left-0 -top-1 w-2.5 h-2.5 border-b-2 border-l-2 border-emerald-400 rotate-45"></div>
+                            </div>
+                            <span class="text-[8px] text-slate-500 mt-1">Commit lease allocation | Start Lease countdown timers</span>
+                        </div>
+                        <div class="text-right w-24 shrink-0">
+                            <span class="block text-[10px] font-black text-emerald-400">Database Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 text-[10px] leading-relaxed text-slate-400">
+                    <strong class="text-slate-300 block mb-0.5">High-Yield Exam Focus:</strong>
+                    Remember the asymmetric architecture: The Client transmits on UDP 68 and listens on UDP 68. The Server receives on UDP 67 and responds from UDP 67.
+                </div>
+            </div>
+
+            <!-- Infographic 2: APIPA Auto-Fallback Logic Trees -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                        2. APIPA Fallback Decision Logic Tree
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                        Visualizing client operations when no response is received from dynamic pool configurations.
+                    </p>
+                </div>
+
+                <!-- Tree Flow Structure diagram -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-6 relative">
+                    <!-- Node 1: Start -->
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center flex flex-col justify-between">
+                        <span class="px-2 py-0.5 text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded mx-auto uppercase">Step 1</span>
+                        <p class="text-xs font-bold text-slate-200 mt-2">Transmit D-O-R-A</p>
+                        <p class="text-[10px] text-slate-500 mt-1">Host boots and broadcasts Discover seeking active servers</p>
+                    </div>
+
+                    <!-- Node 2: Evaluation -->
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center flex flex-col justify-between relative">
+                        <!-- Horizontal connector lines for desktop -->
+                        <div class="hidden md:block absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-0.5 bg-slate-800"></div>
+                        <div class="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 w-3 h-0.5 bg-slate-800"></div>
+
+                        <span class="px-2 py-0.5 text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded mx-auto uppercase">Step 2</span>
+                        <p class="text-xs font-bold text-slate-200 mt-2">Server Responds?</p>
+                        <div class="flex justify-center gap-2 mt-2">
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 rounded">YES</span>
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 bg-rose-500/10 text-rose-400 rounded">NO (Timeout)</span>
+                        </div>
+                    </div>
+
+                    <!-- Node 3: Result (Branch) -->
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center flex flex-col justify-between">
+                        <span class="px-2 py-0.5 text-[9px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded mx-auto uppercase">Step 3</span>
+                        <p class="text-xs font-bold text-slate-200 mt-2">Auto APIPA</p>
+                        <p class="text-[10px] text-rose-300 font-semibold mt-1">169.254.0.1 - 169.254.255.254</p>
+                    </div>
+                </div>
+
+                <!-- Dynamic address property matrix indicator -->
+                <div class="grid grid-cols-3 gap-2 bg-slate-900 p-3 rounded-xl border border-slate-800 text-center text-xs">
+                    <div class="border-r border-slate-800">
+                        <span class="block text-[8px] text-slate-500 font-bold uppercase">APIPA Subnet Mask</span>
+                        <strong class="text-amber-400 font-mono text-[10px]">255.255.0.0</strong>
+                    </div>
+                    <div class="border-r border-slate-800">
+                        <span class="block text-[8px] text-slate-500 font-bold uppercase">Routing Gateway</span>
+                        <strong class="text-rose-400 font-mono text-[10px]">None (Incommunicable)</strong>
+                    </div>
+                    <div>
+                        <span class="block text-[8px] text-slate-500 font-bold uppercase">Scope Reach</span>
+                        <strong class="text-amber-400 font-mono text-[10px]">Local LAN Only</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Infographic 3: DHCP Relay Agent Bridge Topology -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                        3. DHCP Relay Agent (IP Helper) Subnet Bridge
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                        How routers convert Layer 3 broadcasts into unicast envelopes to span separate routed subnets.
+                    </p>
+                </div>
+
+                <div class="relative py-6 my-4 bg-slate-900/30 rounded-xl border border-slate-800/50 overflow-hidden">
+                    <!-- Zones connection flow layout -->
+                    <div class="flex items-center justify-around relative px-4 text-center">
+                        
+                        <!-- Left Subnet Box -->
+                        <div class="bg-slate-950 border border-blue-500/30 p-2.5 rounded-lg w-28 text-center">
+                            <span class="text-[9px] font-bold text-blue-400 uppercase">Subnet A</span>
+                            <span class="block text-[10px] font-mono mt-1 text-slate-300">192.168.1.0/24</span>
+                            <div class="mt-2 text-[8px] text-slate-400 bg-slate-900 px-1 py-0.5 rounded uppercase">Broadcast discover</div>
+                        </div>
+
+                        <!-- Connector Vector -->
+                        <div class="flex-grow flex flex-col items-center relative">
+                            <div class="w-full h-0.5 bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500 relative">
+                                <div class="absolute right-0 -top-1 w-2 h-2 rounded-full bg-purple-400 animate-ping"></div>
+                            </div>
+                            <span class="text-[8px] text-violet-400 font-semibold uppercase mt-1">ip helper-address 10.0.2.10</span>
+                        </div>
+
+                        <!-- Router Bridge Node -->
+                        <div class="bg-slate-950 border border-slate-700 p-2.5 rounded-full w-14 h-14 flex flex-col justify-center items-center text-center">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                            <span class="text-[8px] font-bold text-slate-400">Relay</span>
+                        </div>
+
+                        <!-- Connector Vector -->
+                        <div class="flex-grow flex flex-col items-center relative">
+                            <div class="w-full h-0.5 bg-gradient-to-r from-purple-500 to-violet-500 relative"></div>
+                            <span class="text-[8px] text-violet-400 font-semibold uppercase mt-1">Unicast Envelope</span>
+                        </div>
+
+                        <!-- Right Subnet Box -->
+                        <div class="bg-slate-950 border border-purple-500/30 p-2.5 rounded-lg w-28 text-center">
+                            <span class="text-[9px] font-bold text-purple-400 uppercase">Subnet B</span>
+                            <span class="block text-[10px] font-mono mt-1 text-slate-300">10.0.2.0/24</span>
+                            <div class="mt-2 text-[8px] text-slate-400 bg-slate-900 px-1 py-0.5 rounded uppercase">Remote Server</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800/80 text-[10px] text-slate-400 leading-relaxed">
+                    The router intercepts the broadcast Discover frame on Subnet A, encapsulates it with its own gateway interface address inside the <strong class="text-violet-400">giaddr</strong> header field, and unicasts it directly across Layer 3 interfaces to Subnet B.
+                </div>
+            </div>
+
+            <!-- Infographic 4: L2 Switchport Security (DHCP Snooping Shield) -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        4. Layer 2 Security - DHCP Snooping Architecture
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                        How dynamic trust states secure L2 switchports to stop server spoofing attacks.
+                    </p>
+                </div>
+
+                <!-- Visual Switchport Diagram -->
+                <div class="py-6 my-4 bg-slate-900/30 rounded-xl border border-slate-800/50 flex flex-col items-center">
+                    
+                    <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl w-[90%] flex flex-col gap-3 relative">
+                        <div class="absolute -top-2.5 left-4 px-2 py-0.5 bg-slate-900 border border-slate-800 text-[8px] font-black tracking-widest text-slate-400 rounded uppercase">
+                            Enterprise Switch Interface
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-3 mt-2 text-center text-xs">
+                            <!-- Trusted Port -->
+                            <div class="bg-slate-900 border border-emerald-500/20 p-2 rounded-lg flex flex-col items-center">
+                                <span class="text-[9px] font-extrabold text-emerald-400 uppercase tracking-wider">Port F0/1</span>
+                                <div class="w-6 h-6 rounded bg-emerald-500/10 flex items-center justify-center text-emerald-400 my-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                </div>
+                                <span class="text-[9px] font-semibold text-slate-300">TRUSTED</span>
+                                <span class="text-[8px] text-slate-500 mt-0.5">Legit Server</span>
+                            </div>
+
+                            <!-- Untrusted User Port -->
+                            <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg flex flex-col items-center">
+                                <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider">Port F0/2</span>
+                                <div class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-slate-400 my-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                </div>
+                                <span class="text-[9px] font-semibold text-slate-300">UNTRUSTED</span>
+                                <span class="text-[8px] text-slate-500 mt-0.5">End Workstation</span>
+                            </div>
+
+                            <!-- Rogue Port Blocked -->
+                            <div class="bg-slate-900 border border-rose-500/20 p-2 rounded-lg flex flex-col items-center">
+                                <span class="text-[9px] font-extrabold text-rose-400 uppercase tracking-wider">Port F0/3</span>
+                                <div class="w-6 h-6 rounded bg-rose-500/10 flex items-center justify-center text-rose-400 my-1">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                                </div>
+                                <span class="text-[9px] font-bold text-rose-400 animate-pulse">UNTRUSTED</span>
+                                <span class="text-[8px] text-rose-500 mt-0.5">DROPS OFFERS</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-800 text-[10px] leading-relaxed text-slate-400">
+                    <strong class="text-emerald-400 block mb-0.5">How it Works:</strong>
+                    Untrusted switchports are blocked from forwarding server response payloads (DHCP OFFER / ACK). If a rogue server connected to an untrusted port attempts to spoof, the switch discards the packet immediately.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Infographic 5: IPAM Address Subnet Map Segmenter -->
+        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <h3 class="text-sm font-extrabold text-slate-200 uppercase tracking-wider flex items-center gap-2 mb-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                5. IPAM Address Scope allocation Map (Subnet: 192.168.1.0/24)
+            </h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                Visualizing how an IPAM console maps dynamic pools, exclusion boundaries, and static reservation spaces to avoid IP collision conflicts.
+            </p>
+
+            <!-- Visual Bar Graph Layout -->
+            <div class="h-10 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex text-xs mb-4">
+                <div class="w-[15%] h-full bg-gradient-to-r from-red-500/20 to-red-600/30 border-r border-slate-800 flex items-center justify-center font-bold text-red-300" title="Exclusion Space for network gateway routers, core switches, and critical physical infrastructure.">
+                    Exclusion (.1 - .30)
+                </div>
+                <div class="w-[20%] h-full bg-gradient-to-r from-amber-500/20 to-amber-600/30 border-r border-slate-800 flex items-center justify-center font-bold text-amber-300" title="Fixed bindings (Reservations) mapped permanently to hardware host MACs (Printers, NAS drives, system servers).">
+                    Reservations (.31 - .80)
+                </div>
+                <div class="w-[55%] h-full bg-gradient-to-r from-violet-500/20 to-violet-600/30 border-r border-slate-800 flex items-center justify-center font-bold text-violet-300" title="Active Dynamic Scope Pool distributed using dynamic leases.">
+                    Dynamic Lease Pool (.81 - .220)
+                </div>
+                <div class="w-[10%] h-full bg-slate-850 flex items-center justify-center font-bold text-slate-500" title="Unallocated addresses set aside for structural expansion.">
+                    Spare (.221 - .254)
+                </div>
+            </div>
+
+            <!-- Segmenter Legend & Definitions -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs mt-4 pt-4 border-t border-slate-900">
+                <div class="flex items-start gap-2">
+                    <span class="w-3 h-3 rounded-sm bg-red-500/20 border border-red-500/40 mt-0.5 shrink-0"></span>
+                    <div>
+                        <strong class="text-slate-300 block">Exclusions Range</strong>
+                        <span class="text-[10px] text-slate-500">Addresses explicitly blocked from DHCP leasing. Reserved for static deployment on core gateway interfaces, local domain controllers, and server matrices.</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="w-3 h-3 rounded-sm bg-amber-500/20 border border-amber-500/40 mt-0.5 shrink-0"></span>
+                    <div>
+                        <strong class="text-slate-300 block">MAC Reservations</strong>
+                        <span class="text-[10px] text-slate-500">Subnet addresses mapped dynamically but permanently to unique client hardware MACs, guaranteeing printers, servers, and devices always receive the identical IP.</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-2">
+                    <span class="w-3 h-3 rounded-sm bg-violet-500/20 border border-violet-500/40 mt-0.5 shrink-0"></span>
+                    <div>
+                        <strong class="text-slate-300 block">Dynamic Pools</strong>
+                        <span class="text-[10px] text-slate-500">Dynamic scopes distributed dynamically with active leases (T1 renewal starts at 50% duration; T2 rebinding starts at 87.5% duration). Unleased addresses return to IPAM console pools.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- COMPTIA NETWORK+ N10-009 PRACTICE EXAM TAB -->
+    <section id="net-plus-quiz-page" class="hidden max-w-4xl w-full mx-auto p-4 lg:p-6 flex-grow flex flex-col gap-6">
+        <!-- Floating Active Scoreboard Header -->
+        <div class="bg-slate-950 border border-violet-500/30 rounded-xl p-5 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4 sticky top-16 z-30">
+            <div>
+                <span class="px-2.5 py-1 text-[10px] font-bold bg-violet-500/10 text-violet-400 rounded-full border border-violet-500/20 uppercase tracking-widest">CompTIA Network+ N10-009</span>
+                <h2 class="text-lg font-bold text-white mt-1">DHCP & Addressing Certification Practice Exam</h2>
+            </div>
+            <div class="flex items-center gap-6">
+                <!-- Progress Circular/Text Bar -->
+                <div class="text-right">
+                    <span class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold">Exam Progress</span>
+                    <span id="exam-progress-text" class="text-sm code-font font-bold text-violet-400">0 / 10 Answered</span>
+                </div>
+                <!-- Dynamic Tally score display -->
+                <div class="bg-slate-900 border border-slate-800 px-4 py-2 rounded-lg text-center min-w-[120px]">
+                    <span class="block text-[9px] text-slate-400 uppercase font-bold tracking-widest">Active Score</span>
+                    <span id="exam-score-tally" class="text-base code-font font-black text-slate-500">-- / 10</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Questions Container -->
+        <div id="exam-questions-list" class="space-y-6">
+            <!-- Rendered dynamically by javascript -->
+        </div>
+
+        <!-- Bottom Action buttons -->
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <p id="exam-pass-status" class="text-xs text-slate-400 font-semibold italic">Complete all 10 questions and click Submit to grade.</p>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <button onclick="resetExam()" class="w-full sm:w-auto px-4 py-2.5 text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg transition-all">
+                    Reset Exam
+                </button>
+                <button onclick="gradeExam()" id="btn-submit-exam" class="w-full sm:w-auto px-6 py-2.5 text-xs font-black bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg transition-all shadow-lg shadow-violet-900/20 uppercase tracking-wider">
+                    Submit & Grade Exam
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Simulation and Interactive Controls Engine -->
+    <script>
+        // Core Network Profiles and Hardware parameters
+        const clientProfiles = {
+            desktop: { name: 'Workstation PC', mac: '00:1A:2B:3C:4D:5E', iconColor: 'text-blue-400', strokeColor: 'border-blue-500/50' },
+            phone: { name: 'iPhone Client', mac: 'A1:B2:C3:D4:E5:F6', iconColor: 'text-emerald-400', strokeColor: 'border-emerald-500/50' },
+            tv: { name: 'IoT Smart TV', mac: '70:EE:50:99:AA:BB', iconColor: 'text-amber-400', strokeColor: 'border-amber-500/50' }
+        };
+
+        const serverProfiles = {
+            authorized: { ip: '192.168.1.10', mask: '255.255.255.0', gateway: '192.168.1.1', dns: '1.1.1.1', offeredIp: '192.168.1.135' },
+            rogue: { ip: '10.0.0.6', mask: '255.255.255.0', gateway: '10.0.0.1', dns: '66.66.66.66', offeredIp: '10.0.0.122' }
+        };
+
+        const leaseProfiles = {
+            normal: { duration: '8 Days', text: '192 hours (Standard Network Topology)' },
+            short: { duration: '12 Minutes', text: '720 seconds (Public Hotspot Configuration)' }
+        };
+
+        // Scenario Configuration Models
+        const scenarioSpecs = {
+            'scenario-dora': {
+                banner: "<strong>Standard D-O-R-A Lab:</strong> Inspect basic dynamic client provisioning and observe asymmetric Layer 4 UDP port bindings (Client on UDP 68, Server listening on UDP 67).",
+                rightZoneLabel: "DHCP Server Infrastructure",
+                nodes: {
+                    server: { title: "DHCP Server (LAN)", ip: "192.168.1.10", extra: "Pool: 192.168.1.100 - .150", isRouter: false },
+                    rogue: { active: false, title: "Rogue Server (Deactivated)", ip: "IP: 10.0.0.6", extra: "Deactivated" }
+                },
+                steps: [
+                    {
+                        desc: "Choose client device and click 'Start Lab Execution' to power on client transceiver.",
+                        concept: "An unconfigured client has no IP address. It must use Layer 2 (MAC) and Layer 3 (IP) broadcasts to locate an IP coordinator."
+                    },
+                    {
+                        desc: "<strong>Stage 1: DHCP DISCOVER (Broadcast)</strong>. Client broadcasts a Discover payload seeking active servers. Source IP: <code>0.0.0.0</code>, Target: <code>255.255.255.255</code>.",
+                        concept: "Discover travels over UDP Port 67 (Server target) from UDP Port 68 (Client source). This broadcast travels across the physical LAN switch to reach all available devices."
+                    },
+                    {
+                        desc: "<strong>Stage 2: DHCP OFFER (Unicast/Broadcast)</strong>. The legitimate DHCP server reserves an unallocated address (192.168.1.135) and proposes it back to the client.",
+                        concept: "The Offer is transmitted back to client MAC on Destination Port 68, offering Subnet, Default Gateway, and primary DNS configurations."
+                    },
+                    {
+                        desc: "<strong>Stage 3: DHCP REQUEST (Broadcast)</strong>. The client broadcasts a Request stating it wishes to finalize the lease of that address.",
+                        concept: "Broadcasting the Request notifies other servers on the network that their temporary IP offers can be safely released back into their addressing pools."
+                    },
+                    {
+                        desc: "<strong>Stage 4: DHCP ACKNOWLEDGE (Unicast/Broadcast)</strong>. The DHCP Server commits the binding to its lease database and transmits a final Acknowledge (ACK) packet.",
+                        concept: "The ACK contains final lease parameters, confirming Subnet Mask, Gateway Router, DNS servers, and the authorized Lease Time limits."
+                    },
+                    {
+                        desc: "<strong>Lease Completed!</strong> The client binds the IP address to its interface and transitions to an active, bound state on the subnet.",
+                        concept: "The client now actively participates on the subnet. At 50% of the lease duration (T1 timer), it will attempt a direct unicast renewal."
+                    }
+                ]
+            },
+            'scenario-apipa': {
+                banner: "<strong>APIPA Fallback Lab:</strong> Observe the client fallback response when no DHCP Server answers. Witness the transition to local Link-Local addressing (`169.254.0.0/16`).",
+                rightZoneLabel: "Unreachable Infrastructure",
+                nodes: {
+                    server: { title: "DHCP Server (OFFLINE)", ip: "OFFLINE (Offline / Power Cut)", extra: "No responses will be sent", isRouter: false },
+                    rogue: { active: false, title: "Rogue Server (Deactivated)", ip: "IP: 10.0.0.6", extra: "Deactivated" }
+                },
+                steps: [
+                    {
+                        desc: "Power on the workstation. The client begins looking for configuration variables.",
+                        concept: "Clients seek dynamic addressing parameters initially, falling back to local allocation rules only after retry sequences exhaust timeouts."
+                    },
+                    {
+                        desc: "<strong>Discover Broadcast sent (No Answer).</strong> Workstation sends out a DHCP Discover broadcast. Since the server is offline, no Offer is received.",
+                        concept: "The client will buffer discoveries, implementing a back-off timeout retry pattern before abandoning DHCP configuration."
+                    },
+                    {
+                        desc: "<strong>Retry sequence initiated.</strong> The client sends another Discover broadcast. Again, the LAN switch forwards the frame but no server responds.",
+                        concept: "Modern operating systems attempt up to 4 retries over a 15-20 second span before concluding the DHCP scope is unreachable."
+                    },
+                    {
+                        desc: "<strong>APIPA Fallback Processed.</strong> Confirming no DHCP presence, the client generates a local address in the <code>169.254.0.0/16</code> range.",
+                        concept: "The OS randomly selects an IP inside 169.254.0.1 to 169.254.255.254 and sends local ARP probes to ensure no other host has taken the chosen address."
+                    },
+                    {
+                        desc: "<strong>APIPA Address Bound.</strong> Workstation successfully binds IP <code>169.254.88.92</code> with Subnet Mask <code>255.255.0.0</code> and no gateway.",
+                        concept: "The client can now communicate locally with any other APIPA-bound hosts on Subnet A, but cannot route traffic to remote WAN networks because there is no default gateway."
+                    }
+                ]
+            },
+            'scenario-relay': {
+                banner: "<strong>DHCP Relay Agent Lab:</strong> Observe how routers block local broadcasts. See how configure 'ip helper' on Interface G0/0 allows the router to encapsulate broadcasts to unicast destinations across WAN subnets.",
+                rightZoneLabel: "Remote Infrastructure (Subnet B)",
+                nodes: {
+                    server: { title: "DHCP Server (Subnet B)", ip: "IP: 10.0.2.10", extra: "Remote Centralized Server", isRouter: false },
+                    rogue: { active: true, title: "Router (Relay Agent)", ip: "G0/0: 192.168.1.1", extra: "G0/1: 10.0.2.1 (ip helper)", isRouter: true }
+                },
+                steps: [
+                    {
+                        desc: "Ready to test DHCP Relay. Client PC on Subnet A (192.168.1.0/24) boots up and needs configuration from the DHCP Server located on Subnet B (10.0.2.0/24).",
+                        concept: "Since Layer 3 routers drop broadcast packets, the client's local broadcast cannot natively reach a DHCP server located on a separate routed subnet."
+                    },
+                    {
+                        desc: "<strong>Client Sends Broadcast Discover.</strong> The client sends a local broadcast Discover packet onto Subnet A targeting MAC FF:FF:FF:FF:FF:FF.",
+                        concept: "The frame travels through the switch and hits the local router gateway interface G0/0 (192.168.1.1)."
+                    },
+                    {
+                        desc: "<strong>Router Intercepts & Relays (Unicast Conversion).</strong> The router, configured with <code>ip helper-address 10.0.2.10</code>, converts the broadcast into a targeted unicast packet.",
+                        concept: "The router rewrites the source IP to its own Subnet B interface (10.0.2.1) and destination to the Remote DHCP Server (10.0.2.10), transmitting it across WAN routing tables."
+                    },
+                    {
+                        desc: "<strong>Remote Server Responds with Unicast Offer.</strong> The remote DHCP server receives the unicast request, allocates a Subnet A IP (192.168.1.140), and unicasts the Offer back to the router.",
+                        concept: "The server inspects the 'giaddr' (Gateway IP Address) field in the bootp header to know which subnet pool (Subnet A) to allocate from."
+                    },
+                    {
+                        desc: "<strong>Router Relays Offer to Subnet A.</strong> The router receives the unicast offer on G0/1 and forwards it onto Subnet A to the client.",
+                        concept: "The router acts as the middleman for the remainder of the exchange (Request & ACK) until the client is fully provisioned."
+                    },
+                    {
+                        desc: "<strong>IP Address Bound across Router.</strong> Client Workstation binds Subnet A configuration (IP: 192.168.1.140) successfully.",
+                        concept: "Using DHCP Relay Agents consolidates multi-subnet addressing infrastructure, removing the requirement to deploy physical servers on every local subnet."
+                    }
+                ]
+            },
+            'scenario-snooping': {
+                banner: "<strong>DHCP Spoofing & Snooping Lab:</strong> Toggle switch security in real-time. Witness how a rogue server can hijack client traffic, and how enabling DHCP Snooping blocks untrusted DHCP Offer messages on local switchports.",
+                rightZoneLabel: "Dynamic Subnet Context",
+                nodes: {
+                    server: { title: "DHCP Server (LAN)", ip: "IP: 192.168.1.10", extra: "Pool: 192.168.1.100 - .150", isRouter: false },
+                    rogue: { active: true, title: "Rogue Server (Active)", ip: "IP: 10.0.0.6", extra: "Pool: 10.0.0.100 - .150", isRouter: false }
+                },
+                steps: [
+                    {
+                        desc: "Boot Workstation on a shared subnet. A Rogue Server is connected. Use the top switch to toggle DHCP Snooping and observe the security impact.",
+                        concept: "Without switchport security, DHCP is vulnerable to rogue offers. Switches blindly forward broadcast/unicast payloads to any port."
+                    },
+                    {
+                        desc: "<strong>Discover Broadcast replicated.</strong> Client sends out Discover broadcast. The switch forwards it to both the Authorized Server and the malicious Rogue Server.",
+                        concept: "Since Discover is a broadcast, every port on the local VLAN receives a duplicate frame, enabling a race condition."
+                    },
+                    {
+                        desc: "<strong>Dual Offers Returned.</strong> Both servers construct and return DHCP Offers. Watch how the Switch handles the rogue packet based on your security settings.",
+                        concept: "If Snooping is ON, the switch blocks the Rogue's Offer on untrusted Port 3. If Snooping is OFF, both Offers reach the client."
+                    },
+                    {
+                        desc: "<strong>Client Sends Request.</strong> Client PC broadcasts a Request. It selects the fastest Offer received.",
+                        concept: "Rogue servers on the same local switch segment often win the race condition, intercepting client configurations before the authorized server."
+                    },
+                    {
+                        desc: "<strong>DHCP Handshake Finalized.</strong> The server selected commits the lease. Client receives the Acknowledge (ACK) and binds address variables.",
+                        concept: "If Rogue won (Snooping OFF), the client is compromised. If Authorized won (Snooping ON), the client network remains secure."
+                    },
+                    {
+                        desc: "<strong>Vulnerability Analysis.</strong> Review client bindings. If compromised by Rogue, the client's Gateway points to 10.0.0.1, routing all data to a hacker.",
+                        concept: "Compromised clients route all web traffic through the rogue gateway host, exposing logins, cookies, and personal data to Man-in-the-Middle attacks."
+                    }
+                ]
+            },
+            'scenario-ipam': {
+                banner: "<strong>IPAM (IP Address Management) Lab:</strong> Learn how IPAM systems monitor scopes, configure static reservations for local printers/servers, and detect address allocation conflicts.",
+                rightZoneLabel: "IPAM Core Console",
+                nodes: {
+                    server: { title: "DHCP & IPAM Console", ip: "IP: 192.168.1.10", extra: "Database: Active Scope Monitor", isRouter: false },
+                    rogue: { active: true, title: "Printer (Static)", ip: "Static IP: 192.168.1.100", extra: "Scope Reservation Conflict!", isRouter: false }
+                },
+                steps: [
+                    {
+                        desc: "Active IP Address Management (IPAM) helps admins monitor, plan, and prevent addressing collisions on large enterprise networks.",
+                        concept: "IPAM tools integrate DHCP lease tables, DNS records, and IP scope mappings into a single operational interface."
+                    },
+                    {
+                        desc: "<strong>Static IP Reservation Configured.</strong> Network administrator maps Workstation MAC permanently to IP <code>192.168.1.100</code> inside the IPAM console.",
+                        concept: "This guarantees that local network assets like servers, printers, and NAS drives retain the same IP across reboots, avoiding manual static overrides."
+                    },
+                    {
+                        desc: "<strong>Client Boots & Requests IP.</strong> Client requests lease. IPAM dynamically checks reservations and returns DHCP Offer.",
+                        concept: "The server identifies client MAC 00:1A:2B:3C:4D:5E, matches it to the reservation, and bypasses dynamic pool selection."
+                    },
+                    {
+                        desc: "<strong>IP Address Conflict Detected!</strong> A rogue host statically configures its interface to 192.168.1.100 without authorization.",
+                        concept: "This triggers an IP conflict. Two hosts on the local Layer 2 broadcast domain now share the same Layer 3 IP, causing network interruption."
+                    },
+                    {
+                        desc: "<strong>IPAM Dashboard Alerts Admin.</strong> The centralized IPAM console flags the duplicate ARP registration on the switchport and fires a system alert.",
+                        concept: "By correlating DHCP leases with ARP cache registers, IPAM quickly isolates MAC conflict origins, guiding admins to isolate offending ports."
+                    }
+                ]
+            }
+        };
+
+        // Network+ N10-009 10 Practice Exam Questions Dataset
+        const examQuestions = [
+            {
+                id: 1,
+                question: "Which Layer 4 transport protocol and source/destination port pair does a workstation client use during its initial DHCP DISCOVER transmission?",
+                options: [
+                    "UDP: Source Port 67, Destination Port 68",
+                    "UDP: Source Port 68, Destination Port 67",
+                    "TCP: Source Port 68, Destination Port 67",
+                    "TCP: Source Port 53, Destination Port 53"
+                ],
+                correct: 1,
+                rationale: "DHCP is a connectionless protocol operating over UDP. The client transmits from UDP Port 68 targeting Server Listening Port 67. The DHCP server responds from UDP Port 67 targeting Client Port 68."
+            },
+            {
+                id: 2,
+                question: "A client workstation is in the process of dynamically securing an IP configuration. During the four-step D-O-R-A handshake, which packets are sent as broadcast payloads by the client?",
+                options: [
+                    "Discover and Request",
+                    "Offer and Acknowledge",
+                    "Discover and Offer",
+                    "Request and Acknowledge"
+                ],
+                correct: 0,
+                rationale: "The Client sends the DISCOVER (to find a server) and the REQUEST (to announce its selection of offered parameters) as local subnet broadcasts. The Server typically responds with OFFER and ACK as unicast (or broadcast, depending on client hardware specifications)."
+            },
+            {
+                id: 3,
+                question: "A network host boots up, transmits multiple DHCP Discover broadcasts, but receives no responses from any server. It subsequently assigns itself an IP address of 169.254.120.44. Which of the following statements is accurate?",
+                options: [
+                    "The client successfully obtained a lease from a centralized WAN router.",
+                    "The host utilizes an APIPA address and can communicate with local LAN peers but cannot cross Layer 3 boundaries.",
+                    "The client generated a Private IP address that allows full routing onto the public Internet.",
+                    "The device is configured with a static DNS exclusion."
+                ],
+                correct: 1,
+                rationale: "When DHCP fails, operating systems assign an APIPA (Automatic Private IP Addressing) address from the 169.254.0.0/16 range. This allows local-link communication with LAN peers but lacks a gateway, preventing external WAN routing."
+            },
+            {
+                id: 4,
+                question: "To consolidate network infrastructure, an administrator wants clients on Subnet A to receive IP leases from a DHCP server located on remote Subnet B. Which Cisco IOS interface command must be configured on the Subnet A local gateway interface?",
+                options: [
+                    "dhcp-relay destination 10.0.2.10",
+                    "ip helper-address 10.0.2.10",
+                    "switchport trust dhcp 10.0.2.10",
+                    "ip dhcp exclude-address 10.0.2.10"
+                ],
+                correct: 1,
+                rationale: "Routers drop Layer 3 broadcasts by default. The Cisco interface command 'ip helper-address [Server_IP]' configures the gateway to intercept client DHCP broadcasts, encapsulate them, and relay them to the remote server as a routed unicast packet."
+            },
+            {
+                id: 5,
+                question: "When a DHCP Relay Agent converts a local client's Layer 3 broadcast into a routed unicast packet, what specific metadata field in the BootP header does it write its own interface address to?",
+                options: [
+                    "ciaddr (Client IP Address)",
+                    "yiaddr (Your IP Address)",
+                    "giaddr (Gateway IP Address)",
+                    "siaddr (Next Server IP Address)"
+                ],
+                correct: 2,
+                rationale: "The DHCP Relay Agent writes its own incoming interface IP into the 'giaddr' (Gateway IP Address) header field. This informs the remote server which subnet pool scope it must allocate the lease from."
+            },
+            {
+                id: 6,
+                question: "An administrator wants to guarantee that a network printer always receives the identical IP address from the DHCP scope on every system reboot. Which configuration method should they implement?",
+                options: [
+                    "Static IP Address Exclusion",
+                    "Dynamic Pool Allocation",
+                    "DHCP Reservation (MAC-to-IP Binding)",
+                    "Dynamic ARP Inspection (DAI)"
+                ],
+                correct: 2,
+                rationale: "A DHCP Reservation maps a client's unique hardware MAC address permanently to a specific IP in the scope. This guarantees the client receives the exact same IP dynamically without requiring static config on the local host panel."
+            },
+            {
+                id: 7,
+                question: "A client workstation is granted a dynamic DHCP lease with a duration of 8 days. At what elapsed time interval (T1) does the client first transition to the renewing state and attempt direct unicast contact with its leasing server?",
+                options: [
+                    "At 12 hours (T1 renewal)",
+                    "At 4 days (50% of lease duration)",
+                    "At 7 days (87.5% of lease duration)",
+                    "Only after the 8 days has completely expired"
+                ],
+                correct: 1,
+                rationale: "By RFC standards, a DHCP client enters the Renewing State at the T1 timer interval, which is exactly 50% of the leased duration (4 days in this scenario). It attempts direct unicast transmission to the original server."
+            },
+            {
+                id: 8,
+                question: "A malicious laptop on a local VLAN begins transmitting unauthorized DHCP Offer and Acknowledge payloads, telling network clients that its own address is the default gateway. What is this network attack called?",
+                options: [
+                    "DHCP Exhaustion Attack",
+                    "MAC Address Flooding",
+                    "DHCP Spoofing (Rogue DHCP Server)",
+                    "ARP Poisoning"
+                ],
+                correct: 2,
+                rationale: "A Rogue DHCP Server performs a DHCP Spoofing attack. By offering fake default gateway and DNS parameters, the malicious host tricks clients into routing outbound WAN traffic to its interface for Man-in-the-Middle eavesdropping."
+            },
+            {
+                id: 9,
+                question: "Which security technique is implemented on Layer 2 switchports to block rogue DHCP servers by categorizing ports as trusted or untrusted?",
+                options: [
+                    "802.1X Port Authentication",
+                    "DHCP Snooping",
+                    "BPDU Guard",
+                    "Access Control Lists (ACL)"
+                ],
+                correct: 1,
+                rationale: "DHCP Snooping is a Layer 2 security mechanism. Switchports facing legitimate servers are configured as 'trusted'. Standard user ports are 'untrusted', and any server-side DHCP packets (Offers, ACKs) arriving at untrusted ports are immediately discarded."
+            },
+            {
+                id: 10,
+                question: "An enterprise systems administrator needs consolidated, unified visibility over dynamic IP address scopes, static infrastructure mapping registries, and matching active DNS zone records. What system solves this need?",
+                options: [
+                    "RADIUS Server",
+                    "Network Address Translation (NAT) Console",
+                    "IP Address Management (IPAM) Suite",
+                    "Simple Network Management Protocol (SNMP) Trap"
+                ],
+                correct: 2,
+                rationale: "An IPAM (IP Address Management) suite consolidates DHCP dynamic leases, static reservation tables, DNS host profiles, and active scope monitors into a unified interface, preventing address space conflicts and administrative fragmentation."
+            }
+        ];
+
+        // Active State variables
+        let currentScenario = 'scenario-dora';
+        let currentStep = 0;
+        let selectedDevice = 'desktop';
+        let selectedLease = 'normal';
+        
+        // Switch Snooping Security Toggle
+        let snoopSecurityActive = false;
+
+        // Practice Exam User Response array
+        let userExamAnswers = Array(10).fill(null);
+        let examSubmitted = false;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            changeScenario();
+            initializeExamUI();
+        });
+
+        // Main Scenario selection routine
+        function changeScenario() {
+            currentScenario = document.getElementById('config-scenario').value;
+            currentStep = 0;
+            snoopSecurityActive = false;
+
+            // Update scenario info text banner
+            const spec = scenarioSpecs[currentScenario];
+            document.getElementById('scenario-banner').innerHTML = spec.banner;
+
+            // Re-render switch security controls if in Snooping Scenario
+            const snoopToggleDiv = document.getElementById('switch-snooping-toggle');
+            if (currentScenario === 'scenario-snooping') {
+                snoopToggleDiv.classList.remove('hidden');
+                updateSnoopingToggleButton();
+            } else {
+                snoopToggleDiv.classList.add('hidden');
+            }
+
+            // Reposition static labels
+            document.getElementById('zone-right-label').innerText = spec.rightZoneLabel;
+
+            // Render Node Configurations
+            const srv = spec.nodes.server;
+            const rog = spec.nodes.rogue;
+
+            // Configure Legitimate Server node
+            document.getElementById('server-title').innerText = srv.title;
+            document.getElementById('server-ip').innerText = srv.ip;
+            document.getElementById('server-extra').innerText = srv.extra;
+
+            // Is Legitimate Server actually a Router in this Scenario? (DHCP Relay)
+            const serverIconDiv = document.getElementById('server-icon');
+            const serverSvg = document.getElementById('server-svg');
+            if (srv.isRouter) {
+                serverIconDiv.className = "w-16 h-16 mx-auto rounded-full bg-slate-950 border-2 border-violet-500/50 flex flex-col items-center justify-center shadow-xl shadow-violet-950/20";
+                serverSvg.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>`;
+            } else {
+                serverIconDiv.className = "w-16 h-16 mx-auto rounded-2xl bg-slate-900 border-2 border-violet-500/50 flex flex-col items-center justify-center shadow-xl shadow-violet-950/20";
+                serverSvg.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>`;
+            }
+
+            // Configure Secondary/Rogue node
+            const rogueNode = document.getElementById('node-rogue');
+            const rogueSvg = document.getElementById('rogue-icon-svg');
+            const rogueLine = document.getElementById('line-switch-rogue');
+
+            document.getElementById('rogue-title').innerText = rog.title;
+            document.getElementById('rogue-ip').innerText = rog.ip;
+            document.getElementById('rogue-pool').innerText = rog.extra;
+
+            if (rog.active) {
+                rogueNode.className = "absolute right-6 top-52 w-40 text-center opacity-100 transition-all duration-300";
+                rogueLine.classList.remove('hidden');
+
+                if (rog.isRouter) {
+                    // Router graphics for DHCP Relay Agent
+                    document.getElementById('rogue-card').className = "w-16 h-16 mx-auto rounded-full bg-slate-950 border-2 border-red-500/50 flex flex-col items-center justify-center shadow-xl";
+                    rogueSvg.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>`;
+                    rogueSvg.className = "w-8 h-8 text-red-400";
+                } else {
+                    // Standard Rogue server style (Scenario 4 / 5)
+                    document.getElementById('rogue-card').className = "w-16 h-16 mx-auto rounded-2xl bg-slate-900 border-2 border-red-500/50 flex flex-col items-center justify-center shadow-xl rogue-active-pulse";
+                    rogueSvg.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>`;
+                    rogueSvg.className = "w-8 h-8 text-red-500";
+                }
+            } else {
+                rogueNode.className = "absolute right-6 top-52 w-40 text-center opacity-30 pointer-events-none transition-all duration-300";
+                rogueLine.classList.add('hidden');
+                document.getElementById('rogue-card').className = "w-16 h-16 mx-auto rounded-2xl bg-slate-900 border-2 border-slate-800 flex flex-col items-center justify-center shadow-xl";
+                rogueSvg.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>`;
+                rogueSvg.className = "w-8 h-8 text-slate-600";
+            }
+
+            // Sync structural options labels based on Scenario
+            const labelMeta1 = document.getElementById('payload-meta-1-lbl');
+            const labelMeta2 = document.getElementById('payload-meta-2-lbl');
+            const labelPayloadTitle = document.getElementById('payload-title');
+
+            if (currentScenario === 'scenario-dora') {
+                labelPayloadTitle.innerText = "DHCP BootP Message Payload Options";
+                labelMeta1.innerText = "UDP Src/Dst Port:";
+                labelMeta2.innerText = "Offered IP:";
+            } else if (currentScenario === 'scenario-apipa') {
+                labelPayloadTitle.innerText = "Internal OS Address Selection Flags";
+                labelMeta1.innerText = "DHCP Server State:";
+                labelMeta2.innerText = "Auto-Allocated IP:";
+            } else if (currentScenario === 'scenario-relay') {
+                labelPayloadTitle.innerText = "DHCP Relay Agent BootP Metadata";
+                labelMeta1.innerText = "DHCP Agent IP (giaddr):";
+                labelMeta2.innerText = "Offered Subnet A IP:";
+            } else if (currentScenario === 'scenario-snooping') {
+                labelPayloadTitle.innerText = "DHCP Handshake Boundary Context";
+                labelMeta1.innerText = "Switch Snooping State:";
+                labelMeta2.innerText = "Offered Proposed IP:";
+            } else if (currentScenario === 'scenario-ipam') {
+                labelPayloadTitle.innerText = "DHCP Central Core Scope Info";
+                labelMeta1.innerText = "Exclusion Range Config:";
+                labelMeta2.innerText = "Lease Dynamic IP:";
+            }
+
+            // Redraw step dots
+            initScenarioStepperDots();
+            resetToStart();
+        }
+
+        // Stepper dots mapping per Scenario length
+        function initScenarioStepperDots() {
+            const container = document.getElementById('step-indicator-container');
+            container.innerHTML = '';
+            const spec = scenarioSpecs[currentScenario];
+            spec.steps.forEach((s, idx) => {
+                const dot = document.createElement('div');
+                dot.id = `step-dot-${idx}`;
+                dot.className = `w-2 h-2 rounded-full border transition-all duration-300 border-slate-700 bg-slate-900`;
+                container.appendChild(dot);
+            });
+        }
+
+        function toggleSnoopingOnSwitch() {
+            snoopSecurityActive = !snoopSecurityActive;
+            updateSnoopingToggleButton();
+            resetToStart();
+        }
+
+        function updateSnoopingToggleButton() {
+            const btn = document.getElementById('btn-snooping-toggle');
+            if (snoopSecurityActive) {
+                btn.className = "px-2.5 py-1 text-[10px] font-extrabold rounded uppercase tracking-wider bg-emerald-600/25 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-600/40 transition-all";
+                btn.innerText = "ENABLED (SECURED)";
+            } else {
+                btn.className = "px-2.5 py-1 text-[10px] font-extrabold rounded uppercase tracking-wider bg-rose-600/25 border border-rose-500/40 text-rose-400 hover:bg-rose-600/40 transition-all";
+                btn.innerText = "DISABLED (UNSECURED)";
+            }
+        }
+
+        function syncVariables() {
+            selectedDevice = document.getElementById('config-device').value;
+            selectedLease = document.getElementById('config-lease').value;
+
+            // Highlight client node type
+            const devProfile = clientProfiles[selectedDevice];
+            document.getElementById('client-name').innerText = devProfile.name;
+            document.getElementById('client-mac-badge').innerText = devProfile.mac;
+
+            const iconDiv = document.getElementById('client-icon');
+            iconDiv.className = `w-16 h-16 mx-auto rounded-2xl bg-slate-900 border-2 ${devProfile.strokeColor} flex items-center justify-center shadow-lg transition-all duration-300`;
+            const svgEl = document.getElementById('client-svg');
+            svgEl.className = `w-8 h-8 ${devProfile.iconColor} transition-colors`;
+        }
+
+        function resetToStart() {
+            currentStep = 0;
+            syncVariables();
+
+            // Hide packets initially
+            const pkt = document.getElementById('packet');
+            const pktRogue = document.getElementById('packet-rogue');
+            pkt.className = "packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-0 border border-white/10";
+            pktRogue.className = "packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-0 border border-white/10";
+            
+            // Reset client IP Badge
+            document.getElementById('client-ip-badge').innerText = "No IP (0.0.0.0)";
+            document.getElementById('client-ip-badge').className = "text-[10px] code-font font-semibold text-slate-500 mt-0.5";
+            document.getElementById('client-icon').classList.remove('bg-violet-950/20', 'border-violet-400', 'bg-red-950/20', 'border-red-500', 'bg-amber-950/20', 'border-amber-500');
+            
+            updateProgressDots();
+            updateLiveInspectors();
+            updateLeaseTable();
+            updateInstructionalPanel();
+        }
+
+        function resetSimulation() {
+            resetToStart();
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                animatePackets();
+                updateProgressDots();
+                updateLiveInspectors();
+                updateLeaseTable();
+                updateInstructionalPanel();
+            }
+        }
+
+        // Handles adaptive packet animations per selected scenario
+        function animatePackets() {
+            const pkt = document.getElementById('packet');
+            const pktRogue = document.getElementById('packet-rogue');
+            const clientWave = document.getElementById('client-broadcast-wave');
+
+            pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)";
+            pktRogue.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)";
+            clientWave.classList.remove('broadcast-wave');
+
+            if (currentStep === 0) {
+                pkt.className = "packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-0 border border-white/10";
+                pktRogue.className = "packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-0 border border-white/10";
+                return;
+            }
+
+            // Scenario-Specific Packet Path Matrices
+            if (currentScenario === 'scenario-dora') {
+                // Scenario 1 Standard DORA movement
+                switch(currentStep) {
+                    case 1: // DISCOVER
+                        clientWave.classList.add('broadcast-wave');
+                        pkt.innerText = "D";
+                        pkt.className = "packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10 animate-pulse";
+                        setTimeout(() => { pkt.style.left = "290px"; pkt.style.top = "180px"; }, 50);
+                        setTimeout(() => { pkt.style.left = "490px"; pkt.style.top = "90px"; }, 800);
+                        break;
+                    case 2: // OFFER
+                        pkt.innerText = "O";
+                        pkt.style.transition = "none";
+                        pkt.style.left = "490px"; pkt.style.top = "90px";
+                        pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        setTimeout(() => { pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)"; pkt.style.left = "120px"; pkt.style.top = "180px"; }, 50);
+                        break;
+                    case 3: // REQUEST
+                        pkt.innerText = "R";
+                        pkt.style.transition = "none";
+                        pkt.style.left = "120px"; pkt.style.top = "180px";
+                        pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        setTimeout(() => { pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)"; pkt.style.left = "490px"; pkt.style.top = "90px"; }, 50);
+                        break;
+                    case 4: // ACK
+                        pkt.innerText = "A";
+                        pkt.style.transition = "none";
+                        pkt.style.left = "490px"; pkt.style.top = "90px";
+                        pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        setTimeout(() => { pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)"; pkt.style.left = "120px"; pkt.style.top = "180px"; }, 50);
+                        break;
+                    case 5: // Bound (Completed)
+                        pkt.className = "scale-0 absolute";
+                        document.getElementById('client-icon').className = "w-16 h-16 mx-auto rounded-2xl bg-violet-950/20 border-2 border-violet-500 flex items-center justify-center shadow-lg transition-all duration-300 active-pulse";
+                        document.getElementById('client-ip-badge').innerText = `IP: ${serverProfiles.authorized.offeredIp}`;
+                        document.getElementById('client-ip-badge').className = "text-[10px] code-font font-bold text-violet-400 mt-0.5";
+                        break;
+                }
+            } else if (currentScenario === 'scenario-apipa') {
+                // Scenario 2 APIPA movement
+                switch(currentStep) {
+                    case 1: // 1st Discover (no answer)
+                        clientWave.classList.add('broadcast-wave');
+                        pkt.innerText = "D";
+                        pkt.className = "packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        setTimeout(() => { pkt.style.left = "290px"; pkt.style.top = "180px"; }, 50);
+                        break;
+                    case 2: // Retry Discover
+                        pkt.style.transition = "none";
+                        pkt.style.left = "120px"; pkt.style.top = "180px";
+                        setTimeout(() => { pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)"; pkt.style.left = "290px"; pkt.style.top = "180px"; }, 50);
+                        break;
+                    case 3: // Timeout (packet disappears)
+                        pkt.className = "scale-0 absolute";
+                        break;
+                    case 4: // APIPA bind
+                        pkt.className = "scale-0 absolute";
+                        document.getElementById('client-icon').className = "w-16 h-16 mx-auto rounded-2xl bg-amber-950/20 border-2 border-amber-500 flex items-center justify-center shadow-lg transition-all duration-300 active-pulse";
+                        document.getElementById('client-ip-badge').innerText = "IP: 169.254.88.92";
+                        document.getElementById('client-ip-badge').className = "text-[10px] code-font font-bold text-amber-400 mt-0.5";
+                        break;
+                }
+            } else if (currentScenario === 'scenario-relay') {
+                // Scenario 3 DHCP Relay (Rogue node is Router in this scenario)
+                switch(currentStep) {
+                    case 1: // Discover to router
+                        clientWave.classList.add('broadcast-wave');
+                        pkt.innerText = "D";
+                        pkt.className = "packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        setTimeout(() => { pkt.style.left = "290px"; pkt.style.top = "180px"; }, 50);
+                        setTimeout(() => { pkt.style.left = "490px"; pkt.style.top = "270px"; }, 800); // Hits Router (agent)
+                        break;
+                    case 2: // Router encapsulates to Server
+                        pkt.style.transition = "none";
+                        pkt.style.left = "490px"; pkt.style.top = "270px";
+                        pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        setTimeout(() => { pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)"; pkt.style.left = "490px"; pkt.style.top = "90px"; }, 50); // Direct Unicast WAN hop
+                        break;
+                    case 3: // Offer from Server to Router
+                        pkt.innerText = "O";
+                        pkt.style.transition = "none";
+                        pkt.style.left = "490px"; pkt.style.top = "90px";
+                        pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        setTimeout(() => { pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)"; pkt.style.left = "490px"; pkt.style.top = "270px"; }, 50);
+                        break;
+                    case 4: // Router delivers offer to client
+                        pkt.innerText = "O";
+                        pkt.style.transition = "none";
+                        pkt.style.left = "490px"; pkt.style.top = "270px";
+                        pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        setTimeout(() => { pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)"; pkt.style.left = "120px"; pkt.style.top = "180px"; }, 50);
+                        break;
+                    case 5: // Bound (Completed)
+                        pkt.className = "scale-0 absolute";
+                        document.getElementById('client-icon').className = "w-16 h-16 mx-auto rounded-2xl bg-violet-950/20 border-2 border-violet-500 flex items-center justify-center shadow-lg transition-all duration-300 active-pulse";
+                        document.getElementById('client-ip-badge').innerText = "IP: 192.168.1.140";
+                        document.getElementById('client-ip-badge').className = "text-[10px] code-font font-bold text-violet-400 mt-0.5";
+                        break;
+                }
+            } else if (currentScenario === 'scenario-snooping') {
+                // Scenario 4 DHCP Snooping / Spoofing
+                switch(currentStep) {
+                    case 1: // DISCOVER Broadcast (Switched)
+                        clientWave.classList.add('broadcast-wave');
+                        pkt.innerText = "D";
+                        pkt.className = "packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        setTimeout(() => { pkt.style.left = "290px"; pkt.style.top = "180px"; }, 50);
+                        setTimeout(() => {
+                            pkt.style.left = "490px"; pkt.style.top = "90px"; // Normal Server Port
+                            // Split rogue path packet
+                            pktRogue.innerText = "D";
+                            pktRogue.className = "packet-transition absolute left-[290px] top-[180px] w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10 animate-pulse";
+                            setTimeout(() => { pktRogue.style.left = "490px"; pktRogue.style.top = "270px"; }, 50);
+                        }, 800);
+                        break;
+                    case 2: // Dual Offers returned
+                        pkt.innerText = "O";
+                        pkt.style.transition = "none";
+                        pkt.style.left = "490px"; pkt.style.top = "90px";
+                        pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        
+                        pktRogue.innerText = "O";
+                        pktRogue.style.transition = "none";
+                        pktRogue.style.left = "490px"; pktRogue.style.top = "270px";
+                        
+                        if (snoopSecurityActive) {
+                            // Only authorized packet returned to client
+                            pktRogue.className = "scale-0 absolute"; // Destroy rogue offer at untrusted port
+                            setTimeout(() => {
+                                pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)";
+                                pkt.style.left = "120px"; pkt.style.top = "180px";
+                            }, 50);
+                        } else {
+                            pktRogue.className = "packet-transition absolute w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10 animate-pulse";
+                            setTimeout(() => {
+                                pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)";
+                                pktRogue.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)";
+                                pkt.style.left = "120px"; pkt.style.top = "180px";
+                                pktRogue.style.left = "120px"; pktRogue.style.top = "180px"; // Both reach client
+                            }, 50);
+                        }
+                        break;
+                    case 3: // Client Requests
+                        pkt.innerText = "R";
+                        pkt.style.transition = "none";
+                        pkt.style.left = "120px"; pkt.style.top = "180px";
+                        pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        pktRogue.className = "scale-0 absolute"; // Rogue offer discarded or ignored
+
+                        if (snoopSecurityActive) {
+                            // Legit server request
+                            pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                            setTimeout(() => {
+                                pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)";
+                                pkt.style.left = "490px"; pkt.style.top = "90px";
+                            }, 50);
+                        } else {
+                            // Attacker hijacked first
+                            pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                            setTimeout(() => {
+                                pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)";
+                                pkt.style.left = "490px"; pkt.style.top = "270px";
+                            }, 50);
+                        }
+                        break;
+                    case 4: // ACK Delivered
+                        pkt.innerText = "A";
+                        pkt.style.transition = "none";
+                        if (snoopSecurityActive) {
+                            pkt.style.left = "490px"; pkt.style.top = "90px";
+                            pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        } else {
+                            pkt.style.left = "490px"; pkt.style.top = "270px";
+                            pkt.className = "packet-transition absolute w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        }
+                        setTimeout(() => {
+                            pkt.style.transition = "all 0.75s cubic-bezier(0.25, 1, 0.5, 1)";
+                            pkt.style.left = "120px"; pkt.style.top = "180px";
+                        }, 50);
+                        break;
+                    case 5: // Bound Finished
+                        pkt.className = "scale-0 absolute";
+                        pktRogue.className = "scale-0 absolute";
+                        if (snoopSecurityActive) {
+                            document.getElementById('client-icon').className = "w-16 h-16 mx-auto rounded-2xl bg-violet-950/20 border-2 border-violet-500 flex items-center justify-center shadow-lg transition-all duration-300 active-pulse";
+                            document.getElementById('client-ip-badge').innerText = `IP: ${serverProfiles.authorized.offeredIp}`;
+                            document.getElementById('client-ip-badge').className = "text-[10px] code-font font-bold text-violet-400 mt-0.5";
+                        } else {
+                            document.getElementById('client-icon').className = "w-16 h-16 mx-auto rounded-2xl bg-red-950/20 border-2 border-red-500 flex items-center justify-center shadow-lg transition-all duration-300 active-pulse";
+                            document.getElementById('client-ip-badge').innerText = `IP: ${serverProfiles.rogue.offeredIp}`;
+                            document.getElementById('client-ip-badge').className = "text-[10px] code-font font-bold text-red-400 mt-0.5";
+                        }
+                        break;
+                }
+            } else if (currentScenario === 'scenario-ipam') {
+                // Scenario 5 IPAM Management
+                switch(currentStep) {
+                    case 1: // Reservation setup config
+                        pkt.className = "scale-0 absolute";
+                        break;
+                    case 2: // Request
+                        clientWave.classList.add('broadcast-wave');
+                        pkt.innerText = "D";
+                        pkt.className = "packet-transition absolute left-[120px] top-[180px] w-6 h-6 rounded-full bg-violet-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg scale-100 border border-white/10";
+                        setTimeout(() => { pkt.style.left = "290px"; pkt.style.top = "180px"; }, 50);
+                        setTimeout(() => { pkt.style.left = "490px"; pkt.style.top = "90px"; }, 800);
+                        break;
+                    case 3: // IP conflict occurs
+                        pkt.className = "scale-0 absolute";
+                        break;
+                    case 4: // Alarm
+                        pkt.className = "scale-0 absolute";
+                        document.getElementById('client-icon').className = "w-16 h-16 mx-auto rounded-2xl bg-amber-950/20 border-2 border-amber-500 flex items-center justify-center shadow-lg transition-all duration-300 active-pulse";
+                        document.getElementById('client-ip-badge').innerText = "IP Conflict! (192.168.1.100)";
+                        document.getElementById('client-ip-badge').className = "text-[10px] code-font font-bold text-red-500 mt-0.5 animate-pulse";
+                        break;
+                }
+            }
+        }
+
+        function nextStep() {
+            const spec = scenarioSpecs[currentScenario];
+            if (currentStep < spec.steps.length - 1) {
+                currentStep++;
+                animatePackets();
+                updateProgressDots();
+                updateLiveInspectors();
+                updateLeaseTable();
+                updateInstructionalPanel();
+            }
+        }
+
+        function updateProgressDots() {
+            const spec = scenarioSpecs[currentScenario];
+            spec.steps.forEach((s, idx) => {
+                const dot = document.getElementById(`step-dot-${idx}`);
+                if (!dot) return;
+                if (idx === currentStep) {
+                    dot.className = `w-2.5 h-2.5 rounded-full border border-violet-400 bg-violet-500 shadow-md shadow-violet-500/50`;
+                } else if (idx < currentStep) {
+                    dot.className = `w-2 h-2 rounded-full bg-slate-400 border border-slate-500`;
+                } else {
+                    dot.className = `w-2 h-2 rounded-full border border-slate-700 bg-slate-900`;
+                }
+            });
+
+            document.getElementById('btn-prev').disabled = (currentStep === 0);
+            const btnNext = document.getElementById('btn-next');
+            if (currentStep === 0) {
+                btnNext.innerText = "Start Lab Execution";
+            } else if (currentStep === spec.steps.length - 1) {
+                btnNext.innerText = "Lab Completed";
+            } else {
+                btnNext.innerText = "Advance Next Step";
+            }
+        }
+
+        // Live Header table update mapping
+        function updateLiveInspectors() {
+            const dev = clientProfiles[selectedDevice];
+            const server = serverProfiles.authorized;
+            const rogue = serverProfiles.rogue;
+
+            const fields = {
+                srcMac: document.getElementById('hdr-src-mac'),
+                dstMac: document.getElementById('hdr-dst-mac'),
+                srcIp: document.getElementById('hdr-src-ip'),
+                dstIp: document.getElementById('hdr-dst-ip'),
+                direction: document.getElementById('header-direction'),
+                // Option Fields
+                optType: document.getElementById('opt-msg-type'),
+                optClientIp: document.getElementById('opt-client-ip'),
+                optSubnet: document.getElementById('opt-subnet'),
+                optGateway: document.getElementById('opt-gateway'),
+                optDns: document.getElementById('opt-dns'),
+                optLease: document.getElementById('opt-lease-time')
+            };
+
+            // Reset dynamic class indicators
+            Object.values(fields).forEach(el => { if(el) el.className = el.className.replace(/\btext-(violet|emerald|amber|red|blue|rose)-\d+\b/g, ''); });
+
+            if (currentStep === 0) {
+                fields.srcMac.innerText = "-";
+                fields.dstMac.innerText = "-";
+                fields.srcIp.innerText = "-";
+                fields.dstIp.innerText = "-";
+                fields.direction.innerText = "Offline";
+                fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-slate-800 text-slate-400";
+                
+                fields.optType.innerText = "-";
+                fields.optClientIp.innerText = "-";
+                fields.optSubnet.innerText = "-";
+                fields.optGateway.innerText = "-";
+                fields.optDns.innerText = "-";
+                fields.optLease.innerText = "-";
+                return;
+            }
+
+            // Standard DORA (Scenario 1) or Spoofing (Scenario 4) wire analysis
+            if (currentScenario === 'scenario-dora' || currentScenario === 'scenario-snooping') {
+                if (currentStep === 1) { // DHCP DISCOVER
+                    fields.srcMac.innerText = dev.mac;
+                    fields.srcMac.classList.add('text-blue-400');
+                    fields.dstMac.innerText = "FF:FF:FF:FF:FF:FF";
+                    fields.dstMac.classList.add('text-amber-400');
+                    fields.srcIp.innerText = "0.0.0.0";
+                    fields.dstIp.innerText = "255.255.255.255";
+                    fields.dstIp.classList.add('text-amber-400');
+                    fields.direction.innerText = "Discover Broadcast Frame";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20";
+
+                    fields.optType.innerText = "Src: UDP 68 -> Dst: UDP 67";
+                    fields.optType.classList.add('text-blue-400');
+                    fields.optClientIp.innerText = "Unassigned";
+                    fields.optSubnet.innerText = "255.255.255.0 Proposed";
+                    fields.optGateway.innerText = "Requesting Gateway";
+                    fields.optDns.innerText = "Requesting DNS";
+                    fields.optLease.innerText = "Standard Lease Requested";
+                } 
+                else if (currentStep === 2) { // DHCP OFFER
+                    const isCompromised = (currentScenario === 'scenario-snooping' && !snoopSecurityActive);
+                    
+                    fields.srcMac.innerText = isCompromised ? "FE:11:22:AA:BB:CC" : "00:50:56:A3:B1:C2";
+                    fields.srcMac.classList.add(isCompromised ? 'text-red-400' : 'text-violet-400');
+                    fields.dstMac.innerText = dev.mac;
+                    fields.dstMac.classList.add('text-blue-400');
+                    fields.srcIp.innerText = isCompromised ? rogue.ip : server.ip;
+                    fields.dstIp.innerText = "255.255.255.255 (or client unicast)";
+
+                    fields.direction.innerText = isCompromised ? "Spoofed Rogue Offer!" : "Authorized Offer Frame";
+                    fields.direction.className = isCompromised ? 
+                        "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-red-600/15 text-red-400 border border-red-500/20" : 
+                        "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-violet-500/10 text-violet-400 border border-violet-500/20";
+
+                    fields.optType.innerText = "Src: UDP 67 -> Dst: UDP 68";
+                    fields.optType.classList.add(isCompromised ? 'text-red-400' : 'text-violet-400');
+                    fields.optClientIp.innerText = isCompromised ? rogue.offeredIp : server.offeredIp;
+                    fields.optClientIp.classList.add(isCompromised ? 'text-red-400' : 'text-violet-400');
+                    fields.optSubnet.innerText = isCompromised ? rogue.mask : server.mask;
+                    fields.optGateway.innerText = isCompromised ? rogue.gateway : server.gateway;
+                    fields.optDns.innerText = isCompromised ? rogue.dns : server.dns;
+                    fields.optLease.innerText = leaseProfiles[selectedLease].duration;
+                } 
+                else if (currentStep === 3) { // DHCP REQUEST
+                    const isCompromised = (currentScenario === 'scenario-snooping' && !snoopSecurityActive);
+
+                    fields.srcMac.innerText = dev.mac;
+                    fields.dstMac.innerText = "FF:FF:FF:FF:FF:FF";
+                    fields.srcIp.innerText = "0.0.0.0";
+                    fields.dstIp.innerText = "255.255.255.255";
+
+                    fields.direction.innerText = "Request Broadcast Formed";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20";
+
+                    fields.optType.innerText = "Src: UDP 68 -> Dst: UDP 67";
+                    fields.optType.classList.add('text-amber-400');
+                    fields.optClientIp.innerText = isCompromised ? `Requesting: ${rogue.offeredIp}` : `Requesting: ${server.offeredIp}`;
+                    fields.optSubnet.innerText = "Confirming Mask";
+                    fields.optGateway.innerText = "Confirming GW";
+                    fields.optDns.innerText = "Confirming DNS";
+                    fields.optLease.innerText = leaseProfiles[selectedLease].duration;
+                } 
+                else if (currentStep === 4) { // DHCP ACK
+                    const isCompromised = (currentScenario === 'scenario-snooping' && !snoopSecurityActive);
+
+                    fields.srcMac.innerText = isCompromised ? "FE:11:22:AA:BB:CC" : "00:50:56:A3:B1:C2";
+                    fields.dstMac.innerText = dev.mac;
+                    fields.srcIp.innerText = isCompromised ? rogue.ip : server.ip;
+                    fields.dstIp.innerText = isCompromised ? rogue.offeredIp : server.offeredIp;
+
+                    fields.direction.innerText = isCompromised ? "Compromised ACK Finalized" : "Authorized ACK Frame";
+                    fields.direction.className = isCompromised ?
+                        "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-red-600/15 text-red-400 border border-red-500/20" :
+                        "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+
+                    fields.optType.innerText = "Src: UDP 67 -> Dst: UDP 68";
+                    fields.optClientIp.innerText = isCompromised ? rogue.offeredIp : server.offeredIp;
+                    fields.optSubnet.innerText = isCompromised ? rogue.mask : server.mask;
+                    fields.optGateway.innerText = isCompromised ? rogue.gateway : server.gateway;
+                    fields.optDns.innerText = isCompromised ? rogue.dns : server.dns;
+                    fields.optLease.innerText = leaseProfiles[selectedLease].duration;
+                } 
+                else if (currentStep === 5) { // BOUND Client Connected
+                    const isCompromised = (currentScenario === 'scenario-snooping' && !snoopSecurityActive);
+
+                    fields.srcMac.innerText = dev.mac;
+                    fields.dstMac.innerText = isCompromised ? "FE:11:22:AA:BB:CC" : "00:50:56:A3:B1:C2";
+                    fields.srcIp.innerText = isCompromised ? rogue.offeredIp : server.offeredIp;
+                    fields.dstIp.innerText = isCompromised ? rogue.gateway : server.gateway;
+
+                    fields.direction.innerText = isCompromised ? "Subnet Active (COMPROMISED!)" : "Subnet Active (SECURED)";
+                    fields.direction.className = isCompromised ?
+                        "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-rose-950 text-red-400 border border-red-500/30" :
+                        "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+
+                    fields.optType.innerText = "State: BOUND";
+                    fields.optClientIp.innerText = isCompromised ? rogue.offeredIp : server.offeredIp;
+                    fields.optSubnet.innerText = isCompromised ? rogue.mask : server.mask;
+                    fields.optGateway.innerText = isCompromised ? rogue.gateway : server.gateway;
+                    fields.optDns.innerText = isCompromised ? rogue.dns : server.dns;
+                    fields.optLease.innerText = leaseProfiles[selectedLease].duration;
+                }
+            } 
+            else if (currentScenario === 'scenario-apipa') {
+                // Scenario 2 APIPA fallback wire monitoring
+                if (currentStep === 1 || currentStep === 2) {
+                    fields.srcMac.innerText = dev.mac;
+                    fields.dstMac.innerText = "FF:FF:FF:FF:FF:FF";
+                    fields.srcIp.innerText = "0.0.0.0";
+                    fields.dstIp.innerText = "255.255.255.255";
+                    fields.direction.innerText = `DHCP Discover (Attempt ${currentStep})`;
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20";
+
+                    fields.optType.innerText = "DHCP Server: OFFLINE";
+                    fields.optType.classList.add('text-rose-400');
+                    fields.optClientIp.innerText = "No Response";
+                    fields.optSubnet.innerText = "-";
+                    fields.optGateway.innerText = "-";
+                    fields.optDns.innerText = "-";
+                    fields.optLease.innerText = "-";
+                } else if (currentStep === 3) {
+                    fields.srcMac.innerText = dev.mac;
+                    fields.dstMac.innerText = "FF:FF:FF:FF:FF:FF";
+                    fields.srcIp.innerText = "ARP Probe";
+                    fields.dstIp.innerText = "Checking conflicts";
+                    fields.direction.innerText = "Timeout / ARP Verification";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20";
+
+                    fields.optType.innerText = "DHCP Protocol: Failed";
+                    fields.optClientIp.innerText = "Generating APIPA IP";
+                    fields.optSubnet.innerText = "255.255.0.0 Local Mask";
+                } else if (currentStep === 4) {
+                    fields.srcMac.innerText = dev.mac;
+                    fields.dstMac.innerText = "FF:FF:FF:FF:FF:FF (Local Subnet Only)";
+                    fields.srcIp.innerText = "169.254.88.92";
+                    fields.dstIp.innerText = "Local Peer Space";
+                    fields.direction.innerText = "Subnet Bound (APIPA Fallback)";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/20";
+
+                    fields.optType.innerText = "APIPA Assigned";
+                    fields.optType.classList.add('text-amber-400');
+                    fields.optClientIp.innerText = "169.254.88.92";
+                    fields.optSubnet.innerText = "255.255.0.0";
+                    fields.optGateway.innerText = "None (Non-Routable)";
+                    fields.optDns.innerText = "None Assigned";
+                    fields.optLease.innerText = "Infinite (Until DHCP Available)";
+                }
+            } 
+            else if (currentScenario === 'scenario-relay') {
+                // Scenario 3 DHCP Relay agent wire trace
+                if (currentStep === 1) { // Broadcast Discover onto Subnet A
+                    fields.srcMac.innerText = dev.mac;
+                    fields.dstMac.innerText = "FF:FF:FF:FF:FF:FF";
+                    fields.srcIp.innerText = "0.0.0.0";
+                    fields.dstIp.innerText = "255.255.255.255";
+                    fields.direction.innerText = "Local Broadcast (Subnet A)";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20";
+
+                    fields.optType.innerText = "DHCP Discover";
+                    fields.optClientIp.innerText = "giaddr: 0.0.0.0 (Unset)";
+                } 
+                else if (currentStep === 2) { // Unicast Forwarded from Router to remote Server
+                    fields.srcMac.innerText = "Router WAN port (00:11:AA:BB:CC:DD)";
+                    fields.dstMac.innerText = "Remote Server MAC";
+                    fields.srcIp.innerText = "10.0.2.1 (Router Interface G0/1)";
+                    fields.srcIp.classList.add('text-violet-400');
+                    fields.dstIp.innerText = "10.0.2.10 (Remote DHCP Server)";
+                    fields.dstIp.classList.add('text-violet-400');
+                    fields.direction.innerText = "Routed Unicast (DHCP Relay Agent)";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-violet-500/10 text-violet-400 border border-violet-500/20";
+
+                    fields.optType.innerText = "Relayed giaddr: 192.168.1.1";
+                    fields.optType.classList.add('text-violet-400');
+                    fields.optClientIp.innerText = "Scope mapping: Subnet A";
+                    fields.optSubnet.innerText = "Subnet A mask (255.255.255.0)";
+                } 
+                else if (currentStep === 3) { // Unicast response Server to Router
+                    fields.srcMac.innerText = "Remote Server MAC";
+                    fields.dstMac.innerText = "Router WAN MAC";
+                    fields.srcIp.innerText = "10.0.2.10 (Server)";
+                    fields.dstIp.innerText = "10.0.2.1 (Router Interface G0/1)";
+                    fields.direction.innerText = "Routed Unicast Offer (Server -> Router)";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-violet-500/10 text-violet-400 border border-violet-500/20";
+
+                    fields.optType.innerText = "DHCP Offer (via Relay)";
+                    fields.optClientIp.innerText = "192.168.1.140 Offered";
+                } 
+                else if (currentStep === 4) { // Router delivers offer to Subnet A client
+                    fields.srcMac.innerText = "Router G0/0 interface";
+                    fields.dstMac.innerText = dev.mac;
+                    fields.srcIp.innerText = "192.168.1.1";
+                    fields.dstIp.innerText = "192.168.1.140";
+                    fields.direction.innerText = "Local Delivery (Router -> Client)";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20";
+
+                    fields.optType.innerText = "Offer Delivered";
+                    fields.optClientIp.innerText = "192.168.1.140";
+                    fields.optSubnet.innerText = "255.255.255.0";
+                    fields.optGateway.innerText = "192.168.1.1";
+                    fields.optDns.innerText = "10.0.2.10";
+                }
+                else if (currentStep === 5) { // Router delivers offer to Subnet A client
+                    fields.srcMac.innerText = dev.mac;
+                    fields.dstMac.innerText = "Router G0/0 (Default Gateway)";
+                    fields.srcIp.innerText = "192.168.1.140";
+                    fields.dstIp.innerText = "192.168.1.1";
+                    fields.direction.innerText = "Client Bound across Router";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+
+                    fields.optType.innerText = "BOUND State";
+                    fields.optClientIp.innerText = "192.168.1.140";
+                    fields.optSubnet.innerText = "255.255.255.0";
+                    fields.optGateway.innerText = "192.168.1.1";
+                    fields.optDns.innerText = "10.0.2.10 (Subnet B DNS)";
+                }
+            } 
+            else if (currentScenario === 'scenario-ipam') {
+                // Scenario 5 IPAM / conflict detection tracking
+                if (currentStep === 1) {
+                    fields.srcMac.innerText = dev.mac;
+                    fields.dstMac.innerText = "Switch Registry";
+                    fields.srcIp.innerText = "Reservation Configuration";
+                    fields.dstIp.innerText = "Static Mapping";
+                    fields.direction.innerText = "Database Setup Completed";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-violet-500/10 text-violet-400 border border-violet-500/20";
+
+                    fields.optType.innerText = "IPAM Reservation";
+                    fields.optClientIp.innerText = "192.168.1.100 Reserved";
+                    fields.optSubnet.innerText = "MAC: 00:1A:2B:3C:4D:5E";
+                }
+                else if (currentStep === 2) {
+                    fields.srcMac.innerText = dev.mac;
+                    fields.dstMac.innerText = "FF:FF:FF:FF:FF:FF";
+                    fields.srcIp.innerText = "0.0.0.0";
+                    fields.dstIp.innerText = "255.255.255.255";
+                    fields.direction.innerText = "Dynamic Discovery (Reserved Host)";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20";
+
+                    fields.optType.innerText = "Reservation Lookup Match";
+                    fields.optClientIp.innerText = "Legit offer: 192.168.1.100";
+                }
+                else if (currentStep === 3) {
+                    fields.srcMac.innerText = "Rogue Printer MAC (70:EE:50:99:AA:BB)";
+                    fields.srcMac.classList.add('text-rose-400');
+                    fields.dstMac.innerText = "FF:FF:FF:FF:FF:FF";
+                    fields.srcIp.innerText = "192.168.1.100 (Unleased Manual Input)";
+                    fields.srcIp.classList.add('text-rose-400');
+                    fields.dstIp.innerText = "Subnet A";
+                    fields.direction.innerText = "Static Exclusion Breach (ARP Conflict)";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-red-600/15 text-red-400 border border-red-500/20";
+
+                    fields.optType.innerText = "Rogue static host detected";
+                    fields.optType.classList.add('text-rose-400');
+                    fields.optClientIp.innerText = "Collision on 192.168.1.100";
+                }
+                else if (currentStep === 4) {
+                    fields.srcMac.innerText = "Duplicate mappings mapped";
+                    fields.dstMac.innerText = "Centralized IPAM Server";
+                    fields.srcIp.innerText = "192.168.1.100 conflicted";
+                    fields.dstIp.innerText = "Admin Intervention alert";
+                    fields.direction.innerText = "IPAM Alert: Conflict Identified!";
+                    fields.direction.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-500/30 animate-pulse";
+
+                    fields.optType.innerText = "IPAM Status: RED ALERT";
+                    fields.optType.classList.add('text-rose-400');
+                    fields.optClientIp.innerText = "Disable Switchport 4!";
+                }
+            }
+        }
+
+        // Active leases databases tracking updates based on scenario selected
+        function updateLeaseTable() {
+            const tableRows = document.getElementById('lease-table-rows');
+            const tableHeaders = document.getElementById('pool-table-headers');
+            const tableTitle = document.getElementById('pool-table-title');
+            const tableBadge = document.getElementById('pool-table-badge');
+            
+            const dev = clientProfiles[selectedDevice];
+            const server = serverProfiles.authorized;
+            const rogue = serverProfiles.rogue;
+            const lease = leaseProfiles[selectedLease];
+
+            // Re-render columns and rows contextually
+            if (currentScenario === 'scenario-ipam') {
+                tableTitle.innerHTML = `<svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg> IPAM Active Inventory Matrix`;
+                tableBadge.innerText = "EXAM REFERENCE DATABASE";
+                tableHeaders.innerHTML = `
+                    <th class="py-2.5">Mapped IP</th>
+                    <th class="py-2.5">Config Mode</th>
+                    <th class="py-2.5">Assigned MAC / Status</th>
+                `;
+
+                if (currentStep >= 3) {
+                    tableRows.innerHTML = `
+                        <tr class="bg-violet-950/20 text-violet-300">
+                            <td class="py-2.5 text-xs code-font">192.168.1.100</td>
+                            <td class="py-2.5 text-xs">Static Reservation</td>
+                            <td class="py-2.5 text-xs">${dev.mac} (Legit Host)</td>
+                        </tr>
+                        <tr class="bg-red-950/20 text-red-400 font-semibold animate-pulse">
+                            <td class="py-2.5 text-xs code-font">192.168.1.100</td>
+                            <td class="py-2.5 text-xs">Rogue Static Config</td>
+                            <td class="py-2.5 text-xs">70:EE:50:99:AA:BB (CONFLICT FLAG)</td>
+                        </tr>
+                    `;
+                } else {
+                    tableRows.innerHTML = `
+                        <tr class="bg-violet-950/20 text-violet-300">
+                            <td class="py-2.5 text-xs code-font">192.168.1.100</td>
+                            <td class="py-2.5 text-xs">Static Reservation</td>
+                            <td class="py-2.5 text-xs">${dev.mac} (Offline)</td>
+                        </tr>
+                    `;
+                }
+                return;
+            }
+
+            // Restore defaults for standard scenarios
+            tableTitle.innerHTML = `<svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> DHCP Server active leases`;
+            tableBadge.innerText = "MAPPED DATABASE";
+            tableHeaders.innerHTML = `
+                <th class="py-2.5">Hardware MAC</th>
+                <th class="py-2.5">Leased IP</th>
+                <th class="py-2.5">Lease Time Remaining</th>
+            `;
+
+            if (currentStep >= 4) {
+                if (currentScenario === 'scenario-snooping' && !snoopSecurityActive) {
+                    tableRows.innerHTML = `
+                        <tr class="transition-all duration-300 bg-red-950/20 text-red-300">
+                            <td class="py-2.5 text-xs">${dev.mac}</td>
+                            <td class="py-2.5 text-xs font-semibold">${rogue.offeredIp}</td>
+                            <td class="py-2.5 text-xs font-semibold text-rose-400">[Hijacked Gateway]: ${lease.duration}</td>
+                        </tr>
+                    `;
+                } else if (currentScenario === 'scenario-relay') {
+                    tableRows.innerHTML = `
+                        <tr class="transition-all duration-300 bg-violet-950/20 text-violet-300">
+                            <td class="py-2.5 text-xs">${dev.mac}</td>
+                            <td class="py-2.5 text-xs font-semibold">192.168.1.140</td>
+                            <td class="py-2.5 text-xs font-semibold">Relayed Scope: ${lease.duration} Active</td>
+                        </tr>
+                    `;
+                } else if (currentScenario === 'scenario-apipa') {
+                    tableRows.innerHTML = `
+                        <tr id="lease-empty-row">
+                            <td colspan="3" class="py-8 text-center text-slate-500 italic text-[11px]">
+                                Server Offline. Client bound locally via APIPA fallback range.
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    tableRows.innerHTML = `
+                        <tr class="transition-all duration-300 bg-violet-950/20 text-violet-300">
+                            <td class="py-2.5 text-xs">${dev.mac}</td>
+                            <td class="py-2.5 text-xs font-semibold">${server.offeredIp}</td>
+                            <td class="py-2.5 text-xs font-semibold">${lease.duration} Active</td>
+                        </tr>
+                    `;
+                }
+            } else {
+                tableRows.innerHTML = `
+                    <tr id="lease-empty-row">
+                        <td colspan="3" class="py-8 text-center text-slate-500 italic text-[11px]">
+                            No active leases. Initiate client request to compile lease mapping.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Instructional explanation logic
+        function updateInstructionalPanel() {
+            const spec = scenarioSpecs[currentScenario];
+            const stepInfo = spec.steps[currentStep];
+            if (!stepInfo) return;
+            
+            document.getElementById('narrative-text').innerHTML = stepInfo.desc;
+            
+            const conceptBox = document.getElementById('narrative-concept');
+            const conceptText = document.getElementById('narrative-concept-text');
+            
+            if (stepInfo.concept) {
+                conceptBox.classList.remove('hidden');
+                conceptText.innerText = stepInfo.concept;
+            } else {
+                conceptBox.classList.add('hidden');
+            }
+        }
+
+        // Initialize and Render Practice Exam Questions
+        function initializeExamUI() {
+            const listContainer = document.getElementById('exam-questions-list');
+            if(!listContainer) return;
+            listContainer.innerHTML = '';
+
+            examQuestions.forEach((q, qIdx) => {
+                const card = document.createElement('div');
+                card.id = `exam-q-card-${qIdx}`;
+                card.className = "bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl transition-all space-y-4";
+                
+                // Question Header Card info
+                const header = document.createElement('div');
+                header.className = "flex items-start justify-between gap-3 border-b border-slate-900 pb-3";
+                header.innerHTML = `
+                    <div class="flex gap-2.5">
+                        <span class="px-2.5 py-0.5 h-6 rounded bg-slate-900 border border-slate-800 font-bold text-xs code-font text-slate-400">Q-${q.id}</span>
+                        <h4 class="text-sm font-semibold text-slate-200 leading-relaxed">${q.question}</h4>
+                    </div>
+                    <span id="exam-q-badge-${qIdx}" class="hidden text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider"></span>
+                `;
+                card.appendChild(header);
+
+                // Option Choice Items
+                const optionsWrapper = document.createElement('div');
+                optionsWrapper.className = "space-y-2";
+
+                q.options.forEach((opt, optIdx) => {
+                    const label = document.createElement('label');
+                    label.id = `exam-q-${qIdx}-opt-lbl-${optIdx}`;
+                    label.className = "w-full text-left p-3 text-xs rounded-lg border border-slate-900 bg-slate-900/30 hover:bg-slate-900 hover:border-slate-800 cursor-pointer transition-all flex items-start gap-3 text-slate-300 relative group";
+                    label.innerHTML = `
+                        <input type="radio" name="exam-q-${qIdx}" value="${optIdx}" onclick="selectExamAnswer(${qIdx}, ${optIdx})" class="sr-only">
+                        <span id="exam-q-${qIdx}-bullet-${optIdx}" class="w-5 h-5 rounded-full border border-slate-700 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-slate-400 group-hover:border-violet-500 transition-colors shrink-0">
+                            ${String.fromCharCode(65 + optIdx)}
+                        </span>
+                        <span class="flex-grow">${opt}</span>
+                    `;
+                    optionsWrapper.appendChild(label);
+                });
+
+                card.appendChild(optionsWrapper);
+
+                // Detailed Rationale Box (Hidden until Graded)
+                const rationale = document.createElement('div');
+                rationale.id = `exam-q-rationale-${qIdx}`;
+                rationale.className = "hidden p-4 bg-slate-900 border-l-4 border-violet-500 rounded-r-lg text-xs leading-relaxed text-slate-300";
+                rationale.innerHTML = `
+                    <strong class="text-violet-400 uppercase tracking-widest text-[9px] block mb-1">Network+ Detailed Rationale:</strong>
+                    ${q.rationale}
+                `;
+                card.appendChild(rationale);
+
+                listContainer.appendChild(card);
+            });
+        }
+
+        // Handles select feedback triggers
+        function selectExamAnswer(qIdx, optIdx) {
+            if (examSubmitted) return;
+
+            userExamAnswers[qIdx] = optIdx;
+
+            // Update Option Select styling states
+            const numOptions = 4;
+            for (let i = 0; i < numOptions; i++) {
+                const lbl = document.getElementById(`exam-q-${qIdx}-opt-lbl-${i}`);
+                const bullet = document.getElementById(`exam-q-${qIdx}-bullet-${i}`);
+
+                if (i === optIdx) {
+                    lbl.className = "w-full text-left p-3 text-xs rounded-lg border border-violet-500 bg-violet-950/20 cursor-pointer transition-all flex items-start gap-3 text-violet-300 relative font-medium";
+                    bullet.className = "w-5 h-5 rounded-full bg-violet-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0";
+                } else {
+                    lbl.className = "w-full text-left p-3 text-xs rounded-lg border border-slate-900 bg-slate-900/30 hover:bg-slate-900 hover:border-slate-800 cursor-pointer transition-all flex items-start gap-3 text-slate-300 relative group";
+                    bullet.className = "w-5 h-5 rounded-full border border-slate-700 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-slate-400 group-hover:border-violet-500 transition-colors shrink-0";
+                }
+            }
+
+            // Update Progress Counts
+            const answeredCount = userExamAnswers.filter(a => a !== null).length;
+            document.getElementById('exam-progress-text').innerText = `${answeredCount} / 10 Answered`;
+        }
+
+        // Grades the user Practice Exam responses
+        function gradeExam() {
+            if (examSubmitted) return;
+
+            const answeredCount = userExamAnswers.filter(a => a !== null).length;
+            if (answeredCount < 10) {
+                // Ensure student provides inputs to all questions
+                const unans = [];
+                userExamAnswers.forEach((ans, idx) => { if (ans === null) unans.push(idx + 1); });
+                
+                const feedbackStatus = document.getElementById('exam-pass-status');
+                feedbackStatus.className = "text-xs text-rose-400 font-bold uppercase tracking-wider animate-pulse";
+                feedbackStatus.innerText = `Please answer all questions before submitting. Unanswered: [ ${unans.join(', ')} ]`;
+                return;
+            }
+
+            examSubmitted = true;
+            let score = 0;
+
+            // Lock input elements & apply visual grading indicators
+            examQuestions.forEach((q, qIdx) => {
+                const userAns = userExamAnswers[qIdx];
+                const isCorrect = (userAns === q.correct);
+                if (isCorrect) score++;
+
+                const card = document.getElementById(`exam-q-card-${qIdx}`);
+                const qBadge = document.getElementById(`exam-q-badge-${qIdx}`);
+                const rationale = document.getElementById(`exam-q-rationale-${qIdx}`);
+
+                // Configure Badge style
+                qBadge.classList.remove('hidden');
+                if (isCorrect) {
+                    qBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/20 text-emerald-400";
+                    qBadge.innerText = "Correct";
+                    card.className = "bg-slate-950 border border-emerald-500/30 rounded-xl p-5 shadow-xl transition-all space-y-4";
+                } else {
+                    qBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider bg-rose-500/10 border border-rose-500/20 text-rose-400";
+                    qBadge.innerText = "Incorrect";
+                    card.className = "bg-slate-950 border border-rose-500/30 rounded-xl p-5 shadow-xl transition-all space-y-4";
+                }
+
+                // Render option background colors
+                q.options.forEach((opt, optIdx) => {
+                    const lbl = document.getElementById(`exam-q-${qIdx}-opt-lbl-${optIdx}`);
+                    const bullet = document.getElementById(`exam-q-${qIdx}-bullet-${optIdx}`);
+                    const radio = lbl.querySelector('input[type="radio"]');
+                    radio.disabled = true;
+                    lbl.style.pointerEvents = "none";
+
+                    if (optIdx === q.correct) {
+                        // Correct option always highlighted green
+                        lbl.className = "w-full text-left p-3 text-xs rounded-lg border border-emerald-500 bg-emerald-950/20 flex items-start gap-3 text-emerald-300 relative font-medium";
+                        bullet.className = "w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0";
+                    } else if (optIdx === userAns) {
+                        // User selected wrong option highlighted red
+                        lbl.className = "w-full text-left p-3 text-xs rounded-lg border border-rose-500 bg-rose-950/20 flex items-start gap-3 text-rose-300 relative";
+                        bullet.className = "w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0";
+                    } else {
+                        // Normal unselected options disabled
+                        lbl.className = "w-full text-left p-3 text-xs rounded-lg border border-slate-900 bg-slate-900/10 opacity-40 flex items-start gap-3 text-slate-500 relative";
+                        bullet.className = "w-5 h-5 rounded-full border border-slate-800 bg-slate-950 flex items-center justify-center font-bold text-[10px] text-slate-600 shrink-0";
+                    }
+                });
+
+                // Reveal detailed rationale text
+                rationale.classList.remove('hidden');
+            });
+
+            // Update floating scoreboard values
+            const scoreboard = document.getElementById('exam-score-tally');
+            scoreboard.innerText = `${score} / 10`;
+            scoreboard.className = "text-base code-font font-black text-violet-400 animate-pulse";
+
+            const percent = (score / 10) * 100;
+            const statusBox = document.getElementById('exam-pass-status');
+            
+            // CompTIA passing threshold set at 80%
+            if (percent >= 80) {
+                statusBox.className = "text-sm text-emerald-400 font-bold uppercase tracking-wider";
+                statusBox.innerHTML = `PASSED EXAM! Score: ${percent}% | High Performance achieved.`;
+            } else {
+                statusBox.className = "text-sm text-rose-400 font-bold uppercase tracking-wider";
+                statusBox.innerHTML = `FAILED EXAM. Score: ${percent}% | Passing threshold is 80%. Review rationales below.`;
+            }
+
+            document.getElementById('btn-submit-exam').disabled = true;
+            document.getElementById('btn-submit-exam').className = "w-full sm:w-auto px-6 py-2.5 text-xs font-black bg-slate-800 text-slate-500 rounded-lg transition-all cursor-not-allowed opacity-40";
+        }
+
+        // Resets the Practice Exam back to pristine state
+        function resetExam() {
+            userExamAnswers = Array(10).fill(null);
+            examSubmitted = false;
+
+            // Clear Score Tally Indicators
+            const scoreboard = document.getElementById('exam-score-tally');
+            scoreboard.innerText = "-- / 10";
+            scoreboard.className = "text-base code-font font-black text-slate-500";
+
+            document.getElementById('exam-progress-text').innerText = "0 / 10 Answered";
+            
+            const statusBox = document.getElementById('exam-pass-status');
+            statusBox.className = "text-xs text-slate-400 font-semibold italic";
+            statusBox.innerText = "Complete all 10 questions and click Submit to grade.";
+
+            const submitBtn = document.getElementById('btn-submit-exam');
+            submitBtn.disabled = false;
+            submitBtn.className = "w-full sm:w-auto px-6 py-2.5 text-xs font-black bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-lg transition-all shadow-lg shadow-violet-900/20 uppercase tracking-wider";
+
+            initializeExamUI();
+        }
+
+        // Layout View toggle controls (Student view vs. Network+ Reference View vs. Quiz View)
+        function toggleViewMode(mode) {
+            const mainSim = document.getElementById('simulation-viewport');
+            const reference = document.getElementById('net-plus-reference');
+            const quizPage = document.getElementById('net-plus-quiz-page');
+            
+            const btnStudent = document.getElementById('view-student');
+            const btnReference = document.getElementById('view-reference');
+            const btnQuiz = document.getElementById('view-quiz');
+
+            // Hide all layout view nodes
+            mainSim.classList.add('hidden');
+            reference.classList.add('hidden');
+            quizPage.classList.add('hidden');
+
+            // Reset class configurations of buttons
+            btnStudent.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-all";
+            btnReference.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-all";
+            btnQuiz.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-all";
+
+            if (mode === 'student') {
+                mainSim.classList.remove('hidden');
+                btnStudent.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-violet-600 text-white transition-all shadow-md shadow-violet-900/30";
+            } else if (mode === 'reference') {
+                reference.classList.remove('hidden');
+                btnReference.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-violet-600 text-white transition-all shadow-md shadow-violet-900/30";
+            } else if (mode === 'quiz') {
+                quizPage.classList.remove('hidden');
+                btnQuiz.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-violet-600 text-white transition-all shadow-md shadow-violet-900/30";
+            }
+        }
+    </script>
+</body>
+</html>
