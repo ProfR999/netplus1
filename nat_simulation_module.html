@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive NAT / PAT Simulation Module</title>
+    <!-- Tailwind CSS for high-fidelity responsive UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for crisp, modern educational interfaces -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom smooth transition for the packet */
+        .packet-transition {
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Pulse animations for active processing nodes */
+        @keyframes processing-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.4); }
+            50% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+        .active-pulse {
+            animation: processing-pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased">
+
+    <!-- Top Navigation & Instructional Header -->
+    <header class="border-b border-slate-800 bg-slate-950 px-6 py-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <span class="px-2.5 py-1 text-xs font-semibold bg-indigo-500/10 text-indigo-400 rounded-full border border-indigo-500/20">Instructional Simulation</span>
+                <h1 class="text-2xl font-extrabold tracking-tight mt-1 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Network Address Translation (NAT/PAT)</h1>
+                <p class="text-sm text-slate-400 mt-0.5">Observe how routers map multiple private IP addresses to a single public IP using port multiplexing.</p>
+            </div>
+            <!-- View Mode Switchers for the Instructional Designer -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleViewMode('student')" id="view-student" class="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition-all shadow-md shadow-indigo-900/30">
+                    Student Simulator View
+                </button>
+                <button onclick="toggleViewMode('designer')" id="view-designer" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-all">
+                    Instructional Blueprint
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout Grid -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left 2 Columns: Visual Simulation Board -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+
+            <!-- Active Variable Selection Panel -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-indigo-500 to-violet-600"></div>
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    Configure Sandbox Variables
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Variable 1: Select Local Device -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Source Local Device (Private IP):</label>
+                        <select id="config-device" onchange="resetToStart()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="pcA">Workstation A (192.168.1.50)</option>
+                            <option value="pcB">IP Phone B (192.168.1.120)</option>
+                            <option value="pcC">Local Laptop C (192.168.1.200)</option>
+                        </select>
+                    </div>
+                    <!-- Variable 2: Select Server Destination -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Destination Web Resource (Public IP):</label>
+                        <select id="config-server" onchange="resetToStart()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="server1">Web Server 1 (93.184.216.34)</option>
+                            <option value="server2">DNS Gateway (8.8.8.8)</option>
+                        </select>
+                    </div>
+                    <!-- Variable 3: Choose Protocol (Port Setup) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1.5">Application Protocol (Port):</label>
+                        <select id="config-protocol" onchange="resetToStart()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="https">HTTPS (Secure - Dest Port: 443)</option>
+                            <option value="http">HTTP (Unsecure - Dest Port: 80)</option>
+                            <option value="dns">DNS Request (Dest Port: 53)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The Visual Map / Canvas Arena -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-xl flex-grow flex flex-col justify-between min-h-[420px] relative overflow-hidden">
+                
+                <!-- Zone Indicators (LAN vs WAN dividing lines) -->
+                <div class="absolute inset-y-0 left-0 w-1/3 bg-blue-500/5 border-r border-dashed border-blue-500/20 pointer-events-none flex items-end p-4">
+                    <span class="text-xs font-bold tracking-widest text-blue-400/40 uppercase">Private Local Network (LAN)</span>
+                </div>
+                <div class="absolute inset-y-0 left-1/3 right-1/3 bg-orange-500/5 pointer-events-none flex items-end justify-center p-4">
+                    <span class="text-xs font-bold tracking-widest text-orange-400/40 uppercase">Gateway Router (NAT Core)</span>
+                </div>
+                <div class="absolute inset-y-0 right-0 w-1/3 bg-emerald-500/5 border-l border-dashed border-emerald-500/20 pointer-events-none flex items-end justify-end p-4">
+                    <span class="text-xs font-bold tracking-widest text-emerald-400/40 uppercase">Public Internet (WAN)</span>
+                </div>
+
+                <!-- Custom Grid Overlay background -->
+                <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 pointer-events-none"></div>
+
+                <!-- Logical Connection Lines (SVG Backing) -->
+                <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- LAN Connections to Router -->
+                    <path id="line-pcA" d="M 120,70 L 380,180" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4 6" opacity="0.4" fill="none"/>
+                    <path id="line-pcB" d="M 120,180 L 380,180" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4 6" opacity="0.4" fill="none"/>
+                    <path id="line-pcC" d="M 120,290 L 380,180" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4 6" opacity="0.4" fill="none"/>
+                    <!-- WAN Connection to Web Servers -->
+                    <path d="M 380,180 L 640,180" stroke="#10b981" stroke-width="2" stroke-dasharray="4 6" opacity="0.4" fill="none"/>
+                </svg>
+
+                <!-- Network Entities Container -->
+                <div class="relative w-full h-80 z-10">
+
+                    <!-- LAN Devices (Stacked Left) -->
+                    <!-- Workstation A -->
+                    <div id="node-pcA" class="absolute left-6 top-4 w-28 text-center transition-all duration-300">
+                        <div class="w-14 h-14 mx-auto rounded-xl bg-slate-900 border-2 border-indigo-500/50 flex items-center justify-center shadow-lg hover:border-indigo-400 transition-colors cursor-pointer" onclick="selectDeviceFromNode('pcA')">
+                            <svg class="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <p class="text-[11px] font-bold text-slate-300 mt-2">Workstation A</p>
+                        <p class="text-[10px] code-font text-indigo-400">192.168.1.50</p>
+                    </div>
+
+                    <!-- VoIP Phone B -->
+                    <div id="node-pcB" class="absolute left-6 top-32 w-28 text-center transition-all duration-300">
+                        <div class="w-14 h-14 mx-auto rounded-xl bg-slate-900 border-2 border-indigo-500/30 flex items-center justify-center shadow-lg hover:border-indigo-400 transition-colors cursor-pointer" onclick="selectDeviceFromNode('pcB')">
+                            <svg class="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                        </div>
+                        <p class="text-[11px] font-bold text-slate-300 mt-2">IP Phone B</p>
+                        <p class="text-[10px] code-font text-indigo-400">192.168.1.120</p>
+                    </div>
+
+                    <!-- Laptop C -->
+                    <div id="node-pcC" class="absolute left-6 top-60 w-28 text-center transition-all duration-300">
+                        <div class="w-14 h-14 mx-auto rounded-xl bg-slate-900 border-2 border-indigo-500/30 flex items-center justify-center shadow-lg hover:border-indigo-400 transition-colors cursor-pointer" onclick="selectDeviceFromNode('pcC')">
+                            <svg class="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <p class="text-[11px] font-bold text-slate-300 mt-2">Local Laptop C</p>
+                        <p class="text-[10px] code-font text-indigo-400">192.168.1.200</p>
+                    </div>
+
+                    <!-- Gateway Router (Center) -->
+                    <div id="node-router" class="absolute left-[45%] top-32 w-32 -translate-x-1/2 text-center">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-slate-950 border-2 border-orange-500/50 flex flex-col items-center justify-center shadow-xl shadow-orange-950/20 relative z-20">
+                            <!-- Dual directions arrow representing translation standard -->
+                            <svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                            </svg>
+                        </div>
+                        <p class="text-[11px] font-extrabold text-slate-300 mt-3">NAT Router</p>
+                        <div class="flex justify-center gap-1.5 mt-1 text-[9px] code-font leading-relaxed">
+                            <span class="bg-blue-900/40 border border-blue-800/50 px-1 py-0.5 rounded text-blue-300">LAN: 192.168.1.1</span>
+                            <span class="bg-emerald-900/40 border border-emerald-800/50 px-1 py-0.5 rounded text-emerald-300">WAN: 203.0.113.88</span>
+                        </div>
+                    </div>
+
+                    <!-- Target Web Servers (Stacked Right) -->
+                    <div id="node-servers" class="absolute right-6 top-32 w-28 text-center">
+                        <div class="w-14 h-14 mx-auto rounded-xl bg-slate-900 border-2 border-emerald-500/50 flex items-center justify-center shadow-lg">
+                            <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path></svg>
+                        </div>
+                        <p id="target-server-label" class="text-[11px] font-bold text-slate-300 mt-2">Target Web Server</p>
+                        <p id="target-server-ip" class="text-[10px] code-font text-emerald-400">93.184.216.34</p>
+                    </div>
+
+                    <!-- Animated Packet Element -->
+                    <div id="packet" class="packet-transition absolute left-[80px] top-[70px] w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold text-[9px] shadow-lg shadow-indigo-500/50 z-30 transform -translate-x-1/2 -translate-y-1/2 scale-0 border border-white/20">
+                        P
+                    </div>
+
+                </div>
+
+                <!-- Simulation Progress Stepper -->
+                <div class="border-t border-slate-800 pt-4 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-xs text-slate-400">Step:</span>
+                        <div class="flex items-center gap-1" id="step-indicator-container">
+                            <!-- Generated step dots will render here dynamically -->
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="prevStep()" id="btn-prev" disabled class="px-3 py-1.5 text-xs font-semibold rounded bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors disabled:opacity-30 disabled:pointer-events-none">
+                            Back
+                        </button>
+                        <button onclick="nextStep()" id="btn-next" class="px-4 py-1.5 text-xs font-semibold rounded bg-indigo-600 text-white hover:bg-indigo-500 transition-all shadow-md shadow-indigo-900/20">
+                            Start Simulation
+                        </button>
+                        <button onclick="resetSimulation()" class="p-1.5 text-xs font-semibold rounded bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.27 15M21 12h-5m2 2l-2-2"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Dynamic Packet Header Inspector (Changes based on location step) -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl relative">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-2.5">
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-300 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                        Live Packet Header Inspector
+                    </h3>
+                    <span id="header-direction" class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-slate-800 text-slate-400">
+                        Idle
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Source IP Frame -->
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Source IP</span>
+                        <div id="hdr-src-ip" class="text-sm code-font font-semibold text-slate-500">-</div>
+                    </div>
+                    <!-- Source Port Frame -->
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Source Port</span>
+                        <div id="hdr-src-port" class="text-sm code-font font-semibold text-slate-500">-</div>
+                    </div>
+                    <!-- Destination IP Frame -->
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Destination IP</span>
+                        <div id="hdr-dst-ip" class="text-sm code-font font-semibold text-slate-500">-</div>
+                    </div>
+                    <!-- Destination Port Frame -->
+                    <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800">
+                        <span class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Destination Port</span>
+                        <div id="hdr-dst-port" class="text-sm code-font font-semibold text-slate-500">-</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Interactive Logs, NAT Table, and Instructional Prompts -->
+        <div class="flex flex-col gap-6">
+
+            <!-- Active Interactive Instructional / Narrative Guide -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col justify-between min-h-[180px]">
+                <div>
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-300 mb-2 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Instructional Step Explainer
+                    </h3>
+                    <p id="narrative-text" class="text-sm text-slate-300 leading-relaxed">
+                        Ready to start. Set your private client, the web resource destination, and protocol port in the variable block above. Click "Start Simulation" to create the initial packet on the client computer.
+                    </p>
+                </div>
+                <!-- Deep-Dive Concept Box inside the Narrative -->
+                <div id="narrative-concept" class="mt-4 p-3 bg-indigo-950/20 border border-indigo-500/20 rounded-lg hidden">
+                    <span class="block text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Pedagogical Core Concept</span>
+                    <p id="narrative-concept-text" class="text-xs text-slate-400 leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Dynamic Router Lookup NAT Mapping Table -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl flex-grow flex flex-col">
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-300 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                        Router's Dynamic NAT Table
+                    </h3>
+                    <span class="text-[9px] text-orange-400/80 bg-orange-500/10 px-2 py-0.5 rounded border border-orange-500/20 font-bold uppercase tracking-wider">PAT Mode</span>
+                </div>
+                <div class="overflow-x-auto flex-grow">
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-slate-400 text-[10px] font-bold uppercase">
+                                <th class="py-2.5">Private Socket</th>
+                                <th class="py-2.5">Translated Public Socket</th>
+                                <th class="py-2.5">Remote Server</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nat-table-rows" class="code-font text-slate-300 divide-y divide-slate-900">
+                            <!-- Dynamic Row insertions occur here -->
+                            <tr id="nat-empty-row">
+                                <td colspan="3" class="py-8 text-center text-slate-500 italic text-[11px]">
+                                    NAT mappings are empty.<br>Initiate transmission to compile table entries.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Conceptual Formative Assessment Sandbox (Active Recall Check) -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-xl">
+                <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-300 mb-3 flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Simulation Check-In
+                </h3>
+                <div id="quiz-container" class="space-y-3">
+                    <p id="quiz-question" class="text-xs text-slate-300 leading-relaxed">
+                        Please initiate the simulation steps to unlock targeted network architecture quizzes.
+                    </p>
+                    <div id="quiz-options" class="space-y-2"></div>
+                    <div id="quiz-feedback" class="text-xs p-2.5 rounded-lg hidden"></div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- INSTRUCTIONAL DESIGNER BLUEPRINT MODAL / VIEW TAB -->
+    <section id="designer-blueprint" class="hidden max-w-7xl w-full mx-auto p-4 lg:p-6 flex-grow flex flex-col gap-6">
+        <div class="bg-slate-950 border border-indigo-500/30 rounded-xl p-6 shadow-2xl relative">
+            <div class="absolute top-0 right-0 px-4 py-1.5 bg-indigo-600/15 border-b border-l border-indigo-500/20 rounded-tr-xl rounded-bl-xl text-[10px] font-bold text-indigo-400 uppercase tracking-widest">
+                Educational Design Blueprint
+            </div>
+            
+            <h2 class="text-xl font-bold text-white mb-2">Curriculum Integration & Pedagogical Mechanics</h2>
+            <p class="text-sm text-slate-300 max-w-4xl mb-6 leading-relaxed">
+                As a web-based learning experience, this interactive simulation maps directly to network security curriculum standards (e.g., CompTIA Network+, CCNA, AP Computer Science Principles). It relies on cognitive load reduction strategies to introduce complex protocol concepts.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 border-t border-slate-800 pt-6">
+                <!-- Pedagogical Strategy -->
+                <div>
+                    <h3 class="text-sm font-bold text-indigo-400 mb-2 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                        Active Variables
+                    </h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Learners change IPs, Protocols, and Nodes. This prevents "linear clicking exhaustion" and prompts experimental validation: <em class="text-slate-200">"What happens to the port structure when Workstation A changes ports vs Workstation B?"</em>
+                    </p>
+                </div>
+                <!-- Interactive Scaffolding -->
+                <div>
+                    <h3 class="text-sm font-bold text-indigo-400 mb-2 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                        Scaffolded Dual Coding
+                    </h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        The visual network path aligns chronologically with the hexadecimal packet headers and table registries. The learner sees the rewrite operation simultaneously in both the visual space and the logical text layers.
+                    </p>
+                </div>
+                <!-- Self Assessment -->
+                <div>
+                    <h3 class="text-sm font-bold text-indigo-400 mb-2 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                        Formative Active Check-Ins
+                    </h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        The inline quiz updates depending on the current simulation state. Testing at the moment of demonstration optimizes retrieval strength and anchors dynamic technical vocabulary.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-8 p-4 bg-slate-900/60 rounded-lg border border-slate-800">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">CompTIA Network+ / CCNA Learning Objectives Met</h3>
+                <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside">
+                    <li>Differentiate Private (RFC 1918) and Public (Global) IP addressing structures.</li>
+                    <li>Demonstrate Port Address Translation (PAT) / NAT Overload mechanics during routing sequences.</li>
+                    <li>Construct logical headers for egress packets (Source/Destination Port/IP mappings).</li>
+                    <li>Explain why the router translates both IP address variables and dynamic high-order ephemeral ports.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Area -->
+    <footer class="border-t border-slate-800 bg-slate-950 py-4 px-6 text-center text-xs text-slate-500">
+        <p>© 2026 Interactive Network Instructional Architecture. Single-file educational package.</p>
+    </footer>
+
+    <!-- Interactive Simulator Application Scripts -->
+    <script>
+        // Data Structures mapping node coordinates and state transformations
+        const devices = {
+            pcA: { ip: '192.168.1.50', port: '52199', label: 'Workstation A', top: '70px', left: '120px', lineId: 'line-pcA' },
+            pcB: { ip: '192.168.1.120', port: '49155', label: 'IP Phone B', top: '180px', left: '120px', lineId: 'line-pcB' },
+            pcC: { ip: '192.168.1.200', port: '60104', label: 'Local Laptop C', top: '290px', left: '120px', lineId: 'line-pcC' }
+        };
+
+        const servers = {
+            server1: { ip: '93.184.216.34', label: 'Web Server 1' },
+            server2: { ip: '8.8.8.8', label: 'DNS Gateway' }
+        };
+
+        const protocols = {
+            https: { port: '443', name: 'HTTPS (Secure TLS/TCP)' },
+            http: { port: '80', name: 'HTTP (Unsecure TCP)' },
+            dns: { port: '53', name: 'DNS (Domain Lookup UDP)' }
+        };
+
+        // Static config for the router nodes
+        const routerConfig = {
+            lanIp: '192.168.1.1',
+            wanIp: '203.0.113.88',
+            translatedPorts: {
+                pcA: '10001',
+                pcB: '10002',
+                pcC: '10003'
+            }
+        };
+
+        // Simulation Steps Definition File
+        const simulationSteps = [
+            {
+                step: 0,
+                desc: "Choose configurations and click 'Start Simulation'. Outbound payload initialized on client private subnet.",
+                concept: "Local clients rely on private IP addresses designated by RFC 1918. Because they are restricted inside private address ranges, they are inherently non-routable over the global internet."
+            },
+            {
+                step: 1,
+                desc: "The packet leaves your chosen client. It travels through the local area network (LAN) to its destination target. It hits the LAN gateway interface at the router (192.168.1.1).",
+                concept: "Packets sent across subnets always seek their designated default gateway—the local facing interface of the NAT-enabled router."
+            },
+            {
+                step: 2,
+                desc: "The router intercepts the LAN payload. It looks up destination maps, prepares for outbound public routing, and records the initial translation map in its local dynamic memory (the NAT Table).",
+                concept: "Port Address Translation (PAT) replaces the local source IP with the router's single public WAN IP, and maps the internal ephemeral port to a unique public facing tracking port."
+            },
+            {
+                step: 3,
+                desc: "The router rewrites the source headers and sends the updated packet out of the public WAN interface (203.0.113.88) across the public routing tables to the web server.",
+                concept: "The destination server has zero knowledge of the internal private workstation. It perceives the inbound request as originating entirely from the router's public address (203.0.113.88)."
+            },
+            {
+                step: 4,
+                desc: "The target server receives the packet on its listener port, processes the web resource, and generates an outbound reply packet heading back toward the router.",
+                concept: "A return header is created: The target web server flips the packet's source and destination structures, making itself the sender and targetting the router's translated public port."
+            },
+            {
+                step: 5,
+                desc: "The packet is routed back across the WAN. It arrives at the Router's public WAN interface, targeting the translation port configured during Step 2.",
+                concept: "When the router receives an incoming WAN packet, it doesn't automatically drop it. It inspects the destination port to see if an active mapping session exists in its NAT translation table."
+            },
+            {
+                step: 6,
+                desc: "The router performs a NAT Table reverse-lookup, matches the tracking port back to the client's internal IP address, and rewrites the target destination header variables.",
+                concept: "By looking up the tracking registry, the router translates the public IP and port back into the original private IP address and ephemeral socket of the sender."
+            },
+            {
+                step: 7,
+                desc: "The router forwards the payload over the LAN switch. The packet safely lands at the local workstation's network card. Transmission completed!",
+                concept: "The private client experiences a seamless request and response lifecycle, entirely unaware of the header manipulation executed by the edge NAT router."
+            }
+        ];
+
+        // Active State Properties
+        let currentStep = 0;
+        let selectedDevice = 'pcA';
+        let selectedServer = 'server1';
+        let selectedProtocol = 'https';
+
+        // Set UI views on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initStepsIndicator();
+            resetSimulation();
+        });
+
+        // Initialize progress tracker dots
+        function initStepsIndicator() {
+            const container = document.getElementById('step-indicator-container');
+            container.innerHTML = '';
+            simulationSteps.forEach((s, idx) => {
+                const dot = document.createElement('div');
+                dot.id = `step-dot-${idx}`;
+                dot.className = `w-2 h-2 rounded-full border transition-all duration-300 border-slate-700 bg-slate-900`;
+                container.appendChild(dot);
+            });
+        }
+
+        // Active Node visual selector mapping
+        function selectDeviceFromNode(devId) {
+            if (currentStep !== 0) return; // Only allow configuration changes before starting
+            document.getElementById('config-device').value = devId;
+            resetToStart();
+        }
+
+        function syncConfigState() {
+            selectedDevice = document.getElementById('config-device').value;
+            selectedServer = document.getElementById('config-server').value;
+            selectedProtocol = document.getElementById('config-protocol').value;
+
+            // Highlight selected node visually
+            ['pcA', 'pcB', 'pcC'].forEach(dev => {
+                const el = document.getElementById(`node-${dev}`);
+                if (dev === selectedDevice) {
+                    el.classList.add('scale-105');
+                    el.querySelector('div').classList.add('border-indigo-500');
+                    el.querySelector('div').classList.remove('border-indigo-500/30');
+                    el.querySelector('p').classList.add('text-indigo-300');
+                } else {
+                    el.classList.remove('scale-105');
+                    el.querySelector('div').classList.remove('border-indigo-500');
+                    el.querySelector('div').classList.add('border-indigo-500/30');
+                    el.querySelector('p').classList.remove('text-indigo-300');
+                }
+            });
+
+            // Update web server UI node information
+            const targetServer = servers[selectedServer];
+            document.getElementById('target-server-label').innerText = targetServer.label;
+            document.getElementById('target-server-ip').innerText = targetServer.ip;
+        }
+
+        function resetToStart() {
+            currentStep = 0;
+            syncConfigState();
+            
+            // Hide and reset packet position to starting host
+            const packet = document.getElementById('packet');
+            packet.classList.add('scale-0');
+            packet.classList.remove('scale-100');
+            
+            const startDevice = devices[selectedDevice];
+            packet.style.top = startDevice.top;
+            packet.style.left = startDevice.left;
+
+            // Redraw state indicators
+            updateProgressDots();
+            updateLiveInspectors();
+            updateNATTable();
+            updateInstructionalPanel();
+            updateQuiz();
+            
+            document.getElementById('btn-prev').disabled = true;
+            document.getElementById('btn-next').innerText = "Start Simulation";
+            document.getElementById('node-router').querySelector('div').classList.remove('active-pulse', 'border-red-500');
+            document.getElementById('node-router').querySelector('div').classList.add('border-orange-500/50');
+        }
+
+        function resetSimulation() {
+            resetToStart();
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                animatePacketStep();
+                updateProgressDots();
+                updateLiveInspectors();
+                updateNATTable();
+                updateInstructionalPanel();
+                updateQuiz();
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < simulationSteps.length - 1) {
+                currentStep++;
+                animatePacketStep();
+                updateProgressDots();
+                updateLiveInspectors();
+                updateNATTable();
+                updateInstructionalPanel();
+                updateQuiz();
+            }
+        }
+
+        function updateProgressDots() {
+            simulationSteps.forEach((s, idx) => {
+                const dot = document.getElementById(`step-dot-${idx}`);
+                if (idx === currentStep) {
+                    dot.className = `w-2.5 h-2.5 rounded-full border border-indigo-400 bg-indigo-500 shadow-md shadow-indigo-500/50`;
+                } else if (idx < currentStep) {
+                    dot.className = `w-2 h-2 rounded-full bg-slate-400 border border-slate-500`;
+                } else {
+                    dot.className = `w-2 h-2 rounded-full border border-slate-700 bg-slate-900`;
+                }
+            });
+
+            // Adjust navigation control states
+            document.getElementById('btn-prev').disabled = (currentStep === 0);
+            const btnNext = document.getElementById('btn-next');
+            if (currentStep === 0) {
+                btnNext.innerText = "Start Simulation";
+            } else if (currentStep === simulationSteps.length - 1) {
+                btnNext.innerText = "Complete Sandbox";
+            } else {
+                btnNext.innerText = "Advance Next Step";
+            }
+        }
+
+        // Logic coordinate mapping calculations for smooth movement updates
+        function animatePacketStep() {
+            const pkt = document.getElementById('packet');
+            const dev = devices[selectedDevice];
+            
+            // Step position definitions:
+            // 0: Client Home (Hidden)
+            // 1: Travel LAN: Client to Router Gateway
+            // 2: Processing at Router LAN Side
+            // 3: Routing to Server (Between Router & WAN Server)
+            // 4: Server Processing Target
+            // 5: Travel WAN: Server to Router WAN Gateway
+            // 6: Processing Reverse NAT at Router
+            // 7: Back to Client Home Node
+            
+            if (currentStep === 0) {
+                pkt.classList.remove('scale-100');
+                pkt.classList.add('scale-0');
+                pkt.style.top = dev.top;
+                pkt.style.left = dev.left;
+            } else {
+                pkt.classList.remove('scale-0');
+                pkt.classList.add('scale-100');
+            }
+
+            const routerDiv = document.getElementById('node-router').querySelector('div');
+
+            // Set coordinates dynamically based on execution state
+            switch (currentStep) {
+                case 1: // Moving LAN -> Router
+                    pkt.style.top = '180px';
+                    pkt.style.left = '45%';
+                    routerDiv.classList.remove('active-pulse', 'border-red-500');
+                    routerDiv.classList.add('border-orange-500/50');
+                    break;
+                case 2: // At router
+                    pkt.style.top = '180px';
+                    pkt.style.left = '45%';
+                    routerDiv.classList.add('active-pulse', 'border-red-500');
+                    routerDiv.classList.remove('border-orange-500/50');
+                    break;
+                case 3: // Outbound Public WAN
+                    pkt.style.top = '180px';
+                    pkt.style.left = '90%';
+                    routerDiv.classList.remove('active-pulse', 'border-red-500');
+                    routerDiv.classList.add('border-orange-500/50');
+                    break;
+                case 4: // At Server
+                    pkt.style.top = '180px';
+                    pkt.style.left = '90%';
+                    break;
+                case 5: // Back to Router WAN
+                    pkt.style.top = '180px';
+                    pkt.style.left = '45%';
+                    routerDiv.classList.remove('active-pulse', 'border-red-500');
+                    routerDiv.classList.add('border-orange-500/50');
+                    break;
+                case 6: // Router translations
+                    pkt.style.top = '180px';
+                    pkt.style.left = '45%';
+                    routerDiv.classList.add('active-pulse', 'border-red-500');
+                    routerDiv.classList.remove('border-orange-500/50');
+                    break;
+                case 7: // Delivered back home
+                    pkt.style.top = dev.top;
+                    pkt.style.left = dev.left;
+                    routerDiv.classList.remove('active-pulse', 'border-red-500');
+                    routerDiv.classList.add('border-orange-500/50');
+                    break;
+            }
+        }
+
+        // Live Header table update mapping
+        function updateLiveInspectors() {
+            const dev = devices[selectedDevice];
+            const serv = servers[selectedServer];
+            const proto = protocols[selectedProtocol];
+            const router = routerConfig;
+
+            const elements = {
+                srcIp: document.getElementById('hdr-src-ip'),
+                srcPort: document.getElementById('hdr-src-port'),
+                dstIp: document.getElementById('hdr-dst-ip'),
+                dstPort: document.getElementById('hdr-dst-port'),
+                dir: document.getElementById('header-direction')
+            };
+
+            // Clear inline style highlight transitions initially
+            Object.values(elements).forEach(el => el.classList.remove('text-indigo-400', 'text-emerald-400', 'text-orange-400'));
+
+            if (currentStep === 0) {
+                elements.srcIp.innerText = "-";
+                elements.srcPort.innerText = "-";
+                elements.dstIp.innerText = "-";
+                elements.dstPort.innerText = "-";
+                elements.dir.innerText = "Idle";
+                elements.dir.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-slate-800 text-slate-400";
+                return;
+            }
+
+            // Establish variable profiles based on network location mapping
+            if (currentStep === 1 || currentStep === 2) {
+                // Outbound LAN Frame
+                elements.srcIp.innerText = dev.ip;
+                elements.srcIp.classList.add('text-indigo-400');
+                elements.srcPort.innerText = dev.port;
+                elements.srcPort.classList.add('text-indigo-400');
+                elements.dstIp.innerText = serv.ip;
+                elements.dstPort.innerText = proto.port;
+                
+                elements.dir.innerText = "Egress LAN Connection";
+                elements.dir.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20";
+            } else if (currentStep === 3 || currentStep === 4) {
+                // Outbound WAN translated Frame
+                elements.srcIp.innerText = router.wanIp;
+                elements.srcIp.classList.add('text-orange-400');
+                elements.srcPort.innerText = router.translatedPorts[selectedDevice];
+                elements.srcPort.classList.add('text-orange-400');
+                elements.dstIp.innerText = serv.ip;
+                elements.dstPort.innerText = proto.port;
+
+                elements.dir.innerText = "Egress Translated WAN";
+                elements.dir.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20";
+            } else if (currentStep === 5 || currentStep === 6) {
+                // Inbound WAN translated reply Frame
+                elements.srcIp.innerText = serv.ip;
+                elements.srcPort.innerText = proto.port;
+                elements.dstIp.innerText = router.wanIp;
+                elements.dstIp.classList.add('text-orange-400');
+                elements.dstPort.innerText = router.translatedPorts[selectedDevice];
+                elements.dstPort.classList.add('text-orange-400');
+
+                elements.dir.innerText = "Ingress Public WAN Return";
+                elements.dir.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20";
+            } else if (currentStep === 7) {
+                // Return payload on internal subnet
+                elements.srcIp.innerText = serv.ip;
+                elements.srcPort.innerText = proto.port;
+                elements.dstIp.innerText = dev.ip;
+                elements.dstIp.classList.add('text-indigo-400');
+                elements.dstPort.innerText = dev.port;
+                elements.dstPort.classList.add('text-indigo-400');
+
+                elements.dir.innerText = "Ingress LAN Delivery";
+                elements.dir.className = "text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            }
+        }
+
+        // Active router translation table tracking
+        function updateNATTable() {
+            const tableRows = document.getElementById('nat-table-rows');
+            const dev = devices[selectedDevice];
+            const router = routerConfig;
+            const serv = servers[selectedServer];
+            const proto = protocols[selectedProtocol];
+
+            // Render table values dynamically according to translation steps
+            if (currentStep >= 2 && currentStep <= 6) {
+                tableRows.innerHTML = `
+                    <tr class="transition-all duration-300 bg-orange-950/20">
+                        <td class="py-2.5 text-blue-400">${dev.ip}:${dev.port}</td>
+                        <td class="py-2.5 text-orange-400 font-semibold">${router.wanIp}:${router.translatedPorts[selectedDevice]}</td>
+                        <td class="py-2.5 text-emerald-400">${serv.ip}:${proto.port}</td>
+                    </tr>
+                `;
+            } else {
+                tableRows.innerHTML = `
+                    <tr id="nat-empty-row">
+                        <td colspan="3" class="py-8 text-center text-slate-500 italic text-[11px]">
+                            NAT mappings are empty.<br>Initiate transmission to compile table entries.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Dynamic instructional scaffolding updates
+        function updateInstructionalPanel() {
+            const stepInfo = simulationSteps[currentStep];
+            document.getElementById('narrative-text').innerHTML = stepInfo.desc;
+            
+            const conceptBox = document.getElementById('narrative-concept');
+            const conceptText = document.getElementById('narrative-concept-text');
+            
+            if (stepInfo.concept) {
+                conceptBox.classList.remove('hidden');
+                conceptText.innerText = stepInfo.concept;
+            } else {
+                conceptBox.classList.add('hidden');
+            }
+        }
+
+        // Active Formative Assessment sandboxing engine
+        const quizData = {
+            1: {
+                question: "Why is the client's packet constructed with its local source IP instead of its direct public IP?",
+                options: [
+                    "The client lacks a public IP. It relies on the local network (LAN) which only assigns private IPs.",
+                    "Local networks do not support public routing cards physically.",
+                    "Public networks are configured to block local computers automatically."
+                ],
+                correct: 0,
+                feedback: "Correct! Workstations in internal LAN networks are assigned unroutable private addresses (such as 192.168.x.x) and cannot be directly addressed on the public internet."
+            },
+            2: {
+                question: "What primary mechanism allows the router to support hundreds of local devices on a single public IP?",
+                options: [
+                    "It translates the packet's destination, caching values on DNS servers.",
+                    "It generates a unique Tracking Port (PAT / NAT Overload) for each internal source session.",
+                    "It compresses the bandwidth footprint, making global lookups redundant."
+                ],
+                correct: 1,
+                feedback: "Precisely! This is Port Address Translation (PAT). By assigning dynamic unique ports (like 10001, 10002), the router distinguishes return paths for multiple inside hosts."
+            },
+            4: {
+                question: "What does the remote web server observe as the Source IP in its inbound packet?",
+                options: [
+                    "The client's local IP (192.168.1.X)",
+                    "A randomized gateway configuration ID",
+                    "The Router's external WAN IP (203.0.113.88)"
+                ],
+                correct: 2,
+                feedback: "Exactly! As the packet crossed the boundary, the router replaced the private sender variable with its public IP. To the target server, the router is the requester."
+            },
+            6: {
+                question: "What does the router check in the return packet headers to forward it to the correct LAN client?",
+                options: [
+                    "The MAC physical hardware address table.",
+                    "The Incoming Destination Port, mapping it back to the active internal registry.",
+                    "The browser session cookie payload of the original request."
+                ],
+                correct: 1,
+                feedback: "Correct! The router looks at the Destination Port (e.g. 10001) in its return registry, finding that it was originally translated from Client Workstation A."
+            }
+        };
+
+        let selectedQuizOption = null;
+
+        function updateQuiz() {
+            const container = document.getElementById('quiz-container');
+            const questionText = document.getElementById('quiz-question');
+            const optionsDiv = document.getElementById('quiz-options');
+            const feedbackDiv = document.getElementById('quiz-feedback');
+
+            feedbackDiv.classList.add('hidden');
+            optionsDiv.innerHTML = '';
+            selectedQuizOption = null;
+
+            const quiz = quizData[currentStep];
+
+            if (!quiz) {
+                questionText.innerHTML = `<span class="text-slate-400 italic">No quiz for this step. Advance the packet visualizer coordinates to test core architecture principles.</span>`;
+                return;
+            }
+
+            questionText.innerText = quiz.question;
+
+            quiz.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-2.5 text-xs rounded-lg border border-slate-800 bg-slate-900/40 hover:bg-slate-800 hover:border-slate-700 transition-all text-slate-300 flex items-start gap-2";
+                btn.innerHTML = `<span class="inline-block px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 font-semibold text-[10px] text-slate-400 mt-0.5">${String.fromCharCode(65 + idx)}</span> <span class="flex-grow">${opt}</span>`;
+                btn.onclick = () => selectQuizAnswer(idx, btn);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(index, element) {
+            const quiz = quizData[currentStep];
+            const feedbackDiv = document.getElementById('quiz-feedback');
+            const optionsDiv = document.getElementById('quiz-options');
+
+            // Prevent multi-selection
+            Array.from(optionsDiv.children).forEach(child => {
+                child.disabled = true;
+                child.classList.remove('border-indigo-500', 'bg-indigo-950/20');
+            });
+
+            if (index === quiz.correct) {
+                element.classList.add('border-emerald-500', 'bg-emerald-950/30', 'text-emerald-300');
+                feedbackDiv.className = "text-xs p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-500/40 text-emerald-300 leading-relaxed";
+                feedbackDiv.innerText = quiz.feedback;
+            } else {
+                element.classList.add('border-rose-500', 'bg-rose-950/30', 'text-rose-300');
+                feedbackDiv.className = "text-xs p-2.5 rounded-lg bg-rose-950/30 border border-rose-500/40 text-rose-300 leading-relaxed";
+                feedbackDiv.innerText = "Incorrect. Reflect on the network interface where the packet is currently located, or review the narrative core concept box to identify the rewrite rule.";
+            }
+            feedbackDiv.classList.remove('hidden');
+        }
+
+        // Layout View Manager (Student Simulation Sandbox vs Instructional Designer Notes)
+        function toggleViewMode(mode) {
+            const mainSim = document.querySelector('main');
+            const blueprint = document.getElementById('designer-blueprint');
+            const btnStudent = document.getElementById('view-student');
+            const btnDesigner = document.getElementById('view-designer');
+
+            if (mode === 'student') {
+                mainSim.classList.remove('hidden');
+                blueprint.classList.add('hidden');
+                btnStudent.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition-all shadow-md shadow-indigo-900/30";
+                btnDesigner.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-all";
+            } else {
+                mainSim.classList.add('hidden');
+                blueprint.classList.remove('hidden');
+                btnStudent.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-all";
+                btnDesigner.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition-all shadow-md shadow-indigo-900/30";
+            }
+        }
+    </script>
+</body>
+</html>
