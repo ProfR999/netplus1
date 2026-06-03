@@ -1,0 +1,1048 @@
+:NAT Simulation Tool:nat_simulation.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive NAT (Network Address Translation) Simulation</title>
+    <!-- Tailwind CSS for rich modern UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Keyframe Animations for Network Nodes */
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+        .pulse-node {
+            animation: pulse-slow 3s infinite ease-in-out;
+        }
+        /* Custom scrollbar for better styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Packet glow classes */
+        .packet-glow {
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.8);
+        }
+        .packet-glow-err {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Header & Navigation -->
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-lg shadow-inner">
+                    <!-- SVG Router Icon -->
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">NAT Visual Simulator</h1>
+                    <p class="text-xs text-slate-400">Interactive Network Address & Port Translation (NAPT)</p>
+                </div>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <nav class="flex space-x-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+                <button onclick="switchTab('simulation')" id="tab-simulation" class="px-4 py-1.5 text-sm font-medium rounded-md transition-all bg-indigo-600 text-white shadow-sm">
+                    🚀 Live Sandbox
+                </button>
+                <button onclick="switchTab('glossary')" id="tab-glossary" class="px-4 py-1.5 text-sm font-medium rounded-md transition-all text-slate-400 hover:text-slate-200">
+                    📖 Interactive Glossary
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="px-4 py-1.5 text-sm font-medium rounded-md transition-all text-slate-400 hover:text-slate-200">
+                    📝 Knowledge Check
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+        
+        <!-- ================= SIMULATION TAB ================= -->
+        <div id="panel-simulation" class="space-y-6">
+            
+            <!-- Top Alert / Scenario Context -->
+            <div class="bg-indigo-950/40 border border-indigo-800/60 rounded-xl p-4 flex items-start gap-3">
+                <span class="text-xl">💡</span>
+                <div>
+                    <h3 class="text-sm font-semibold text-indigo-300">Instructional Goal</h3>
+                    <p class="text-xs text-indigo-200 mt-1 leading-relaxed">
+                        Observe how multiple private local devices (using identical or distinct private port schemes) can safely traverse the public internet utilizing only <strong>one</strong> Public IP address assigned to the Router's WAN interface. Look closely at how the <strong>NAT Table</strong> changes as packets travel.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Visualization Canvas Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Left Control Panel & Log Console -->
+                <div class="lg:col-span-1 flex flex-col gap-4">
+                    
+                    <!-- Sandbox Control Box -->
+                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-5 shadow-sm">
+                        <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 border-b border-slate-700/60 pb-2">
+                            Simulation Sandbox
+                        </h2>
+                        
+                        <!-- Select Outbound Sender -->
+                        <div class="space-y-3 mb-4">
+                            <label class="block text-xs font-medium text-slate-400">1. Choose Outbound Source Device</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="selectSource('PC')" id="src-PC" class="flex flex-col items-center p-3 rounded-lg border-2 border-indigo-600 bg-indigo-950/20 text-indigo-400 transition-all">
+                                    <span class="text-lg">💻</span>
+                                    <span class="text-xs font-semibold mt-1">Local PC</span>
+                                    <span class="text-[10px] opacity-75 font-mono">192.168.1.50</span>
+                                </button>
+                                <button onclick="selectSource('Phone')" id="src-Phone" class="flex flex-col items-center p-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-600 transition-all">
+                                    <span class="text-lg">📱</span>
+                                    <span class="text-xs font-semibold mt-1">Smart Phone</span>
+                                    <span class="text-[10px] opacity-75 font-mono">192.168.1.80</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Select Outbound Destination -->
+                        <div class="space-y-3 mb-4">
+                            <label class="block text-xs font-medium text-slate-400">2. Select Destination Server</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="selectDest('Web')" id="dst-Web" class="flex flex-col items-center p-3 rounded-lg border-2 border-indigo-600 bg-indigo-950/20 text-indigo-400 transition-all">
+                                    <span class="text-lg">🌐</span>
+                                    <span class="text-xs font-semibold mt-1">Web Server</span>
+                                    <span class="text-[10px] opacity-75 font-mono">93.184.216.34:80</span>
+                                </button>
+                                <button onclick="selectDest('Game')" id="dst-Game" class="flex flex-col items-center p-3 rounded-lg border border-slate-700 bg-slate-900 text-slate-400 hover:border-slate-600 transition-all">
+                                    <span class="text-lg">🎮</span>
+                                    <span class="text-xs font-semibold mt-1">Game Server</span>
+                                    <span class="text-[10px] opacity-75 font-mono">198.51.100.42:191</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Run Options -->
+                        <div class="space-y-2 mt-4">
+                            <div class="flex gap-2">
+                                <button onclick="triggerPacketFlow('auto')" id="btn-auto" class="flex-1 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 text-white font-semibold py-2 px-3 rounded-lg text-xs transition shadow-md flex items-center justify-center gap-1">
+                                    ▶️ Auto Play
+                                </button>
+                                <button onclick="triggerPacketFlow('step')" id="btn-step" class="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 text-white font-semibold py-2 px-3 rounded-lg text-xs transition shadow-md flex items-center justify-center gap-1">
+                                    ⏭️ Step-by-Step
+                                </button>
+                            </div>
+                            
+                            <!-- Threat Simulation / Firewall concept -->
+                            <button onclick="triggerAttack()" id="btn-attack" class="w-full bg-rose-950/50 hover:bg-rose-900/50 border border-rose-800 text-rose-300 font-semibold py-2 px-3 rounded-lg text-xs transition flex items-center justify-center gap-1.5 mt-2">
+                                🛡️ Simulate Unsolicited Inbound Probe (Attack)
+                            </button>
+                            
+                            <button onclick="resetSimulation()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-1.5 px-3 rounded-lg text-xs transition font-medium">
+                                🔄 Reset Sandbox State
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contextual Step Explanations -->
+                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-5 flex-grow flex flex-col justify-between min-h-[220px]">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-slate-700 pb-2 mb-3">
+                                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">Dynamic Guide</h3>
+                                <span id="step-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-900 text-slate-400">IDLE</span>
+                            </div>
+                            <h4 id="guide-title" class="text-sm font-bold text-indigo-400">Ready to transmit</h4>
+                            <p id="guide-body" class="text-xs text-slate-300 mt-2 leading-relaxed">
+                                Select a sender device and server target above, then click either <strong>Auto Play</strong> to watch the transaction end-to-end, or <strong>Step-by-Step</strong> to dissect header transformations at each critical boundary.
+                            </p>
+                        </div>
+                        
+                        <div id="next-step-prompt" class="hidden mt-4 pt-3 border-t border-slate-700/50 flex items-center justify-between">
+                            <span class="text-xs font-semibold text-emerald-400 animate-pulse">Waiting for your command...</span>
+                            <button onclick="advanceStep()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded font-bold shadow-md">
+                                Advance Step ➡️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Visualization Workspace (Center / Right Column) -->
+                <div class="lg:col-span-2 flex flex-col gap-6">
+                    
+                    <!-- Diagram Container -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 relative overflow-hidden h-[420px] shadow-inner select-none">
+                        
+                        <!-- Network Partition Labels -->
+                        <div class="absolute inset-y-0 left-0 w-[45%] bg-blue-950/10 border-r border-dashed border-blue-900/30 flex items-end p-3 pointer-events-none">
+                            <span class="text-[11px] font-semibold text-blue-500 tracking-wider uppercase">Private LAN (Inside)</span>
+                        </div>
+                        <div class="absolute inset-y-0 right-0 w-[45%] bg-orange-950/10 border-l border-dashed border-orange-900/30 flex items-end justify-end p-3 pointer-events-none">
+                            <span class="text-[11px] font-semibold text-orange-500 tracking-wider uppercase">Public WAN (Outside)</span>
+                        </div>
+
+                        <!-- Inside/Outside interface demarcation line inside Router region -->
+                        <div class="absolute top-0 bottom-0 left-[50%] border-l-2 border-dotted border-emerald-900/20 pointer-events-none"></div>
+
+                        <!-- Live Flying Packet Overlay -->
+                        <div id="sim-packet" class="absolute w-5 h-5 rounded-full bg-yellow-500 text-slate-950 font-bold text-[9px] flex items-center justify-center packet-glow opacity-0 pointer-events-none z-30 transition-all duration-300">
+                            ✉️
+                        </div>
+
+                        <!-- ================= LAN DEVICES (LEFT) ================= -->
+                        <div id="node-PC" class="absolute left-[6%] top-[15%] flex items-center gap-3 bg-slate-900/90 border border-blue-800/40 p-3 rounded-xl pulse-node">
+                            <div class="text-3xl">💻</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-blue-400">Local PC</h4>
+                                <p class="text-[10px] font-mono text-slate-300">IP: 192.168.1.50</p>
+                                <p class="text-[9px] font-mono text-slate-400">Port: <span class="text-blue-300 font-bold">49152</span></p>
+                            </div>
+                        </div>
+
+                        <div id="node-Phone" class="absolute left-[6%] top-[60%] flex items-center gap-3 bg-slate-900/90 border border-blue-800/40 p-3 rounded-xl">
+                            <div class="text-3xl">📱</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-blue-400">Smart Phone</h4>
+                                <p class="text-[10px] font-mono text-slate-300">IP: 192.168.1.80</p>
+                                <p class="text-[9px] font-mono text-slate-400">Port: <span class="text-blue-300 font-bold">51002</span></p>
+                            </div>
+                        </div>
+
+                        <!-- ================= NAT ROUTER (CENTER) ================= -->
+                        <div id="node-Router" class="absolute left-[40%] top-[35%] w-[180px] bg-slate-900 border-2 border-emerald-500 rounded-2xl shadow-xl p-3 z-20 flex flex-col items-center">
+                            <div class="text-3xl mb-1">📟</div>
+                            <h4 class="text-xs font-black text-emerald-400 tracking-wider uppercase">NAT Router</h4>
+                            
+                            <!-- Internal Gateways inside the Router box -->
+                            <div class="w-full mt-2 pt-2 border-t border-slate-800 text-[9px] font-mono flex flex-col gap-1">
+                                <div class="flex justify-between items-center text-blue-300">
+                                    <span>LAN (GW):</span>
+                                    <span>192.168.1.1</span>
+                                </div>
+                                <div class="flex justify-between items-center text-orange-400">
+                                    <span>WAN (Pub):</span>
+                                    <span>203.0.113.88</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ================= WAN SERVERS (RIGHT) ================= -->
+                        <div id="node-Web" class="absolute right-[6%] top-[15%] flex items-center gap-3 bg-slate-900/90 border border-orange-800/40 p-3 rounded-xl">
+                            <div class="text-3xl">🌐</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-orange-400">Web Server</h4>
+                                <p class="text-[10px] font-mono text-slate-300">IP: 93.184.216.34</p>
+                                <p class="text-[9px] font-mono text-slate-400">Listening: <span class="text-orange-300 font-bold">Port 80</span></p>
+                            </div>
+                        </div>
+
+                        <div id="node-Game" class="absolute right-[6%] top-[60%] flex items-center gap-3 bg-slate-900/90 border border-orange-800/40 p-3 rounded-xl">
+                            <div class="text-3xl">🎮</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-orange-400">Game Server</h4>
+                                <p class="text-[10px] font-mono text-slate-300">IP: 198.51.100.42</p>
+                                <p class="text-[9px] font-mono text-slate-400">Listening: <span class="text-orange-300 font-bold">Port 19132</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Floating Live Header Board inside Diagram -->
+                        <div id="live-header" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-slate-900/95 border border-slate-700/60 rounded-xl px-4 py-2 flex items-center gap-4 text-xs font-mono shadow-lg transition-all opacity-0 pointer-events-none z-40">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span class="text-slate-400 text-[10px]">SRC:</span>
+                                <span id="live-src" class="font-bold text-slate-200">192.168.1.50:49152</span>
+                            </div>
+                            <div class="text-slate-600">➔</div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                <span class="text-slate-400 text-[10px]">DST:</span>
+                                <span id="live-dst" class="font-bold text-slate-200">93.184.216.34:80</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Dynamic NAT Table Visualization -->
+                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-5 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+                                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-300">Active Router NAT Translation Table</h3>
+                            </div>
+                            <span class="text-[10px] text-slate-400 bg-slate-950 px-2 py-0.5 rounded font-mono border border-slate-800">Stateful Table</span>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs font-mono">
+                                <thead>
+                                    <tr class="border-b border-slate-700 text-slate-400">
+                                        <th class="py-2 px-3">Protocol</th>
+                                        <th class="py-2 px-3">Inside Local (Private Client)</th>
+                                        <th class="py-2 px-3">Inside Global (Router WAN Port)</th>
+                                        <th class="py-2 px-3">Outside Global (Target Server)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="nat-table-body" class="text-slate-300 divide-y divide-slate-800">
+                                    <tr id="empty-nat-placeholder">
+                                        <td colspan="4" class="py-4 px-3 text-center text-slate-500 italic">
+                                            No active mappings. Initiate a request to witness table registration.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= GLOSSARY TAB ================= -->
+        <div id="panel-glossary" class="hidden space-y-6">
+            <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-6">
+                <h2 class="text-lg font-bold text-indigo-400 mb-2">Network Address Translation Terminology</h2>
+                <p class="text-sm text-slate-400 mb-6">Learn the precise industry definitions required to analyze packet flow patterns and configure corporate networking gateways.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Term 1 -->
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition">
+                        <h3 class="text-sm font-bold text-emerald-400 font-mono mb-1">Inside Local IP</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            The IP address assigned to a host on the local (private) network. These addresses are defined in RFC 1918 (e.g., <code class="bg-slate-800 px-1 py-0.5 rounded font-mono text-indigo-300">192.168.x.x</code>, <code class="bg-slate-800 px-1 py-0.5 rounded font-mono text-indigo-300">10.x.x.x</code>) and are not routable across the public internet.
+                        </p>
+                    </div>
+                    <!-- Term 2 -->
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition">
+                        <h3 class="text-sm font-bold text-emerald-400 font-mono mb-1">Inside Global IP</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            The public, globally routable IP address registered to the router's external interface (WAN) facing the internet. This is the shared mask used to represent local devices to the outside world.
+                        </p>
+                    </div>
+                    <!-- Term 3 -->
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition">
+                        <h3 class="text-sm font-bold text-emerald-400 font-mono mb-1">Outside Global IP</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            The public, routable IP address assigned to a destination host on the internet, such as a web server (<code class="bg-slate-800 px-1 py-0.5 rounded font-mono text-indigo-300">93.184.216.34</code>) or cloud database.
+                        </p>
+                    </div>
+                    <!-- Term 4 -->
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition">
+                        <h3 class="text-sm font-bold text-emerald-400 font-mono mb-1">Port Address Translation (PAT)</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Sometimes called <em>NAT Overload</em>. A design variant of NAT where multiple internal devices share a single Public IP address. The router tracks sessions by appending distinct <strong>source port numbers</strong> to distinguish individual data flows.
+                        </p>
+                    </div>
+                    <!-- Term 5 -->
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition">
+                        <h3 class="text-sm font-bold text-emerald-400 font-mono mb-1">Stateful Inspection / Mapping</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            The process where a router registers mappings in an internal registry (NAT Table) for an outbound request. This registry is inspected when packets return from the internet to guarantee they are delivered back to the correct internal client.
+                        </p>
+                    </div>
+                    <!-- Term 6 -->
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition">
+                        <h3 class="text-sm font-bold text-emerald-400 font-mono mb-1">RFC 1918 Address Space</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            The formal specification defining standard IP blocks reserved strictly for private local networks: <code class="bg-slate-800 px-1 py-0.5 rounded font-mono text-indigo-300">10.0.0.0/8</code>, <code class="bg-slate-800 px-1 py-0.5 rounded font-mono text-indigo-300">172.16.0.0/12</code>, and <code class="bg-slate-800 px-1 py-0.5 rounded font-mono text-indigo-300">192.168.0.0/16</code>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= QUIZ TAB ================= -->
+        <div id="panel-quiz" class="hidden space-y-6">
+            <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-6">
+                <h2 class="text-lg font-bold text-indigo-400 mb-2">NAT Knowledge Check</h2>
+                <p class="text-sm text-slate-400 mb-6">Test your comprehension of network boundaries, headers, and address translation mechanics.</p>
+                
+                <div class="space-y-6">
+                    <!-- Question 1 -->
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 question-box" data-correct="1">
+                        <h3 class="text-sm font-semibold text-slate-200 mb-3">1. When a local PC initiates an outbound connection, which parameters are modified by the NAT Router?</h3>
+                        <div class="space-y-2 text-xs">
+                            <label class="flex items-center gap-3 p-2.5 rounded hover:bg-slate-800/50 cursor-pointer transition">
+                                <input type="radio" name="q1" value="0" class="text-indigo-600 focus:ring-0">
+                                <span>The Destination IP and Destination Port</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded hover:bg-slate-800/50 cursor-pointer transition">
+                                <input type="radio" name="q1" value="1" class="text-indigo-600 focus:ring-0">
+                                <span class="text-slate-200">The Source IP (and optionally Source Port if Port Translation occurs)</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded hover:bg-slate-800/50 cursor-pointer transition">
+                                <input type="radio" name="q1" value="2" class="text-indigo-600 focus:ring-0">
+                                <span>Only the physical MAC addresses of the NIC</span>
+                            </label>
+                        </div>
+                        <div class="explanation-box mt-3 pt-3 border-t border-slate-800 hidden text-xs"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 question-box" data-correct="2">
+                        <h3 class="text-sm font-semibold text-slate-200 mb-3">2. What primary problem did NAT / PAT (Overload) solve to prevent early infrastructure failure?</h3>
+                        <div class="space-y-2 text-xs">
+                            <label class="flex items-center gap-3 p-2.5 rounded hover:bg-slate-800/50 cursor-pointer transition">
+                                <input type="radio" name="q2" value="0" class="text-indigo-600 focus:ring-0">
+                                <span>High packet loss rates across transoceanic fiber cables</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded hover:bg-slate-800/50 cursor-pointer transition">
+                                <input type="radio" name="q2" value="1" class="text-indigo-600 focus:ring-0">
+                                <span>The slow speed of routing engines reading packets</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded hover:bg-slate-800/50 cursor-pointer transition">
+                                <input type="radio" name="q2" value="2" class="text-indigo-600 focus:ring-0">
+                                <span>IPv4 address exhaustion, by allowing thousands of local devices to share a single public IP</span>
+                            </label>
+                        </div>
+                        <div class="explanation-box mt-3 pt-3 border-t border-slate-800 hidden text-xs"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 question-box" data-correct="0">
+                        <h3 class="text-sm font-semibold text-slate-200 mb-3">3. An unsolicited packet arrives from an external server at the Router's WAN interface, targeted at Port 52000. No entry exists in the NAT Table matching this port. What does the Router do?</h3>
+                        <div class="space-y-2 text-xs">
+                            <label class="flex items-center gap-3 p-2.5 rounded hover:bg-slate-800/50 cursor-pointer transition">
+                                <input type="radio" name="q3" value="0" class="text-indigo-600 focus:ring-0">
+                                <span>Drops/rejects the packet because it doesn't match an active outbound session mapping</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded hover:bg-slate-800/50 cursor-pointer transition">
+                                <input type="radio" name="q3" value="1" class="text-indigo-600 focus:ring-0">
+                                <span>Broadcasts the packet to all LAN devices to see who responds</span>
+                            </label>
+                            <label class="flex items-center gap-3 p-2.5 rounded hover:bg-slate-800/50 cursor-pointer transition">
+                                <input type="radio" name="q3" value="2" class="text-indigo-600 focus:ring-0">
+                                <span>Saves the packet in permanent memory until a client claims it</span>
+                            </label>
+                        </div>
+                        <div class="explanation-box mt-3 pt-3 border-t border-slate-800 hidden text-xs"></div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-between items-center">
+                    <button onclick="checkAnswers()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-6 rounded-lg text-xs transition shadow-md">
+                        Submit Answers
+                    </button>
+                    <span id="quiz-result" class="text-sm font-bold text-indigo-400 hidden"></span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 py-4 px-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+            <p>© 2026 Interactive Systems Design Portfolio. Built for Web Instructional Environments.</p>
+            <div class="flex gap-4">
+                <span class="hover:text-slate-400 cursor-help" onclick="alert('Simulation maps private inside local hosts using port overload mapping patterns.')">Specs</span>
+                <span>•</span>
+                <span class="hover:text-slate-400 cursor-help" onclick="resetAllStates()">Factory Reset</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Embedded Scripts for Simulation Engine -->
+    <script>
+        // Global State Variables
+        let currentSource = 'PC';
+        let currentDest = 'Web';
+        let simulationMode = 'auto'; // 'auto' | 'step'
+        let currentStep = 0; // Steps 0 to 8 for cycle
+        let natTable = [];
+        let isAnimating = false;
+        let animationFrameId = null;
+
+        // Constants detailing devices and servers IPs/Ports
+        const configurations = {
+            PC: {
+                name: "PC",
+                insideLocalIP: "192.168.1.50",
+                insideLocalPort: "49152",
+                elementId: "node-PC"
+            },
+            Phone: {
+                name: "Smart Phone",
+                insideLocalIP: "192.168.1.80",
+                insideLocalPort: "51002",
+                elementId: "node-Phone"
+            },
+            Router: {
+                lanIP: "192.168.1.1",
+                wanIP: "203.0.113.88",
+                mappedPort: "10024", // Assigned outbound WAN port for this transaction
+                elementId: "node-Router"
+            },
+            Web: {
+                name: "Web Server",
+                outsideIP: "93.184.216.34",
+                outsidePort: "80",
+                elementId: "node-Web"
+            },
+            Game: {
+                name: "Game Server",
+                outsideIP: "198.51.100.42",
+                outsidePort: "19132",
+                elementId: "node-Game"
+            }
+        };
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            const tabs = ['simulation', 'glossary', 'quiz'];
+            tabs.forEach(t => {
+                const panel = document.getElementById(`panel-${t}`);
+                const button = document.getElementById(`tab-${t}`);
+                if (t === tabId) {
+                    panel.classList.remove('hidden');
+                    button.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+                    button.classList.remove('text-slate-400');
+                } else {
+                    panel.classList.add('hidden');
+                    button.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+                    button.classList.add('text-slate-400', 'hover:text-slate-200');
+                }
+            });
+            // Stop any running animations on tab change
+            stopAnimation();
+        }
+
+        // Selection Handlers
+        function selectSource(sourceId) {
+            if (isAnimating) return;
+            currentSource = sourceId;
+            const devices = ['PC', 'Phone'];
+            devices.forEach(d => {
+                const btn = document.getElementById(`src-${d}`);
+                const element = document.getElementById(`node-${d}`);
+                if (d === sourceId) {
+                    btn.classList.add('border-indigo-600', 'bg-indigo-950/20', 'text-indigo-400');
+                    btn.classList.remove('border-slate-700', 'bg-slate-900', 'text-slate-400');
+                    element.classList.add('border-blue-500', 'bg-blue-950/20', 'pulse-node');
+                    element.classList.remove('border-blue-800/40');
+                } else {
+                    btn.classList.remove('border-indigo-600', 'bg-indigo-950/20', 'text-indigo-400');
+                    btn.classList.add('border-slate-700', 'bg-slate-900', 'text-slate-400');
+                    element.classList.remove('border-blue-500', 'bg-blue-950/20', 'pulse-node');
+                    element.classList.add('border-blue-800/40');
+                }
+            });
+        }
+
+        function selectDest(destId) {
+            if (isAnimating) return;
+            currentDest = destId;
+            const servers = ['Web', 'Game'];
+            servers.forEach(s => {
+                const btn = document.getElementById(`dst-${s}`);
+                const element = document.getElementById(`node-${s}`);
+                if (s === destId) {
+                    btn.classList.add('border-indigo-600', 'bg-indigo-950/20', 'text-indigo-400');
+                    btn.classList.remove('border-slate-700', 'bg-slate-900', 'text-slate-400');
+                    element.classList.add('border-orange-500', 'bg-orange-950/20');
+                    element.classList.remove('border-orange-800/40');
+                } else {
+                    btn.classList.remove('border-indigo-600', 'bg-indigo-950/20', 'text-indigo-400');
+                    btn.classList.add('border-slate-700', 'bg-slate-900', 'text-slate-400');
+                    element.classList.remove('border-orange-500', 'bg-orange-950/20');
+                    element.classList.add('border-orange-800/40');
+                }
+            });
+        }
+
+        // Translation Table Utilities
+        function updateNatTableUI() {
+            const body = document.getElementById('nat-table-body');
+            if (natTable.length === 0) {
+                body.innerHTML = `
+                    <tr id="empty-nat-placeholder">
+                        <td colspan="4" class="py-4 px-3 text-center text-slate-500 italic">
+                            No active mappings. Initiate a request to witness table registration.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            body.innerHTML = natTable.map(entry => `
+                <tr class="border-b border-slate-800 bg-slate-900/60 transition-colors duration-500 ${entry.highlight ? 'bg-emerald-950/50 text-emerald-300 font-bold' : ''}">
+                    <td class="py-2.5 px-3 text-slate-400">${entry.protocol}</td>
+                    <td class="py-2.5 px-3 text-blue-300">${entry.insideLocal}</td>
+                    <td class="py-2.5 px-3 text-emerald-400">${entry.insideGlobal}</td>
+                    <td class="py-2.5 px-3 text-orange-400">${entry.outsideGlobal}</td>
+                </tr>
+            `).join('');
+        }
+
+        function addNatEntry(local, global, outside) {
+            // Check if mapping exists to avoid double entries
+            const exists = natTable.some(e => e.insideLocal === local && e.outsideGlobal === outside);
+            if (!exists) {
+                natTable.push({
+                    protocol: 'TCP',
+                    insideLocal: local,
+                    insideGlobal: global,
+                    outsideGlobal: outside,
+                    highlight: true
+                });
+                updateNatTableUI();
+            }
+        }
+
+        // DOM Positioning Utility for animations
+        function getRelativeCoordinates(element) {
+            const canvas = document.querySelector('.relative.overflow-hidden.h-\\[420px\\]');
+            const canvasRect = canvas.getBoundingClientRect();
+            const elemRect = element.getBoundingClientRect();
+
+            // Calculate center points relative to the parent diagram container
+            const x = (elemRect.left + elemRect.width / 2) - canvasRect.left;
+            const y = (elemRect.top + elemRect.height / 2) - canvasRect.top;
+
+            return { x, y };
+        }
+
+        // Main Animation Engine controls
+        function triggerPacketFlow(mode) {
+            if (isAnimating) return;
+            resetSimulation();
+            simulationMode = mode;
+            isAnimating = true;
+            currentStep = 1;
+
+            // Lock controls
+            setControlsState(true);
+
+            if (simulationMode === 'auto') {
+                runAutoLoop();
+            } else {
+                runStepCycle();
+            }
+        }
+
+        function setControlsState(locked) {
+            document.getElementById('btn-auto').disabled = locked;
+            document.getElementById('btn-step').disabled = locked;
+            document.getElementById('btn-attack').disabled = locked;
+            document.getElementById('src-PC').disabled = locked;
+            document.getElementById('src-Phone').disabled = locked;
+            document.getElementById('dst-Web').disabled = locked;
+            document.getElementById('dst-Game').disabled = locked;
+        }
+
+        // Auto Loop Runner
+        function runAutoLoop() {
+            if (!isAnimating) return;
+
+            executeStepAction(currentStep);
+
+            if (currentStep < 8) {
+                setTimeout(() => {
+                    currentStep++;
+                    runAutoLoop();
+                }, 4000); // 4-second dwell per leg transition for visual parsing
+            } else {
+                setTimeout(() => {
+                    completeSimulation();
+                }, 3500);
+            }
+        }
+
+        // Step-By-Step Handler
+        function runStepCycle() {
+            executeStepAction(currentStep);
+            const promptBox = document.getElementById('next-step-prompt');
+            
+            if (currentStep < 8) {
+                promptBox.classList.remove('hidden');
+            } else {
+                promptBox.classList.add('hidden');
+                setTimeout(() => {
+                    completeSimulation();
+                }, 3000);
+            }
+        }
+
+        function advanceStep() {
+            document.getElementById('next-step-prompt').classList.add('hidden');
+            currentStep++;
+            runStepCycle();
+        }
+
+        function stopAnimation() {
+            isAnimating = false;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            const packetEl = document.getElementById('sim-packet');
+            packetEl.style.opacity = '0';
+            document.getElementById('live-header').style.opacity = '0';
+            document.getElementById('next-step-prompt').classList.add('hidden');
+            setControlsState(false);
+        }
+
+        function completeSimulation() {
+            stopAnimation();
+            document.getElementById('guide-title').innerText = "Process Complete 🎉";
+            document.getElementById('guide-body').innerHTML = `
+                The full bidirectional cycle was completed successfully. The internal device 
+                received its return data payloads. The matching NAT routing entry remains 
+                safely stored inside the router's active lookup table waiting for subsequent transactions.
+            `;
+            document.getElementById('step-badge').innerText = "IDLE";
+            document.getElementById('step-badge').className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400";
+            setControlsState(false);
+        }
+
+        // Core State Machine matching steps to coordinates, text, and changes
+        function executeStepAction(stepNum) {
+            const packetEl = document.getElementById('sim-packet');
+            const liveHeader = document.getElementById('live-header');
+            const liveSrc = document.getElementById('live-src');
+            const liveDst = document.getElementById('live-dst');
+            const stepBadge = document.getElementById('step-badge');
+
+            const srcConf = configurations[currentSource];
+            const dstConf = configurations[currentDest];
+            const rtrConf = configurations.Router;
+
+            // Compute actual coordinates on parent canvas for elements dynamically
+            const posSource = getRelativeCoordinates(document.getElementById(srcConf.elementId));
+            const posRouter = getRelativeCoordinates(document.getElementById(rtrConf.elementId));
+            const posDest = getRelativeCoordinates(document.getElementById(dstConf.elementId));
+
+            // Setup step badges
+            stepBadge.innerText = `STEP ${stepNum}/8`;
+            stepBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-950 text-indigo-400 animate-pulse";
+
+            // Packet styles reset
+            packetEl.classList.remove('packet-glow-err');
+            packetEl.classList.add('packet-glow');
+            packetEl.style.transition = "all 2500ms cubic-bezier(0.25, 1, 0.5, 1)";
+
+            // Highlight router interfaces if needed
+            const routerCard = document.getElementById(rtrConf.elementId);
+            routerCard.className = "absolute left-[40%] top-[35%] w-[180px] bg-slate-900 border-2 border-emerald-500 rounded-2xl shadow-xl p-3 z-20 flex flex-col items-center transition-all duration-300";
+
+            switch (stepNum) {
+                case 1: // Generation & LAN Travel (Source -> Router)
+                    document.getElementById('guide-title').innerText = "1. Packet Generation at Client";
+                    document.getElementById('guide-body').innerHTML = `
+                        The <strong>${srcConf.name}</strong> builds a standard outbound IP packet to talk to 
+                        the <strong>${dstConf.name}</strong>. Because the destination IP address (<code class="bg-slate-800 text-amber-300 font-mono px-1 py-0.5 rounded">${dstConf.outsideIP}</code>) is 
+                        external to the local subnet, the host forwards the packet directly to its local default gateway (the NAT Router).
+                    `;
+
+                    // Configure live packet header visuals
+                    liveSrc.innerText = `${srcConf.insideLocalIP}:${srcConf.insideLocalPort}`;
+                    liveDst.innerText = `${dstConf.outsideIP}:${dstConf.outsidePort}`;
+                    liveHeader.style.opacity = '1';
+
+                    // Position packet at source, wait briefly, then slide to Router
+                    packetEl.style.transition = "none";
+                    packetEl.style.left = `${posSource.x}px`;
+                    packetEl.style.top = `${posSource.y}px`;
+                    packetEl.style.opacity = '1';
+
+                    setTimeout(() => {
+                        packetEl.style.transition = "all 2200ms ease-in-out";
+                        packetEl.style.left = `${posRouter.x - 40}px`;
+                        packetEl.style.top = `${posRouter.y}px`;
+                    }, 100);
+                    break;
+
+                case 2: // Inside Router Gateway Assessment
+                    document.getElementById('guide-title').innerText = "2. Arrival & Table Inspection";
+                    document.getElementById('guide-body').innerHTML = `
+                        The packet arrives on the router's internal LAN Interface (<code class="bg-slate-800 text-blue-300 font-mono px-1 py-0.5 rounded">${rtrConf.lanIP}</code>). 
+                        The router's OS detects that the packet must go onto the public internet, meaning <strong>Source Translation is required</strong>. 
+                        It first checks if an active translation mapping already exists in memory.
+                    `;
+
+                    // Pulse Router element
+                    routerCard.className = "absolute left-[40%] top-[35%] w-[180px] bg-slate-900 border-2 border-indigo-400 rounded-2xl shadow-2xl p-3 z-20 flex flex-col items-center transition-all scale-105 duration-300";
+
+                    packetEl.style.left = `${posRouter.x}px`;
+                    packetEl.style.top = `${posRouter.y}px`;
+                    break;
+
+                case 3: // NAT Table Insertion & Translation
+                    document.getElementById('guide-title').innerText = "3. WAN Translation & Registry Mapping";
+                    document.getElementById('guide-body').innerHTML = `
+                        The router assigns a distinct external source port (<code class="bg-slate-800 text-emerald-400 font-mono px-1 py-0.5 rounded">${rtrConf.mappedPort}</code>) to this specific local client interface session. 
+                        It logs the entry into its **NAT Translation Table** and swaps out the packet's **Private Source IP/Port** with its own **Public WAN IP/Port**.
+                    `;
+
+                    // Register mapping
+                    addNatEntry(
+                        `${srcConf.insideLocalIP}:${srcConf.insideLocalPort}`,
+                        `${rtrConf.wanIP}:${rtrConf.mappedPort}`,
+                        `${dstConf.outsideIP}:${dstConf.outsidePort}`
+                    );
+
+                    // Morph Header Visuals
+                    liveSrc.innerHTML = `<span class="text-emerald-400 font-bold">${rtrConf.wanIP}:${rtrConf.mappedPort}</span> <span class="text-slate-500 line-through">(${srcConf.insideLocalIP}:${srcConf.insideLocalPort})</span>`;
+
+                    packetEl.style.left = `${posRouter.x + 30}px`;
+                    break;
+
+                case 4: // Router -> Public Internet Server
+                    document.getElementById('guide-title').innerText = "4. Traversing the WAN Space";
+                    document.getElementById('guide-body').innerHTML = `
+                        The translated packet, now showing a valid, routable **Inside Global** IP address as its source, 
+                        is pushed onto the WAN carrier pipelines. The servers on the internet think the request originated 
+                        directly from the router's WAN IP.
+                    `;
+
+                    packetEl.style.left = `${posDest.x}px`;
+                    packetEl.style.top = `${posDest.y}px`;
+                    break;
+
+                case 5: // Server Reply Packet Construction
+                    document.getElementById('guide-title').innerText = "5. Response Generation on Server";
+                    document.getElementById('guide-body').innerHTML = `
+                        The remote <strong>${dstConf.name}</strong> receives the data, processes the instruction, 
+                        and crafts a payload reply. Crucially, the destination of this new packet is set to the 
+                        router's public IP & designated WAN interface port (<code class="bg-slate-800 text-emerald-400 font-mono px-1 py-0.5 rounded">${rtrConf.wanIP}:${rtrConf.mappedPort}</code>).
+                    `;
+
+                    // Flip Header Direction (Source is Server, Dest is Router WAN)
+                    liveSrc.innerText = `${dstConf.outsideIP}:${dstConf.outsidePort}`;
+                    liveDst.innerText = `${rtrConf.wanIP}:${rtrConf.mappedPort}`;
+
+                    packetEl.style.left = `${posDest.x}px`;
+                    packetEl.style.top = `${posDest.y}px`;
+                    break;
+
+                case 6: // Return Leg: Server -> Router WAN
+                    document.getElementById('guide-title').innerText = "6. Delivery Back to WAN Edge Gateway";
+                    document.getElementById('guide-body').innerHTML = `
+                        The packet travels back across the public internet. It arrives directly at the router's external 
+                        WAN interface IP (<code class="bg-slate-800 text-orange-400 font-mono px-1 py-0.5 rounded">${rtrConf.wanIP}</code>). Standard firewalls would reject unsolicited packets, but the 
+                        router must check its mapping tables first.
+                    `;
+
+                    packetEl.style.left = `${posRouter.x + 40}px`;
+                    packetEl.style.top = `${posRouter.y}px`;
+                    break;
+
+                case 7: // Reverse Table Lookup & Untranslation
+                    document.getElementById('guide-title').innerText = "7. Reverse Mapping Evaluation";
+                    document.getElementById('guide-body').innerHTML = `
+                        The router's core engine reads the destination port (<code class="bg-slate-800 text-emerald-400 font-mono px-1 py-0.5 rounded">${rtrConf.mappedPort}</code>). 
+                        It references its active state table, matches the session to the local client (<code class="bg-slate-800 text-blue-300 font-mono px-1 py-0.5 rounded">${srcConf.insideLocalIP}:${srcConf.insideLocalPort}</code>), 
+                        and **restores** the private destination header parameters.
+                    `;
+
+                    // Highlight the table row visually by temporarily altering active matching table records styles
+                    natTable.forEach(e => {
+                        if (e.insideLocal === `${srcConf.insideLocalIP}:${srcConf.insideLocalPort}`) {
+                            e.highlight = true;
+                        } else {
+                            e.highlight = false;
+                        }
+                    });
+                    updateNatTableUI();
+
+                    // Restore Header values on screen
+                    liveSrc.innerText = `${dstConf.outsideIP}:${dstConf.outsidePort}`;
+                    liveDst.innerHTML = `<span class="text-blue-300 font-bold">${srcConf.insideLocalIP}:${srcConf.insideLocalPort}</span> <span class="text-slate-500 line-through">(${rtrConf.wanIP}:${rtrConf.mappedPort})</span>`;
+
+                    packetEl.style.left = `${posRouter.x - 30}px`;
+                    packetEl.style.top = `${posRouter.y}px`;
+                    break;
+
+                case 8: // Delivery: Router LAN -> Local Client
+                    document.getElementById('guide-title').innerText = "8. Safe Local Delivery";
+                    document.getElementById('guide-body').innerHTML = `
+                        Now displaying the internal **Inside Local** address, the packet is placed on the local LAN broadcast bus. 
+                        The target <strong>${srcConf.name}</strong> receives it seamlessly, unaware that its packets traveled across 
+                        the vast public internet utilizing shared public resources!
+                    `;
+
+                    packetEl.style.left = `${posSource.x}px`;
+                    packetEl.style.top = `${posSource.y}px`;
+                    break;
+            }
+        }
+
+        // Simulate Unsolicited Inbound Probe (Firewall/NAT demonstration)
+        function triggerAttack() {
+            if (isAnimating) return;
+            isAnimating = true;
+            setControlsState(true);
+
+            const packetEl = document.getElementById('sim-packet');
+            const liveHeader = document.getElementById('live-header');
+            const liveSrc = document.getElementById('live-src');
+            const liveDst = document.getElementById('live-dst');
+            const stepBadge = document.getElementById('step-badge');
+
+            const rtrConf = configurations.Router;
+            const webConf = configurations.Web;
+
+            const posRouter = getRelativeCoordinates(document.getElementById(rtrConf.elementId));
+            const posWeb = getRelativeCoordinates(document.getElementById(webConf.elementId));
+
+            stepBadge.innerText = "THREAT PROBE";
+            stepBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-400 animate-pulse";
+
+            document.getElementById('guide-title').innerText = "Security Probe Inbound";
+            document.getElementById('guide-body').innerHTML = `
+                An external system (represented by the Web Server here) tries to initiate an 
+                <strong>unsolicited inbound connection</strong> directly targeting the Router WAN port 
+                on random administrative Port <code class="bg-slate-800 text-rose-400 font-mono px-1 py-0.5 rounded">23</code> (SSH/Telnet port probe).
+            `;
+
+            // Prepare threat packet headers
+            liveSrc.innerText = `${webConf.outsideIP}:44122`;
+            liveDst.innerText = `${rtrConf.wanIP}:23`;
+            liveHeader.style.opacity = '1';
+
+            packetEl.classList.remove('packet-glow');
+            packetEl.classList.add('packet-glow-err');
+            packetEl.style.transition = "none";
+            packetEl.style.left = `${posWeb.x}px`;
+            packetEl.style.top = `${posWeb.y}px`;
+            packetEl.style.opacity = '1';
+
+            // Phase 1: Threat traveling to Router
+            setTimeout(() => {
+                packetEl.style.transition = "all 2000ms ease-in-out";
+                packetEl.style.left = `${posRouter.x + 30}px`;
+                packetEl.style.top = `${posRouter.y}px`;
+            }, 100);
+
+            // Phase 2: Router lookup fails & packet drops
+            setTimeout(() => {
+                document.getElementById('guide-title').innerText = "Probe Blocked & Dropped!";
+                document.getElementById('guide-body').innerHTML = `
+                    The router's interface receives the packet on external Port 23. It scans the NAT Translation Table. 
+                    Because there is <strong>no mapping entry</strong> routing incoming Port 23 to any internal private host, 
+                    the router immediately <strong>drops</strong> the packet. 
+                    <br><br>
+                    <span class="text-emerald-400 font-semibold">Key Takeaway:</span> NAT provides a powerful implicit security layer 
+                    because it hides private machines behind a single gateway and drops all unmapped incoming traffic automatically!
+                `;
+
+                // Explode / Fade packet
+                packetEl.style.transform = "scale(2.5)";
+                packetEl.style.opacity = "0";
+
+                // Highlight Router Card as alert state
+                const rtrCard = document.getElementById(rtrConf.elementId);
+                rtrCard.className = "absolute left-[40%] top-[35%] w-[180px] bg-slate-900 border-2 border-rose-500 rounded-2xl shadow-xl p-3 z-20 flex flex-col items-center transition-all duration-300";
+
+                setTimeout(() => {
+                    packetEl.style.transform = "scale(1)";
+                    stopAnimation();
+                    setControlsState(false);
+                }, 1500);
+
+            }, 2200);
+        }
+
+        // Global Reset
+        function resetSimulation() {
+            stopAnimation();
+            natTable = [];
+            updateNatTableUI();
+            
+            // Clean visual mappings highlights
+            const pcEl = document.getElementById('node-PC');
+            pcEl.className = "absolute left-[6%] top-[15%] flex items-center gap-3 bg-slate-900/90 border border-blue-800/40 p-3 rounded-xl";
+            const phoneEl = document.getElementById('node-Phone');
+            phoneEl.className = "absolute left-[6%] top-[60%] flex items-center gap-3 bg-slate-900/90 border border-blue-800/40 p-3 rounded-xl";
+            const rtrEl = document.getElementById('node-Router');
+            rtrEl.className = "absolute left-[40%] top-[35%] w-[180px] bg-slate-900 border-2 border-emerald-500 rounded-2xl shadow-xl p-3 z-20 flex flex-col items-center";
+
+            // Restore defaults
+            selectSource('PC');
+            selectDest('Web');
+
+            document.getElementById('guide-title').innerText = "Ready to transmit";
+            document.getElementById('guide-body').innerHTML = `
+                Select a sender device and server target above, then click either <strong>Auto Play</strong> to watch the transaction end-to-end, or <strong>Step-by-Step</strong> to dissect header transformations at each critical boundary.
+            `;
+            document.getElementById('step-badge').innerText = "IDLE";
+            document.getElementById('step-badge').className = "px-2 py-0.5 rounded text-[10px] font-bold bg-slate-900 text-slate-400";
+        }
+
+        function resetAllStates() {
+            resetSimulation();
+            // Clear inputs in quiz
+            const inputs = document.querySelectorAll('.question-box input[type="radio"]');
+            inputs.forEach(i => i.checked = false);
+            const explanations = document.querySelectorAll('.explanation-box');
+            explanations.forEach(e => {
+                e.classList.add('hidden');
+                e.innerHTML = '';
+            });
+            document.getElementById('quiz-result').classList.add('hidden');
+            alert('All simulation parameters, active configurations, and quiz inputs have been completely purged.');
+        }
+
+        // Interactive Assessment Check
+        function checkAnswers() {
+            const boxes = document.querySelectorAll('.question-box');
+            let correctCount = 0;
+
+            const quizRationales = [
+                "<strong>Correct!</strong> Outbound NAT swaps the local private source parameter (e.g., 192.168.1.50:49152) with the router's public source parameter (203.0.113.88:10024) to ensure routing on the open web.",
+                "<strong>Correct!</strong> The primary driver behind the proliferation of NAT/PAT was the conservation of the exhaustible IPv4 address space, postponing full global network migration requirements.",
+                "<strong>Correct!</strong> A stateful firewall/NAT router drops all unsolicited inbound packets as a safety protocol unless an explicit mapping or port forwarding rule exists."
+            ];
+
+            boxes.forEach((box, index) => {
+                const correctVal = box.getAttribute('data-correct');
+                const selected = box.querySelector(`input[name="q${index+1}"]:checked`);
+                const expBox = box.querySelector('.explanation-box');
+
+                expBox.classList.remove('hidden');
+
+                if (selected && selected.value === correctVal) {
+                    correctCount++;
+                    box.className = "bg-slate-900 p-5 rounded-xl border-2 border-emerald-500/50 question-box";
+                    expBox.innerHTML = `<span class="text-emerald-400 font-bold">✔️ Correct!</span> <p class="text-slate-300 mt-1">${quizRationales[index]}</p>`;
+                } else {
+                    box.className = "bg-slate-900 p-5 rounded-xl border-2 border-rose-500/50 question-box";
+                    expBox.innerHTML = `<span class="text-rose-400 font-bold">❌ Incorrect.</span> <p class="text-slate-300 mt-1">${quizRationales[index]}</p>`;
+                }
+            });
+
+            const resultText = document.getElementById('quiz-result');
+            resultText.classList.remove('hidden');
+            resultText.innerHTML = `You scored ${correctCount} / ${boxes.length}!`;
+            if (correctCount === boxes.length) {
+                resultText.className = "text-sm font-bold text-emerald-400";
+            } else {
+                resultText.className = "text-sm font-bold text-amber-400";
+            }
+        }
+
+        // Run setup on load
+        window.addEventListener('DOMContentLoaded', () => {
+            resetSimulation();
+        });
+    </script>
+</body>
+</html>
+
+
+### Key Instructional Design Elements Included:
+1. **Demonstration of PAT Multi-Device Architecture:** It features *both* a local client PC and a smartphone. Showing two devices routing through the same shared WAN interface illustrates *why* the port is translationally modified to preserve uniqueness.
+2. **Implicit Security Demonstration:** An explicit threat simulation shows what happens during an unsolicited external port scan, clarifying how NAT provides passive packet-dropping firewall defense.
+3. **Flexible Scaffolding:** Allows learners to toggle between fully automated pacing (with 4-second dwell times designed for processing visual movements) and learner-directed Step-by-Step advancement.
+4. **Immediate Knowledge Integration:** The custom glossary and built-in knowledge check quiz give structured reinforcement and comprehensive rationales immediately after interaction.
