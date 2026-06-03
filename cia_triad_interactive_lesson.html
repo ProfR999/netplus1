@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity 101: Mastering the CIA Triad</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#0B0F19',
+                            card: '#161D30',
+                            accent: '#3B82F6',
+                            confidentiality: '#8B5CF6',
+                            integrity: '#06B6D4',
+                            availability: '#F59E0B',
+                            success: '#10B981',
+                            danger: '#EF4444'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Dyslexic-friendly font overrides */
+        .font-dyslexic {
+            font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif !important;
+            letter-spacing: 0.15em !important;
+            word-spacing: 0.3em !important;
+            line-height: 1.6 !important;
+        }
+        /* Custom focus rings for high accessibility keyboard nav */
+        *:focus-visible {
+            outline: 4px solid #3B82F6 !important;
+            outline-offset: 2px !important;
+        }
+        /* Keyframe animations for gamified elements */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.03); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-[#0B0F19] text-gray-100 min-h-full flex flex-col font-sans transition-colors duration-300">
+
+    <!-- Screen Reader Skip Link -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-cyber-accent focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:z-50">
+        Skip to Main Content
+    </a>
+
+    <!-- Top Navigation Bar & ADA Widget -->
+    <header class="bg-[#111827] border-b border-gray-800 px-4 py-3 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <!-- Brand -->
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-cyber-accent/10 rounded-lg text-cyber-accent">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        <span>Cybersecurity 101</span>
+                        <span class="text-xs bg-cyber-accent/20 text-cyber-accent px-2 py-0.5 rounded-full font-mono uppercase">Lab Edition</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">Professor Cyber's Interactive CIA Triad Simulator</p>
+                </div>
+            </div>
+
+            <!-- Accessibility Panel (ADA Features) -->
+            <div class="flex flex-wrap items-center gap-2 bg-gray-900/80 p-2 rounded-lg border border-gray-800" role="toolbar" aria-label="Accessibility settings">
+                <span class="text-xs text-gray-400 font-semibold px-2 uppercase tracking-wider">ADA Controls:</span>
+                
+                <!-- Text Size Adjusters -->
+                <button onclick="adjustTextSize('sm')" class="px-2 py-1 bg-gray-800 text-xs rounded hover:bg-gray-700 transition" aria-label="Decrease Text Size">A-</button>
+                <button onclick="adjustTextSize('lg')" class="px-2 py-1 bg-gray-800 text-xs rounded hover:bg-gray-700 transition" aria-label="Increase Text Size">A+</button>
+                
+                <!-- Dyslexia Font Toggle -->
+                <button onclick="toggleDyslexiaFont()" class="px-2 py-1 bg-gray-800 text-xs rounded hover:bg-gray-700 transition" aria-label="Toggle Dyslexia Friendly Font">
+                    Dyslexia Font
+                </button>
+
+                <!-- High Contrast Toggle -->
+                <button onclick="toggleHighContrast()" class="px-2 py-1 bg-gray-800 text-xs rounded hover:bg-gray-700 transition" aria-label="Toggle High Contrast Display Mode">
+                    Contrast Mode
+                </button>
+
+                <!-- TTS Master Mute -->
+                <button id="tts-toggle" onclick="toggleAudio()" class="px-2 py-1 bg-gray-800 text-xs rounded hover:bg-gray-700 transition text-emerald-400 flex items-center gap-1" aria-label="Toggle Voice Narrator">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828a1 1 0 010-1.415z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Narrator: ON</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-grow flex flex-col lg:flex-row max-w-7xl w-full mx-auto p-4 gap-6">
+        
+        <!-- Navigation Sidebar (Progress Tracker) -->
+        <nav class="lg:w-1/4 w-full flex flex-col gap-3" aria-label="Lesson Progress">
+            <!-- User Profile card -->
+            <div class="bg-cyber-card border border-gray-800 p-4 rounded-xl shadow-lg">
+                <div class="flex items-center space-x-3 mb-3">
+                    <div class="h-10 w-10 rounded-full bg-cyber-accent/20 flex items-center justify-center border border-cyber-accent/30 text-cyber-accent text-lg font-mono" id="user-avatar">
+                        U
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-400">Cyber Candidate</span>
+                        <h2 class="text-sm font-bold text-white uppercase" id="user-display-name">Guest Recruit</h2>
+                    </div>
+                </div>
+                <!-- Mini Progress Tracker bar -->
+                <div class="space-y-1">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span>Lesson Progress</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-gradient-to-r from-cyber-accent via-cyan-400 to-emerald-400 h-full w-[0%] transition-all duration-500"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Steps Sidebar Menu -->
+            <div class="bg-cyber-card border border-gray-800 p-3 rounded-xl shadow-lg flex flex-col gap-1.5" id="navigation-list">
+                <!-- Navigation items dynamically built to keep status updated -->
+            </div>
+
+            <!-- Active Help Widget / Prof Avatar -->
+            <div class="bg-gradient-to-br from-gray-900 to-[#1e293b] border border-gray-800 p-4 rounded-xl relative overflow-hidden flex flex-col gap-2">
+                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-cyber-accent/10 rounded-full blur-xl"></div>
+                <div class="flex items-start gap-3">
+                    <!-- Professor Avatar SVG -->
+                    <div class="w-12 h-12 rounded-lg bg-cyber-accent/20 border border-cyber-accent/30 flex items-center justify-center flex-shrink-0 animate-pulse-slow">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-widest">Professor Cyber</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed italic" id="professor-speech">
+                            "Welcome! Secure operations always start with the fundamentals. Introduce yourself above so we can customize your training clearance!"
+                        </p>
+                    </div>
+                </div>
+                <button onclick="readAloudCurrentText()" class="mt-2 w-full py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded text-xs transition flex items-center justify-center gap-1" aria-label="Listen to Professor Cyber's Guidance">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                    </svg>
+                    Speak Instructions
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Workspace (Central Card Area) -->
+        <main id="main-content" class="flex-grow lg:w-3/4 flex flex-col bg-cyber-card border border-gray-800 rounded-2xl shadow-2xl relative overflow-hidden" aria-live="polite">
+            
+            <!-- Global Status Bar -->
+            <div class="bg-gray-900 px-6 py-3 border-b border-gray-800 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div id="section-status-indicator" class="w-2.5 h-2.5 rounded-full bg-cyber-accent"></div>
+                    <span id="section-title" class="text-xs uppercase font-semibold tracking-wider text-gray-300">Clearance Verification</span>
+                </div>
+                <div class="text-xs text-gray-400" id="badge-display-area">
+                    <!-- Dynamic badges go here -->
+                </div>
+            </div>
+
+            <!-- Content Panel Container -->
+            <div id="workspace-viewport" class="p-6 md:p-8 flex-grow flex flex-col justify-between">
+                <!-- Content injected dynamically via JavaScript based on state -->
+            </div>
+
+            <!-- Bottom Navigation Bar inside card -->
+            <div class="bg-gray-900/60 p-4 border-t border-gray-800 flex items-center justify-between">
+                <button id="prev-btn" onclick="prevStep()" class="px-4 py-2 text-xs font-semibold rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition" disabled>
+                    &larr; Previous Section
+                </button>
+                <div class="text-xs text-gray-400" id="section-counter">
+                    Section 1 of 7
+                </div>
+                <button id="next-btn" onclick="nextStep()" class="px-5 py-2 text-xs font-bold rounded-lg bg-cyber-accent hover:bg-blue-600 text-white shadow-lg shadow-cyber-accent/20 transition">
+                    Next Section &rarr;
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Feedback Banner / Modals Overlay -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm w-full" role="alert" aria-live="assertive"></div>
+
+    <!-- Complete Audio Engine & Logic -->
+    <script>
+        // System State
+        const state = {
+            userName: "Recruit",
+            currentStep: 0,
+            textScale: 1, // multiplier for standard sizing
+            dyslexiaFont: false,
+            highContrast: false,
+            audioEnabled: true,
+            badges: {
+                confidentiality: false,
+                integrity: false,
+                availability: false,
+                scenario: false,
+                exam: false
+            },
+            quizAnswers: {},
+            lastToastId: 0,
+            simulations: {
+                rbac: {
+                    matrix: {
+                        guest: { press: "none", medical: "none", financials: "none" },
+                        doctor: { press: "none", medical: "none", financials: "none" },
+                        cfo: { press: "none", medical: "none", financials: "none" }
+                    }
+                },
+                integrity: {
+                    originalMessage: "Transfer $1,500.00 to Account #982193-B.",
+                    currentMessage: "Transfer $1,500.00 to Account #982193-B.",
+                    originalHash: "",
+                    currentHash: ""
+                },
+                availability: {
+                    active: false,
+                    serverLoad: 0,
+                    availability: 100,
+                    elapsedSeconds: 0,
+                    targetSeconds: 20,
+                    defenses: {
+                        cdn: false,
+                        rateLimiter: false,
+                        cloudScaling: false
+                    }
+                }
+            }
+        };
+
+        // Static Copy/Structure of Lesson Steps
+        const steps = [
+            {
+                title: "Clearance Verification",
+                subtitle: "Getting Started with the CIA Triad",
+                badgeName: "intro",
+                render: renderSetup
+            },
+            {
+                title: "Confidentiality (C)",
+                subtitle: "The Safeguarding of Secrets",
+                badgeName: "confidentiality",
+                render: renderConfidentiality
+            },
+            {
+                title: "Integrity (I)",
+                subtitle: "The Lock on Tampering",
+                badgeName: "integrity",
+                render: renderIntegrity
+            },
+            {
+                title: "Availability (A)",
+                subtitle: "Ensuring System Access",
+                badgeName: "availability",
+                render: renderAvailability
+            },
+            {
+                title: "The Incident Command Lab",
+                subtitle: "Real-World Cyber Triage Scenarios",
+                badgeName: "scenario",
+                render: renderScenarioLab
+            },
+            {
+                title: "Cyber Board Exam",
+                subtitle: "Test Your Strategic Competency",
+                badgeName: "exam",
+                render: renderQuiz
+            },
+            {
+                title: "Course Graduation",
+                subtitle: "Earn Your Professional Certification",
+                badgeName: "cert",
+                render: renderGraduation
+            }
+        ];
+
+        // Access Control Matrix Correct Configuration values
+        const rbacSolutions = {
+            guest: { press: "read", medical: "none", financials: "none" },
+            doctor: { press: "read", medical: "write", financials: "none" },
+            cfo: { press: "read", medical: "none", financials: "write" }
+        };
+
+        // Real-World Scenarios
+        const scenarios = [
+            {
+                id: "scen-1",
+                client: "Saint Jude Medical Center",
+                incident: "A malicious actor gained root access to the EHR system and altered the records of 50 heart patients, swapping their prescribed medications and dosages. The system remains online but clinicians can no longer trust patient histories.",
+                options: [
+                    { value: "C", text: "Confidentiality (Unauthorized reading of records)" },
+                    { value: "I", text: "Integrity (Unauthorized tampering of patient health records)" },
+                    { value: "A", text: "Availability (The medical system went down)" }
+                ],
+                correct: "I",
+                rationale: "Excellent. Because data was altered/tampered with in an unauthorized manner, this is an Integrity compromise. In healthcare, integrity compromises can be lethal!",
+                remediationOptions: [
+                    { value: "hash", text: "Implement Cryptographic Hashes and File Integrity Monitoring (FIM)" },
+                    { value: "ssl", text: "Enable SSL encryption for all web clients" },
+                    { value: "ups", text: "Buy backup power generators (UPS)" }
+                ],
+                correctRemediation: "hash"
+            },
+            {
+                id: "scen-2",
+                client: "Vanguard Retail Systems",
+                incident: "At 08:00 AM on Cyber Monday, a botnet launched a Distributed Denial of Service (DDoS) attack flooding the retail storefront's web servers with 2.5 Gbps of garbage traffic, crashing the web store for 6 hours.",
+                options: [
+                    { value: "C", text: "Confidentiality (Payment card data was copied)" },
+                    { value: "I", text: "Integrity (The price tags of products were modified)" },
+                    { value: "A", text: "Availability (The store was taken offline for legitimate buyers)" }
+                ],
+                correct: "A",
+                rationale: "Spot on! By blocking legitimate shoppers from accessing the web storefront, the attackers completely disrupted the system's Availability.",
+                remediationOptions: [
+                    { value: "mfa", text: "Force all users to use Multi-Factor Authentication" },
+                    { value: "scrub", text: "Deploy a Cloud DDoS scrubbing service with Elastic Load Balancers" },
+                    { value: "db", text: "Encrypt the inventory database at rest" }
+                ],
+                correctRemediation: "scrub"
+            },
+            {
+                id: "scen-3",
+                client: "Defense Tech Dynamics",
+                incident: "A disgruntled engineer printed confidential blueprints for a brand new stealth drone and hand-delivered them to a rival manufacturer's operative in exchange for a cryptocurrency transfer.",
+                options: [
+                    { value: "C", text: "Confidentiality (Unauthorized disclosure of proprietary intellectual property)" },
+                    { value: "I", text: "Integrity (The blueprints were deleted off company servers)" },
+                    { value: "A", text: "Availability (The printing server crashed)" }
+                ],
+                correct: "C",
+                rationale: "Correct! The disclosure of secrets to unauthorized entities is a textbook breach of Confidentiality.",
+                remediationOptions: [
+                    { value: "dlp", text: "Deploy Data Loss Prevention (DLP) agents and apply strict NDAs" },
+                    { value: "raid", text: "Setup RAID hard drive configurations" },
+                    { value: "audit", text: "Perform code reviews of client applications" }
+                ],
+                correctRemediation: "dlp"
+            }
+        ];
+
+        // Final Exam Questions
+        const quizQuestions = [
+            {
+                q: "Which pillar of the CIA Triad is directly violated when an attacker deploys ransomware that encrypts hard drives and holds the operating systems hostage?",
+                options: ["Confidentiality", "Integrity", "Availability", "Non-repudiation"],
+                correct: 2,
+                feedback: "Correct! Ransomware prevents authorized users from accessing resources, directly breaking Availability."
+            },
+            {
+                q: "A developer wants to ensure that a compiled software executable is not altered while hosted on a download page. What control should they publish beside the executable?",
+                options: ["A TLS/SSL digital certificate", "A Cryptographic Hash value (e.g., SHA-256)", "An Access Control List schema", "An end-user license agreement"],
+                correct: 1,
+                feedback: "Correct! Users can calculate the hash of their download and compare it to the developer's published hash to verify Integrity."
+            },
+            {
+                q: "Requiring multi-factor authentication (MFA) and configuring Role-Based Access Controls (RBAC) are measures primarily designed to safeguard which pillar?",
+                options: ["Confidentiality", "Integrity", "Availability", "Scalability"],
+                correct: 0,
+                feedback: "Correct! Authentication controls directly ensure that only authorized eyes see specific secrets (Confidentiality)."
+            },
+            {
+                q: "What is the core cybersecurity concept that suggests users should be given only the minimum privileges necessary to fulfill their job duties?",
+                options: ["Defense in Depth", "Principle of Least Privilege", "Separation of Duties", "Implicit Deny All"],
+                correct: 1,
+                feedback: "Correct! The Principle of Least Privilege limits unauthorized system actions to bolster security."
+            },
+            {
+                q: "Why is complete redundancy (e.g., secondary server sites and backup power) critical to modern organizations?",
+                options: ["It enforces non-repudiation of transactions", "It protects the confidentiality of data stored at rest", "It ensures high availability and fast recovery from disasters", "It minimizes the file sizing requirements"],
+                correct: 2,
+                feedback: "Correct! Redundant architecture keeps systems online and healthy, protecting Availability."
+            }
+        ];
+
+        // Simple custom hashing algorithm for the Integrity Lab (FNV-1a 32-bit hash simulation)
+        function generateSimpleHash(str) {
+            let h = 2166136261;
+            for (let i = 0; i < str.length; i++) {
+                h ^= str.charCodeAt(i);
+                h = Math.imul(h, 16777619);
+            }
+            // Format to an 8-character hex string representing block checksum
+            return (h >>> 0).toString(16).toUpperCase().padStart(8, '0');
+        }
+
+        // Initialize & Run Setup
+        window.onload = function() {
+            state.simulations.integrity.originalHash = generateSimpleHash(state.simulations.integrity.originalMessage);
+            state.simulations.integrity.currentHash = state.simulations.integrity.originalHash;
+            
+            // Build the initial navigation sidebar items
+            renderSidebar();
+            // Load initial view
+            updateStepView();
+            // Initial prof greeting read
+            speakText("Welcome! Secure operations always start with the fundamentals. Introduce yourself above so we can customize your training clearance!");
+        };
+
+        // Text To Speech Wrapper
+        function speakText(text) {
+            if (!state.audioEnabled || !('speechSynthesis' in window)) return;
+            // Stop any active utterance immediately
+            window.speechSynthesis.cancel();
+            
+            // Construct a highly clean spoken version
+            const cleanedText = text.replace(/<[^>]*>/g, ''); // strip HTML
+            const utterance = new SpeechSynthesisUtterance(cleanedText);
+            
+            // Try to find a high-quality default english speaker
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(v => v.lang.includes('en') && (v.name.includes('Google') || v.name.includes('Natural')));
+            if (preferredVoice) utterance.voice = preferredVoice;
+            
+            utterance.rate = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleAudio() {
+            state.audioEnabled = !state.audioEnabled;
+            const btn = document.getElementById('tts-toggle');
+            if (state.audioEnabled) {
+                btn.classList.remove('text-red-400');
+                btn.classList.add('text-emerald-400');
+                btn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828a1 1 0 010-1.415z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Narrator: ON</span>
+                `;
+                speakText("Voice narrator activated!");
+            } else {
+                window.speechSynthesis.cancel();
+                btn.classList.remove('text-emerald-400');
+                btn.classList.add('text-red-400');
+                btn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Narrator: MUTED</span>
+                `;
+            }
+        }
+
+        // Accessibility Adjustments
+        function adjustTextSize(dir) {
+            if (dir === 'sm' && state.textScale > 0.85) state.textScale -= 0.1;
+            else if (dir === 'lg' && state.textScale < 1.3) state.textScale += 0.1;
+            
+            // Apply scale to workspace content
+            document.getElementById('workspace-viewport').style.fontSize = `${state.textScale}rem`;
+            showToast("Font scaling adjusted!", "info");
+        }
+
+        function toggleDyslexiaFont() {
+            state.dyslexiaFont = !state.dyslexiaFont;
+            if (state.dyslexiaFont) {
+                document.body.classList.add('font-dyslexic');
+                showToast("Dyslexic-friendly font enabled", "success");
+            } else {
+                document.body.classList.remove('font-dyslexic');
+                showToast("Standard typography restored", "info");
+            }
+        }
+
+        function toggleHighContrast() {
+            state.highContrast = !state.highContrast;
+            if (state.highContrast) {
+                document.body.classList.add('contrast-125', 'brightness-110');
+                showToast("High contrast mode active", "success");
+            } else {
+                document.body.classList.remove('contrast-125', 'brightness-110');
+                showToast("Standard color settings restored", "info");
+            }
+        }
+
+        // UI Toast Engine (Never Use alert)
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            const id = ++state.lastToastId;
+            
+            let bg = "bg-blue-600";
+            if (type === "success") bg = "bg-emerald-600";
+            if (type === "error") bg = "bg-red-600";
+
+            const el = document.createElement('div');
+            el.id = `toast-${id}`;
+            el.className = `${bg} text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between text-xs font-semibold transform translate-y-2 opacity-0 transition-all duration-300 w-full`;
+            el.innerHTML = `
+                <span>${message}</span>
+                <button onclick="dismissToast(${id})" class="text-white hover:text-gray-200 ml-3" aria-label="Close message">✕</button>
+            `;
+
+            container.appendChild(el);
+            // Trigger animation
+            setTimeout(() => {
+                el.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            // Auto dismiss
+            setTimeout(() => {
+                dismissToast(id);
+            }, 5000);
+        }
+
+        function dismissToast(id) {
+            const el = document.getElementById(`toast-${id}`);
+            if (el) {
+                el.classList.add('translate-y-1', 'opacity-0');
+                setTimeout(() => el.remove(), 300);
+            }
+        }
+
+        // Sidebar Building & Management
+        function renderSidebar() {
+            const navList = document.getElementById('navigation-list');
+            navList.innerHTML = "";
+
+            steps.forEach((step, idx) => {
+                const isActive = state.currentStep === idx;
+                const isCompleted = state.badges[step.badgeName] === true || idx < state.currentStep;
+                
+                let iconColor = "text-gray-500";
+                let statusBadge = `<span class="text-[10px] text-gray-500 font-mono">LOCK</span>`;
+                
+                if (isActive) {
+                    iconColor = "text-cyber-accent animate-pulse";
+                    statusBadge = `<span class="text-[10px] text-cyber-accent font-bold uppercase animate-pulse">ACTIVE</span>`;
+                } else if (isCompleted) {
+                    iconColor = "text-emerald-400";
+                    statusBadge = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    `;
+                }
+
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-2.5 rounded-lg border flex items-center justify-between transition ${isActive ? 'bg-cyber-accent/15 border-cyber-accent/40 text-white' : 'bg-transparent border-transparent text-gray-400 hover:bg-gray-800/50 hover:text-gray-200'}`;
+                btn.setAttribute('aria-current', isActive ? 'step' : 'false');
+                btn.onclick = () => {
+                    // Only allow skipping to previously unlocked steps or next accessible one
+                    if (idx <= state.currentStep || isCompleted) {
+                        goToStep(idx);
+                    } else {
+                        showToast("Please complete the current lesson module first!", "error");
+                    }
+                };
+
+                btn.innerHTML = `
+                    <div class="flex items-center space-x-2.5">
+                        <span class="text-xs font-mono font-bold ${iconColor}">${String(idx + 1).padStart(2, '0')}</span>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold leading-tight ${isActive ? 'text-white' : 'text-gray-300'}">${step.title}</span>
+                            <span class="text-[10px] text-gray-500">${step.subtitle}</span>
+                        </div>
+                    </div>
+                    <div>${statusBadge}</div>
+                `;
+                navList.appendChild(btn);
+            });
+
+            // Update Header progress
+            const unlockedCount = Object.values(state.badges).filter(Boolean).length;
+            const progressPct = Math.round((unlockedCount / 5) * 100);
+            document.getElementById('progress-bar').style.width = `${progressPct}%`;
+            document.getElementById('progress-text').innerText = `${progressPct}%`;
+        }
+
+        // Navigation Steps Engine
+        function goToStep(idx) {
+            // Teardown any running game loop timers
+            if (state.simulations.availability.active) {
+                stopAvailabilitySimulation();
+            }
+
+            state.currentStep = idx;
+            updateStepView();
+            renderSidebar();
+        }
+
+        function nextStep() {
+            if (state.currentStep < steps.length - 1) {
+                goToStep(state.currentStep + 1);
+            }
+        }
+
+        function prevStep() {
+            if (state.currentStep > 0) {
+                goToStep(state.currentStep - 1);
+            }
+        }
+
+        function updateStepView() {
+            const currentObj = steps[state.currentStep];
+            
+            // Set Header information
+            document.getElementById('section-title').innerText = currentObj.title;
+            document.getElementById('section-counter').innerText = `Section ${state.currentStep + 1} of ${steps.length}`;
+            
+            // Setup Indicator colors
+            const indicator = document.getElementById('section-status-indicator');
+            indicator.className = `w-2.5 h-2.5 rounded-full`;
+            if (currentObj.badgeName === 'confidentiality') indicator.classList.add('bg-cyber-confidentiality');
+            else if (currentObj.badgeName === 'integrity') indicator.classList.add('bg-cyber-integrity');
+            else if (currentObj.badgeName === 'availability') indicator.classList.add('bg-cyber-availability');
+            else indicator.classList.add('bg-cyber-accent');
+
+            // Render Badges owned
+            const badgeArea = document.getElementById('badge-display-area');
+            badgeArea.innerHTML = "";
+            let badgeHTML = `<div class="flex items-center space-x-1.5 font-mono">`;
+            if (state.badges.confidentiality) badgeHTML += `<span class="bg-violet-900/40 text-violet-300 border border-violet-800 text-[10px] px-1.5 py-0.5 rounded" title="Confidentiality Badge">🛡️ C</span>`;
+            if (state.badges.integrity) badgeHTML += `<span class="bg-cyan-900/40 text-cyan-300 border border-cyan-800 text-[10px] px-1.5 py-0.5 rounded" title="Integrity Badge">🔮 I</span>`;
+            if (state.badges.availability) badgeHTML += `<span class="bg-amber-900/40 text-amber-300 border border-amber-800 text-[10px] px-1.5 py-0.5 rounded" title="Availability Badge">⚡ A</span>`;
+            badgeHTML += `</div>`;
+            badgeArea.innerHTML = badgeHTML;
+
+            // Render view content
+            const viewport = document.getElementById('workspace-viewport');
+            viewport.innerHTML = "";
+            currentObj.render(viewport);
+
+            // Update global navigation buttons
+            document.getElementById('prev-btn').disabled = state.currentStep === 0;
+            document.getElementById('next-btn').disabled = state.currentStep === steps.length - 1;
+
+            // Voice synthesis speaking newly updated layout content
+            const textToSpeak = document.getElementById('main-lesson-content')?.innerText || "";
+            const hostSaying = document.getElementById('professor-speech')?.innerText || "";
+            speakText(hostSaying + ". " + textToSpeak);
+        }
+
+        // Speaking trigger helper inside viewport
+        function readAloudCurrentText() {
+            const mainText = document.getElementById('main-lesson-content')?.innerText || "";
+            const hostSaying = document.getElementById('professor-speech')?.innerText || "";
+            speakText(hostSaying + ". " + mainText);
+        }
+
+        // ==========================================
+        // VIEW RENDERER 1: Clearance / Setup
+        // ==========================================
+        function renderSetup(viewport) {
+            document.getElementById('professor-speech').innerText = `"Let's register you in the system, agent. Type your name, configure your accessibility settings, and we'll begin the deployment drills."`;
+            
+            viewport.innerHTML = `
+                <div class="space-y-6 max-w-2xl mx-auto" id="main-lesson-content">
+                    <div class="text-center">
+                        <span class="text-xs font-mono font-bold tracking-wider text-cyber-accent uppercase">Security Operations Center Portal</span>
+                        <h2 class="text-2xl font-extrabold text-white mt-1">Recruit Verification</h2>
+                        <p class="text-gray-400 text-sm mt-1">Please log in to receive interactive cybersecurity training clearance.</p>
+                    </div>
+
+                    <div class="bg-gray-900 p-6 rounded-xl border border-gray-800 space-y-4">
+                        <div>
+                            <label for="username-input" class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Agent Identification Name</label>
+                            <input type="text" id="username-input" value="${state.userName !== 'Recruit' ? state.userName : ''}" placeholder="Enter your name..." class="w-full bg-[#0B0F19] border border-gray-700 rounded-lg py-2.5 px-4 text-white focus:border-cyber-accent focus:ring-1 focus:ring-cyber-accent text-sm" />
+                        </div>
+
+                        <div class="pt-2">
+                            <button onclick="registerUser()" class="w-full py-3 bg-cyber-accent hover:bg-blue-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-cyber-accent/30 transition flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                Authenticate Profile
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mt-6">
+                        <div class="p-4 bg-gray-900/60 rounded-xl border border-gray-800 flex flex-col items-center">
+                            <span class="text-lg mb-1">🔐</span>
+                            <h3 class="text-xs font-bold uppercase text-violet-400">Confidentiality</h3>
+                            <p class="text-[10px] text-gray-500 mt-1">Preventing unauthorized exposure of critical intellectual assets.</p>
+                        </div>
+                        <div class="p-4 bg-gray-900/60 rounded-xl border border-gray-800 flex flex-col items-center">
+                            <span class="text-lg mb-1">🔗</span>
+                            <h3 class="text-xs font-bold uppercase text-cyan-400">Integrity</h3>
+                            <p class="text-[10px] text-gray-500 mt-1">Verifying completeness and safety against malicious tampering.</p>
+                        </div>
+                        <div class="p-4 bg-gray-900/60 rounded-xl border border-gray-800 flex flex-col items-center">
+                            <span class="text-lg mb-1">⚡</span>
+                            <h3 class="text-xs font-bold uppercase text-amber-400">Availability</h3>
+                            <p class="text-[10px] text-gray-500 mt-1">Keeping systems online and responsive for legitimate end users.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function registerUser() {
+            const input = document.getElementById('username-input');
+            const name = input.value.trim();
+            if (!name) {
+                showToast("Please provide a name to receive clearance!", "error");
+                return;
+            }
+            state.userName = name;
+            
+            // Render user avatar initials
+            const initials = name.substring(0,2).toUpperCase();
+            document.getElementById('user-avatar').innerText = initials;
+            document.getElementById('user-display-name').innerText = name;
+
+            showToast(`Clearance active. Welcome to active training, Agent ${name}!`, "success");
+            
+            // Advance automatically
+            setTimeout(() => {
+                nextStep();
+            }, 1000);
+        }
+
+        // ==========================================
+        // VIEW RENDERER 2: Confidentiality
+        // ==========================================
+        function renderConfidentiality(viewport) {
+            document.getElementById('professor-speech').innerText = `"Confidentiality is about access. We must enforce the 'Principle of Least Privilege'—ensuring individuals have access ONLY to what they need to do their jobs. Fix this organization's access control list!"`;
+
+            const m = state.simulations.rbac.matrix;
+
+            viewport.innerHTML = `
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full" id="main-lesson-content">
+                    
+                    <!-- Left: Educational Theory Content -->
+                    <div class="space-y-4 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-cyber-confidentiality tracking-widest uppercase">Pillar 1: Confidentiality (C)</span>
+                            <h2 class="text-2xl font-black text-white mt-1">The Safeguarding of Secrets</h2>
+                            
+                            <p class="text-sm text-gray-300 leading-relaxed mt-3">
+                                <strong>Confidentiality</strong> ensures that sensitive data is hidden from unauthorized eyes. When credit card records are stolen or employee files are leaked online, Confidentiality is compromised.
+                            </p>
+                            
+                            <div class="bg-gray-900/80 p-4 rounded-xl border border-violet-900/40 mt-4 space-y-3">
+                                <h3 class="text-xs font-bold text-violet-400 uppercase tracking-widest">How We Enforce Confidentiality:</h3>
+                                <ul class="space-y-2 text-xs text-gray-400">
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-violet-400">✔</span>
+                                        <span><strong>Encryption:</strong> Scrambling human-readable text into garbage cipher-text using mathematical algorithms (like AES).</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-violet-400">✔</span>
+                                        <span><strong>Least Privilege:</strong> Restricting access profiles to prevent unneeded database modifications.</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-violet-400">✔</span>
+                                        <span><strong>Multi-Factor Authentication (MFA):</strong> Requesting backup codes (OTP token) beside traditional passwords.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-violet-950/20 rounded-lg border border-violet-800/20 text-xs text-gray-400">
+                            <strong>Interactive Exercise: Least Privilege RBAC Matrix</strong><br>
+                            Apply the correct permissions for each user role in the live matrix on the right. Hit 'Verify Security Matrix' once finished.
+                        </div>
+                    </div>
+
+                    <!-- Right: Interactive Module Sandbox (Least Privilege Matrix) -->
+                    <div class="bg-gray-900 p-5 rounded-xl border border-gray-800 flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-xs font-bold uppercase text-violet-400 tracking-widest">RBAC Permission Matrix</h3>
+                                <span class="text-[10px] bg-violet-950 text-violet-400 px-2 py-0.5 rounded font-mono">Least Privilege Drill</span>
+                            </div>
+                            
+                            <!-- Matrix Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-gray-800 text-gray-400 uppercase text-[10px] tracking-wider">
+                                            <th class="py-2.5 px-2">User Identity</th>
+                                            <th class="py-2.5 px-2">Public Press Release</th>
+                                            <th class="py-2.5 px-2">Medical Database</th>
+                                            <th class="py-2.5 px-2">Internal Financials</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-800/50">
+                                        <!-- Guest User Role -->
+                                        <tr>
+                                            <td class="py-3 px-2 font-semibold text-white flex flex-col">
+                                                <span>Public Guest</span>
+                                                <span class="text-[9px] text-gray-500 font-normal">Wants to read press news</span>
+                                            </td>
+                                            <td class="py-3 px-2">${buildRbacDropdown('guest', 'press', m.guest.press)}</td>
+                                            <td class="py-3 px-2">${buildRbacDropdown('guest', 'medical', m.guest.medical)}</td>
+                                            <td class="py-3 px-2">${buildRbacDropdown('guest', 'financials', m.guest.financials)}</td>
+                                        </tr>
+                                        <!-- Dr Avery Role -->
+                                        <tr>
+                                            <td class="py-3 px-2 font-semibold text-white flex flex-col">
+                                                <span>Dr. Avery (Doctor)</span>
+                                                <span class="text-[9px] text-gray-500 font-normal">Needs to write diagnostics</span>
+                                            </td>
+                                            <td class="py-3 px-2">${buildRbacDropdown('doctor', 'press', m.doctor.press)}</td>
+                                            <td class="py-3 px-2">${buildRbacDropdown('doctor', 'medical', m.doctor.medical)}</td>
+                                            <td class="py-3 px-2">${buildRbacDropdown('doctor', 'financials', m.doctor.financials)}</td>
+                                        </tr>
+                                        <!-- CFO Role -->
+                                        <tr>
+                                            <td class="py-3 px-2 font-semibold text-white flex flex-col">
+                                                <span>CFO (Chief Financial)</span>
+                                                <span class="text-[9px] text-gray-500 font-normal">Processes company payouts</span>
+                                            </td>
+                                            <td class="py-3 px-2">${buildRbacDropdown('cfo', 'press', m.cfo.press)}</td>
+                                            <td class="py-3 px-2">${buildRbacDropdown('cfo', 'medical', m.cfo.medical)}</td>
+                                            <td class="py-3 px-2">${buildRbacDropdown('cfo', 'financials', m.cfo.financials)}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Verification button -->
+                        <div class="pt-4 border-t border-gray-800">
+                            <button onclick="verifyRbacMatrix()" class="w-full py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-xs font-bold transition">
+                                Verify Security Matrix
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        // Dropdown builder helper for matrix UI
+        function buildRbacDropdown(user, resource, currentValue) {
+            return `
+                <select onchange="updateRbacValue('${user}', '${resource}', this.value)" class="bg-[#0B0F19] text-gray-200 border border-gray-700 rounded px-1.5 py-1 text-xs focus:border-violet-500 w-full" aria-label="Permission level for ${user} on ${resource}">
+                    <option value="none" ${currentValue === 'none' ? 'selected' : ''}>❌ Deny Access</option>
+                    <option value="read" ${currentValue === 'read' ? 'selected' : ''}>👁️ Read Only</option>
+                    <option value="write" ${currentValue === 'write' ? 'selected' : ''}>✏️ Read & Write</option>
+                </select>
+            `;
+        }
+
+        function updateRbacValue(user, resource, value) {
+            state.simulations.rbac.matrix[user][resource] = value;
+        }
+
+        function verifyRbacMatrix() {
+            const m = state.simulations.rbac.matrix;
+            let errors = [];
+
+            // Audit Guest permissions
+            if (m.guest.press !== rbacSolutions.guest.press) errors.push("Public Guest should have Read Only access to Public Press Releases.");
+            if (m.guest.medical !== rbacSolutions.guest.medical) errors.push("Public Guest should have Denied Access to Medical Databases.");
+            if (m.guest.financials !== rbacSolutions.guest.financials) errors.push("Public Guest should have Denied Access to Internal Financials.");
+
+            // Audit Doctor permissions
+            if (m.doctor.press !== rbacSolutions.doctor.press) errors.push("Doctors should be able to view Public Press Releases.");
+            if (m.doctor.medical !== rbacSolutions.doctor.medical) errors.push("Doctors require full Read & Write permissions to update Patient Records.");
+            if (m.doctor.financials !== rbacSolutions.doctor.financials) errors.push("Doctors must not access corporate investment/financial ledgers.");
+
+            // Audit CFO permissions
+            if (m.cfo.press !== rbacSolutions.cfo.press) errors.push("The CFO should be able to view Public Press Releases.");
+            if (m.cfo.medical !== rbacSolutions.cfo.medical) errors.push("The CFO must not have access to patient healthcare charts.");
+            if (m.cfo.financials !== rbacSolutions.cfo.financials) errors.push("The CFO needs Read & Write permissions to post balance adjustments.");
+
+            if (errors.length > 0) {
+                showToast(`Audit Failure! Checked permissions reveal ${errors.length} security policy issues. Check the first: ${errors[0]}`, "error");
+                speakText("Verification failure. Review the principles of Least Privilege. Only grant read and write capabilities strictly required for work tasks.");
+            } else {
+                state.badges.confidentiality = true;
+                showToast("Audit Complete! Least privilege successfully enforced. Confidentiality badge unlocked!", "success");
+                speakText("Excellent job. Matrix properly hardened. You have unlocked the Confidentiality badge!");
+                goToStep(2); // Automatically advance
+            }
+        }
+
+        // ==========================================
+        // VIEW RENDERER 3: Integrity
+        // ==========================================
+        function renderIntegrity(viewport) {
+            document.getElementById('professor-speech').innerText = `"Integrity means ensuring files have not been altered or tampered with. We do this using hash sums. Type in the Ledger box below and watch the cryptographic hash change instantly!"`;
+
+            const sim = state.simulations.integrity;
+
+            viewport.innerHTML = `
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full" id="main-lesson-content">
+                    
+                    <!-- Left: Educational Content -->
+                    <div class="space-y-4 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-cyber-integrity tracking-widest uppercase">Pillar 2: Integrity (I)</span>
+                            <h2 class="text-2xl font-black text-white mt-1">The Lock on Tampering</h2>
+                            
+                            <p class="text-sm text-gray-300 leading-relaxed mt-3">
+                                <strong>Integrity</strong> ensures that data is completely accurate, consistent, and unaltered. It guarantees that a file or network packet has not been modified by a hacker during transit.
+                            </p>
+                            
+                            <div class="bg-gray-900/80 p-4 rounded-xl border border-cyan-900/40 mt-4 space-y-3">
+                                <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-widest">How We Enforce Integrity:</h3>
+                                <ul class="space-y-2 text-xs text-gray-400">
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-cyan-400">✔</span>
+                                        <span><strong>Cryptographic Hashing:</strong> Passing messages through math algorithms to output fixed-length strings (checksums). An alteration of a single letter completely updates the hash!</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-cyan-400">✔</span>
+                                        <span><strong>Digital Signatures:</strong> Combining hashing and asymmetric cryptography to authenticate message senders.</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-cyan-400">✔</span>
+                                        <span><strong>Backups and Log Auditing:</strong> Keeping secure tracking records to revert malicious data manipulation.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-cyan-950/20 rounded-lg border border-cyan-800/20 text-xs text-gray-400">
+                            <strong>Interactive Sandbox: Hash Avalanche Simulator</strong><br>
+                            Notice how editing a single digit completely scrambles the output hash. Press 'Inject Malicious Attack' to simulate a server intrusion.
+                        </div>
+                    </div>
+
+                    <!-- Right: Sandbox Playground -->
+                    <div class="bg-gray-900 p-5 rounded-xl border border-gray-800 flex flex-col justify-between space-y-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xs font-bold uppercase text-cyan-400 tracking-widest">Digital Bank Ledger</h3>
+                                <span class="text-[10px] bg-cyan-950 text-cyan-400 px-2 py-0.5 rounded font-mono">Active Checksum</span>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label for="ledger-message-input" class="text-[10px] uppercase font-bold text-gray-500">Transaction Payload</label>
+                                <textarea id="ledger-message-input" oninput="onLedgerInput(this.value)" rows="3" class="w-full bg-[#0B0F19] text-sm text-white font-mono border border-gray-700 rounded-lg p-3 focus:ring-1 focus:ring-cyber-integrity focus:border-cyber-integrity" aria-label="Transaction payload block content">${sim.currentMessage}</textarea>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 pt-2">
+                                <div class="bg-[#0B0F19] p-3 rounded-lg border border-gray-800 text-center">
+                                    <span class="text-[10px] text-gray-500 uppercase font-bold block">Baseline Hash</span>
+                                    <span class="text-sm font-mono text-gray-400 block mt-1 tracking-wider" id="original-hash-display">${sim.originalHash}</span>
+                                </div>
+                                <div class="bg-[#0B0F19] p-3 rounded-lg border border-gray-800 text-center flex flex-col justify-center">
+                                    <span class="text-[10px] text-gray-500 uppercase font-bold block">Current Computed Hash</span>
+                                    <span class="text-sm font-mono text-cyan-400 block mt-1 tracking-wider" id="current-hash-display">${sim.currentHash}</span>
+                                </div>
+                            </div>
+
+                            <!-- Visual Status Match Indicator -->
+                            <div id="integrity-status-alert" class="p-3 bg-emerald-950/20 border border-emerald-800/40 rounded-lg flex items-center gap-2.5">
+                                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500" id="integrity-status-dot"></div>
+                                <span class="text-xs text-emerald-400" id="integrity-status-text">Integrity Intact: Hashes match baseline parameters perfectly.</span>
+                            </div>
+                        </div>
+
+                        <!-- Sandbox Tools -->
+                        <div class="pt-4 border-t border-gray-800 flex gap-3">
+                            <button onclick="injectIntegrityAttack()" class="w-1/2 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition">
+                                Inject Malicious Attack
+                            </button>
+                            <button onclick="unlockIntegritySection()" class="w-1/2 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold transition">
+                                Certify Ledger Integrity
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function onLedgerInput(val) {
+            state.simulations.integrity.currentMessage = val;
+            const newHash = generateSimpleHash(val);
+            state.simulations.integrity.currentHash = newHash;
+
+            document.getElementById('current-hash-display').innerText = newHash;
+
+            const matches = newHash === state.simulations.integrity.originalHash;
+            const alertBox = document.getElementById('integrity-status-alert');
+            const dot = document.getElementById('integrity-status-dot');
+            const txt = document.getElementById('integrity-status-text');
+
+            if (matches) {
+                alertBox.className = "p-3 bg-emerald-950/20 border border-emerald-800/40 rounded-lg flex items-center gap-2.5";
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+                txt.className = "text-xs text-emerald-400 animate-pulse";
+                txt.innerText = "Integrity Intact: Hashes match baseline parameters perfectly.";
+            } else {
+                alertBox.className = "p-3 bg-red-950/20 border border-red-800/40 rounded-lg flex items-center gap-2.5";
+                dot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+                txt.className = "text-xs text-red-400";
+                txt.innerText = "WARNING: Hash mismatch! Data integrity has been altered.";
+            }
+        }
+
+        function injectIntegrityAttack() {
+            // Slights change payload to mock cyber theft
+            const hackedPayload = "Transfer $15,000.00 to Account #666666-X.";
+            document.getElementById('ledger-message-input').value = hackedPayload;
+            onLedgerInput(hackedPayload);
+            showToast("Malicious attack injected! Transaction payload manipulated.", "error");
+            speakText("Warning! System alert! An adversary has injected an unauthorized ledger modification. The current computed cryptographic hash fails verification.");
+        }
+
+        function unlockIntegritySection() {
+            // Restores the original intact message to pass
+            const intactPayload = state.simulations.integrity.originalMessage;
+            document.getElementById('ledger-message-input').value = intactPayload;
+            onLedgerInput(intactPayload);
+
+            state.badges.integrity = true;
+            showToast("Success! Transaction details audited and integrity verified.", "success");
+            speakText("Legitimacy certified! Ledger has been preserved. You have unlocked the Integrity badge!");
+            setTimeout(() => {
+                nextStep();
+            }, 1000);
+        }
+
+        // ==========================================
+        // VIEW RENDERER 4: Availability
+        // ==========================================
+        function renderAvailability(viewport) {
+            document.getElementById('professor-speech').innerText = `"Availability keeps critical infrastructure online. Legitimate clients expect instant server access. Launch and survive the incoming DDoS attack simulator to claim the badge!"`;
+
+            viewport.innerHTML = `
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full" id="main-lesson-content">
+                    
+                    <!-- Left: Educational Content -->
+                    <div class="space-y-4 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-cyber-availability tracking-widest uppercase">Pillar 3: Availability (A)</span>
+                            <h2 class="text-2xl font-black text-white mt-1">Ensuring System Access</h2>
+                            
+                            <p class="text-sm text-gray-300 leading-relaxed mt-3">
+                                <strong>Availability</strong> guarantees that networks, software systems, and files are online and reliable whenever authorized employees or clients demand them.
+                            </p>
+                            
+                            <div class="bg-gray-900/80 p-4 rounded-xl border border-amber-900/40 mt-4 space-y-3">
+                                <h3 class="text-xs font-bold text-amber-400 uppercase tracking-widest">How We Protect Availability:</h3>
+                                <ul class="space-y-2 text-xs text-gray-400">
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-amber-400">✔</span>
+                                        <span><strong>Redundancy & RAID:</strong> Replicating databases across cluster configurations to avoid single points of failure.</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-amber-400">✔</span>
+                                        <span><strong>DDoS Mitigation Scrubbers:</strong> Filtering internet traffic surges using high-capacity firewalls.</span>
+                                    </li>
+                                    <li class="flex items-start gap-2">
+                                        <span class="text-amber-400">✔</span>
+                                        <span><strong>Uninterruptible Power Supplies (UPS):</strong> Provisioning electrical backup batteries for physical servers.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-amber-950/20 rounded-lg border border-amber-800/20 text-xs text-gray-400">
+                            <strong>Interactive Exercise: Server Guard Sim</strong><br>
+                            Trigger the attack and utilize load management policies to handle incoming internet requests before capacity overloads.
+                        </div>
+                    </div>
+
+                    <!-- Right: DDoS Simulator Game Interface -->
+                    <div class="bg-gray-900 p-5 rounded-xl border border-gray-800 flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-xs font-bold uppercase text-amber-400 tracking-widest">Firewall Control Center</h3>
+                                <span class="text-[10px] bg-amber-950 text-amber-400 px-2 py-0.5 rounded font-mono">DDoS Scrubbing Simulator</span>
+                            </div>
+
+                            <!-- Live Simulation Visual Screen -->
+                            <div class="w-full bg-[#0B0F19] h-40 rounded-lg relative overflow-hidden border border-gray-800 flex items-center justify-center">
+                                <!-- Grid Backing -->
+                                <div class="absolute inset-0 grid grid-cols-6 grid-rows-3 opacity-10">
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <!-- row 2 -->
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <div class="border-r border-b border-gray-400"></div>
+                                    <div class="border-r border-b border-gray-400"></div>
+                                </div>
+
+                                <!-- Server Icon in Middle -->
+                                <div id="sim-server" class="z-10 text-center flex flex-col items-center">
+                                    <div class="h-14 w-14 rounded-full bg-emerald-500/10 border-2 border-emerald-500 flex items-center justify-center animate-pulse-slow">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-[9px] font-mono text-gray-400 uppercase mt-1 tracking-wider">Mainframe Core</span>
+                                </div>
+
+                                <!-- Flying Traffic Nodes Container -->
+                                <div id="traffic-node-container" class="absolute inset-0"></div>
+
+                                <!-- Overlay Alert States -->
+                                <div id="sim-alert" class="absolute inset-0 bg-red-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-center hidden">
+                                    <span class="text-3xl">⚠️</span>
+                                    <h4 class="text-sm font-black text-white mt-1">CORE SERVER CRASH</h4>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">Availability drops to 0% due to thread exhaustion.</p>
+                                    <button onclick="startDdosSimulation()" class="mt-2.5 px-3 py-1 bg-cyber-accent text-[10px] text-white font-bold uppercase rounded">Reboot Systems</button>
+                                </div>
+                            </div>
+
+                            <!-- Live Dashboard Statistics -->
+                            <div class="grid grid-cols-3 gap-3 mt-3">
+                                <div class="bg-[#0B0F19] p-2.5 rounded-lg border border-gray-800 text-center">
+                                    <span class="text-[9px] text-gray-500 uppercase font-bold block">Uptime Stability</span>
+                                    <span id="uptime-display" class="text-sm font-bold text-emerald-400">100.0%</span>
+                                </div>
+                                <div class="bg-[#0B0F19] p-2.5 rounded-lg border border-gray-800 text-center">
+                                    <span class="text-[9px] text-gray-500 uppercase font-bold block">Capacity Load</span>
+                                    <span id="load-display" class="text-sm font-bold text-gray-300">0%</span>
+                                </div>
+                                <div class="bg-[#0B0F19] p-2.5 rounded-lg border border-gray-800 text-center">
+                                    <span class="text-[9px] text-gray-500 uppercase font-bold block">Survive Timer</span>
+                                    <span id="timer-display" class="text-sm font-bold text-amber-400">0 / 20s</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mitigation Controls -->
+                        <div class="space-y-2">
+                            <span class="text-[10px] uppercase font-bold text-gray-500">Deployable Defenses</span>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button id="def-cdn" onclick="toggleDefense('cdn')" class="py-2 px-1 rounded border text-[10px] font-bold text-gray-400 border-gray-800 bg-[#0B0F19] hover:bg-gray-800 transition">
+                                    🌐 Cloud CDN
+                                </button>
+                                <button id="def-rateLimiter" onclick="toggleDefense('rateLimiter')" class="py-2 px-1 rounded border text-[10px] font-bold text-gray-400 border-gray-800 bg-[#0B0F19] hover:bg-gray-800 transition">
+                                    🛑 Rate Limiter
+                                </button>
+                                <button id="def-cloudScaling" onclick="toggleDefense('cloudScaling')" class="py-2 px-1 rounded border text-[10px] font-bold text-gray-400 border-gray-800 bg-[#0B0F19] hover:bg-gray-800 transition">
+                                    🚀 Auto-Scale
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-800">
+                            <button id="sim-start-btn" onclick="startDdosSimulation()" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition">
+                                Launch DDoS Simulation Drill
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        // Availability Active Simulation Code
+        let simInterval = null;
+        let packetSpawnInterval = null;
+
+        function startDdosSimulation() {
+            // Reset simulation conditions
+            state.simulations.availability.active = true;
+            state.simulations.availability.serverLoad = 0;
+            state.simulations.availability.availability = 100;
+            state.simulations.availability.elapsedSeconds = 0;
+            state.simulations.availability.defenses = { cdn: false, rateLimiter: false, cloudScaling: false };
+
+            // Reset mitigation buttons states
+            updateDefenseButtonUI('cdn');
+            updateDefenseButtonUI('rateLimiter');
+            updateDefenseButtonUI('cloudScaling');
+
+            document.getElementById('sim-alert').classList.add('hidden');
+            document.getElementById('sim-start-btn').disabled = true;
+            document.getElementById('sim-start-btn').innerText = "Simulation Underway...";
+
+            // Spawn floating background visual items
+            const container = document.getElementById('traffic-node-container');
+            container.innerHTML = "";
+
+            // Clear existing intervals
+            if (simInterval) clearInterval(simInterval);
+            if (packetSpawnInterval) clearInterval(packetSpawnInterval);
+
+            showToast("Alert: Botnet initiating DDoS attack thread simulation!", "error");
+            speakText("DDoS attack detected! Traffic load surging. Activate mitigations to preserve services uptime!");
+
+            // Spawn moving traffic packet animations
+            packetSpawnInterval = setInterval(() => {
+                if (!state.simulations.availability.active) return;
+                spawnPacket();
+            }, 300);
+
+            // Simulation Clock Cycle Loop
+            simInterval = setInterval(() => {
+                const sim = state.simulations.availability;
+                if (!sim.active) return;
+
+                sim.elapsedSeconds++;
+                document.getElementById('timer-display').innerText = `${sim.elapsedSeconds} / ${sim.targetSeconds}s`;
+
+                // Calculate load logic based on current active countermeasures
+                let attackPower = 22; // baseline attack power
+                
+                if (sim.defenses.cdn) attackPower -= 5;
+                if (sim.defenses.rateLimiter) attackPower -= 9;
+                
+                let baseMaxCapacity = sim.defenses.cloudScaling ? 180 : 100;
+
+                // Ensure random baseline load fluctuation
+                let deltaLoad = attackPower + Math.floor(Math.random() * 15 - 5);
+                sim.serverLoad = Math.max(0, Math.min(baseMaxCapacity, sim.serverLoad + deltaLoad));
+
+                // Scale value display relative to current capacity
+                let loadPctValue = Math.min(100, Math.round((sim.serverLoad / baseMaxCapacity) * 100));
+                document.getElementById('load-display').innerText = `${loadPctValue}%`;
+
+                // Color Server Core and displays according to load thresholds
+                const loadDisplay = document.getElementById('load-display');
+                const serverDiv = document.getElementById('sim-server')?.firstElementChild;
+
+                if (loadPctValue > 85) {
+                    loadDisplay.className = "text-sm font-bold text-red-500 animate-pulse";
+                    if (serverDiv) {
+                        serverDiv.className = "h-14 w-14 rounded-full bg-red-500/10 border-2 border-red-500 flex items-center justify-center animate-bounce";
+                    }
+                } else if (loadPctValue > 50) {
+                    loadDisplay.className = "text-sm font-bold text-amber-500";
+                    if (serverDiv) {
+                        serverDiv.className = "h-14 w-14 rounded-full bg-amber-500/10 border-2 border-amber-500 flex items-center justify-center";
+                    }
+                } else {
+                    loadDisplay.className = "text-sm font-bold text-emerald-400";
+                    if (serverDiv) {
+                        serverDiv.className = "h-14 w-14 rounded-full bg-emerald-500/10 border-2 border-emerald-500 flex items-center justify-center animate-pulse-slow";
+                    }
+                }
+
+                // Service health/availability decay logic when load is critical
+                if (loadPctValue > 90) {
+                    sim.availability = Math.max(0, sim.availability - 18);
+                } else if (loadPctValue > 70) {
+                    sim.availability = Math.max(0, sim.availability - 5);
+                } else {
+                    sim.availability = Math.min(100, sim.availability + 2); // recover
+                }
+
+                document.getElementById('uptime-display').innerText = `${Math.round(sim.availability * 10) / 10}%`;
+
+                // Check Failure condition
+                if (sim.availability <= 0) {
+                    stopAvailabilitySimulation();
+                    document.getElementById('sim-alert').classList.remove('hidden');
+                    showToast("Mainframe crashed! Availability compromised.", "error");
+                    speakText("Uptime failure! Server resources totally exhausted. Reboot systems and implement defenses quicker!");
+                    return;
+                }
+
+                // Check Success condition
+                if (sim.elapsedSeconds >= sim.targetSeconds) {
+                    stopAvailabilitySimulation();
+                    state.badges.availability = true;
+                    showToast("Drill secure! System availability protected.", "success");
+                    speakText("Excellent triage! Systems survived the DDoS threat vector. Availability badge unlocked!");
+                    setTimeout(() => {
+                        nextStep();
+                    }, 1200);
+                }
+
+            }, 1000);
+        }
+
+        function stopAvailabilitySimulation() {
+            state.simulations.availability.active = false;
+            if (simInterval) clearInterval(simInterval);
+            if (packetSpawnInterval) clearInterval(packetSpawnInterval);
+            
+            const btn = document.getElementById('sim-start-btn');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "Launch DDoS Simulation Drill";
+            }
+        }
+
+        function toggleDefense(def) {
+            if (!state.simulations.availability.active) {
+                showToast("Launch the simulation drill before activating defense systems!", "error");
+                return;
+            }
+            state.simulations.availability.defenses[def] = !state.simulations.availability.defenses[def];
+            updateDefenseButtonUI(def);
+            
+            if (state.simulations.availability.defenses[def]) {
+                showToast(`Deploying security control: ${def.toUpperCase()}`, "success");
+            }
+        }
+
+        function updateDefenseButtonUI(def) {
+            const btn = document.getElementById(`def-${def}`);
+            if (!btn) return;
+            const isActive = state.simulations.availability.defenses[def];
+            if (isActive) {
+                btn.className = "py-2 px-1 rounded border text-[10px] font-bold border-emerald-500 bg-emerald-950/40 text-emerald-300 transition";
+            } else {
+                btn.className = "py-2 px-1 rounded border text-[10px] font-bold border-gray-800 bg-[#0B0F19] text-gray-400 hover:bg-gray-800 transition";
+            }
+        }
+
+        function spawnPacket() {
+            const container = document.getElementById('traffic-node-container');
+            if (!container) return;
+
+            const packet = document.createElement('div');
+            const sides = ['left', 'right', 'top', 'bottom'];
+            const startSide = sides[Math.floor(Math.random() * sides.length)];
+            
+            packet.className = "absolute w-2 h-2 rounded-full pointer-events-none transition-all duration-1000 ease-linear";
+            
+            // Generate visual styles (DDoS traffic is red, scrubbed is green)
+            const isDdos = Math.random() > 0.2;
+            packet.style.backgroundColor = isDdos ? '#EF4444' : '#10B981';
+            packet.style.boxShadow = isDdos ? '0 0 6px #EF4444' : '0 0 6px #10B981';
+
+            // Coordinates logic
+            let startX = 0;
+            let startY = 0;
+
+            if (startSide === 'left') {
+                startX = -10;
+                startY = Math.floor(Math.random() * 100);
+            } else if (startSide === 'right') {
+                startX = 110;
+                startY = Math.floor(Math.random() * 100);
+            } else if (startSide === 'top') {
+                startX = Math.floor(Math.random() * 100);
+                startY = -10;
+            } else {
+                startX = Math.floor(Math.random() * 100);
+                startY = 110;
+            }
+
+            packet.style.left = `${startX}%`;
+            packet.style.top = `${startY}%`;
+
+            container.appendChild(packet);
+
+            // Animate moving nodes towards center of iframe panel layout
+            setTimeout(() => {
+                // If defenses are active, visual packets might get 'scrubbed' out halfway
+                const sim = state.simulations.availability;
+                const destroyedByDefense = isDdos && (
+                    (sim.defenses.cdn && Math.random() > 0.7) || 
+                    (sim.defenses.rateLimiter && Math.random() > 0.5)
+                );
+
+                if (destroyedByDefense) {
+                    packet.style.transform = "scale(0)";
+                    packet.style.opacity = "0";
+                    setTimeout(() => packet.remove(), 1000);
+                } else {
+                    packet.style.left = "50%";
+                    packet.style.top = "50%";
+                    packet.style.opacity = "0";
+                    setTimeout(() => packet.remove(), 1000);
+                }
+            }, 50);
+        }
+
+        // ==========================================
+        // VIEW RENDERER 5: Scenario Triage Lab
+        // ==========================================
+        function renderScenarioLab(viewport) {
+            document.getElementById('professor-speech').innerText = `"Now you're the Incident Commander. Review the client files, triage which pillar of the CIA Triad has been breached, and apply remediation strategies!"`;
+
+            viewport.innerHTML = `
+                <div class="space-y-6 max-w-4xl mx-auto" id="main-lesson-content">
+                    
+                    <div class="border-b border-gray-800 pb-3">
+                        <span class="text-xs font-bold text-cyber-accent tracking-widest uppercase">Exercise 4: Incident Command Lab</span>
+                        <h2 class="text-2xl font-black text-white mt-1">Real-World Incident Response</h2>
+                        <p class="text-sm text-gray-400 mt-1">Review the active logs below, tag the primary Triad vulnerability, and prescribe security patches.</p>
+                    </div>
+
+                    <!-- Cases list -->
+                    <div class="space-y-4" id="cases-container">
+                        ${scenarios.map((scen, idx) => buildScenarioCard(scen, idx)).join('')}
+                    </div>
+
+                    <div class="pt-4 flex justify-end">
+                        <button onclick="submitScenarioVerification()" class="py-3 px-6 bg-cyber-success text-white font-bold rounded-lg text-sm shadow-lg shadow-emerald-500/20 transition">
+                            Submit Case Reports
+                        </button>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function buildScenarioCard(scen, idx) {
+            return `
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4" id="card-${scen.id}">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-gray-800/60 pb-2">
+                        <div class="flex items-center space-x-2.5">
+                            <span class="h-6 w-6 rounded bg-gray-800 text-xs text-cyber-accent font-mono flex items-center justify-center font-bold">0${idx+1}</span>
+                            <h3 class="text-sm font-bold text-white">${scen.client}</h3>
+                        </div>
+                        <span class="text-[10px] text-red-400 font-mono tracking-widest uppercase animate-pulse">🔥 ACTIVE CRITICAL SECURITY INCIDENT</span>
+                    </div>
+
+                    <div class="text-xs text-gray-300 leading-relaxed bg-[#0B0F19] p-3 rounded-lg border border-gray-800">
+                        <strong>Log details:</strong> ${scen.incident}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Step 1: Core Pillar compromised selection -->
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">1. Diagnosed CIA Breach Vector:</label>
+                            <select onchange="onScenarioPillarSelected('${scen.id}', this.value)" class="w-full bg-[#0B0F19] text-xs text-gray-200 border border-gray-700 rounded-lg p-2 focus:border-cyber-accent" aria-label="Breached pillar selection for ${scen.client}">
+                                <option value="">-- Choose compromised component --</option>
+                                ${scen.options.map(opt => `<option value="${opt.value}">${opt.text}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        <!-- Step 2: Mitigation prescription -->
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">2. Prescription Security Patch:</label>
+                            <select onchange="onScenarioRemediationSelected('${scen.id}', this.value)" class="w-full bg-[#0B0F19] text-xs text-gray-200 border border-gray-700 rounded-lg p-2 focus:border-cyber-accent" aria-label="Remediation patch selection for ${scen.client}">
+                                <option value="">-- Choose security mitigation --</option>
+                                ${scen.remediationOptions.map(opt => `<option value="${opt.value}">${opt.text}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic feedback display card -->
+                    <div id="feedback-${scen.id}" class="hidden p-3 rounded-lg text-xs"></div>
+                </div>
+            `;
+        }
+
+        // Keep track of user selection in scenario stage
+        const scenarioAnswers = {
+            "scen-1": { pillar: "", patch: "" },
+            "scen-2": { pillar: "", patch: "" },
+            "scen-3": { pillar: "", patch: "" }
+        };
+
+        function onScenarioPillarSelected(scenId, val) {
+            scenarioAnswers[scenId].pillar = val;
+        }
+
+        function onScenarioRemediationSelected(scenId, val) {
+            scenarioAnswers[scenId].patch = val;
+        }
+
+        function submitScenarioVerification() {
+            let correctCount = 0;
+
+            scenarios.forEach(scen => {
+                const userAns = scenarioAnswers[scen.id];
+                const feedbackDiv = document.getElementById(`feedback-${scen.id}`);
+                const card = document.getElementById(`card-${scen.id}`);
+
+                feedbackDiv.classList.remove('hidden');
+
+                if (userAns.pillar === scen.correct && userAns.patch === scen.correctRemediation) {
+                    correctCount++;
+                    card.className = "bg-emerald-950/20 border-2 border-emerald-500 rounded-xl p-5 space-y-4 transition-all duration-300";
+                    feedbackDiv.className = "p-3 bg-emerald-950/40 border border-emerald-800/40 text-emerald-300 text-xs rounded-lg";
+                    feedbackDiv.innerHTML = `<strong>Triage Verified!</strong> ${scen.rationale}`;
+                } else {
+                    card.className = "bg-red-950/20 border-2 border-red-500 rounded-xl p-5 space-y-4 transition-all duration-300";
+                    feedbackDiv.className = "p-3 bg-red-950/40 border border-red-800/40 text-red-300 text-xs rounded-lg";
+                    feedbackDiv.innerHTML = `<strong>Verification Error.</strong> Re-read security log reports and apply correct mitigations.`;
+                }
+            });
+
+            if (correctCount === scenarios.length) {
+                state.badges.scenario = true;
+                showToast("All incident case files successfully mitigated!", "success");
+                speakText("Incredible mitigation speed! You processed every cybersecurity incident correctly. Let's head to the Board Exam.");
+                setTimeout(() => {
+                    nextStep();
+                }, 2000);
+            } else {
+                showToast("Some incidents still require correction. Check your feedback blocks!", "error");
+                speakText("Triage checks revealed mistakes on case files. Review the feedback highlighted in red.");
+            }
+        }
+
+        // ==========================================
+        // VIEW RENDERER 6: Board Exam Quiz
+        // ==========================================
+        function renderQuiz(viewport) {
+            document.getElementById('professor-speech').innerText = `"Time for your certification review! Complete this 5-question examination with an 80% score or higher to qualify for your graduation award."`;
+
+            viewport.innerHTML = `
+                <div class="space-y-6 max-w-3xl mx-auto" id="main-lesson-content">
+                    
+                    <div class="border-b border-gray-800 pb-3">
+                        <span class="text-xs font-bold text-cyber-accent tracking-widest uppercase">Exercise 5: Official Board Exam</span>
+                        <h2 class="text-2xl font-black text-white mt-1">Cyber Competency Evaluation</h2>
+                        <p class="text-sm text-gray-400 mt-1">Verify your mastery over Confidentiality, Integrity, and Availability concepts.</p>
+                    </div>
+
+                    <!-- Render Quiz Questions List -->
+                    <div class="space-y-5" id="quiz-questions-list">
+                        ${quizQuestions.map((q, idx) => buildQuizCard(q, idx)).join('')}
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-800 flex justify-between items-center">
+                        <span class="text-xs text-gray-400 font-semibold uppercase">Passing Grade Target: 4 / 5 Answers</span>
+                        <button onclick="gradeQuizExam()" class="py-3 px-6 bg-cyber-accent hover:bg-blue-600 text-white font-bold rounded-lg text-sm shadow-lg shadow-cyber-accent/30 transition">
+                            Grade Exam Paper
+                        </button>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function buildQuizCard(qObj, idx) {
+            return `
+                <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-3" id="quiz-card-${idx}">
+                    <h3 class="text-sm font-bold text-white leading-relaxed">
+                        <span class="text-cyber-accent font-mono mr-1.5">Q${idx+1}.</span>${qObj.q}
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1">
+                        ${qObj.options.map((opt, oIdx) => `
+                            <button onclick="selectQuizAnswer(${idx}, ${oIdx})" id="q-${idx}-opt-${oIdx}" class="w-full text-left p-3 rounded-lg border border-gray-800 bg-[#0B0F19] hover:bg-gray-800 text-xs text-gray-300 hover:text-white transition flex items-center justify-between">
+                                <span>${opt}</span>
+                                <span class="h-4 w-4 rounded-full border border-gray-700 flex items-center justify-center text-[8px] font-bold text-transparent" id="q-${idx}-bullet-${oIdx}">✓</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectQuizAnswer(qIdx, optIdx) {
+            // Save state
+            state.quizAnswers[qIdx] = optIdx;
+
+            // Update local options visually
+            const totalOpts = quizQuestions[qIdx].options.length;
+            for (let i = 0; i < totalOpts; i++) {
+                const btn = document.getElementById(`q-${qIdx}-opt-${i}`);
+                const bullet = document.getElementById(`q-${qIdx}-bullet-${i}`);
+
+                if (i === optIdx) {
+                    btn.className = "w-full text-left p-3 rounded-lg border border-cyber-accent bg-cyber-accent/10 text-white font-semibold transition flex items-center justify-between";
+                    bullet.className = "h-4 w-4 rounded-full bg-cyber-accent flex items-center justify-center text-[8px] font-bold text-white";
+                } else {
+                    btn.className = "w-full text-left p-3 rounded-lg border border-gray-800 bg-[#0B0F19] text-gray-300 hover:bg-gray-800 transition flex items-center justify-between";
+                    bullet.className = "h-4 w-4 rounded-full border border-gray-700 flex items-center justify-center text-[8px] font-bold text-transparent";
+                }
+            }
+        }
+
+        function gradeQuizExam() {
+            let correctScore = 0;
+
+            quizQuestions.forEach((qObj, idx) => {
+                const userAns = state.quizAnswers[idx];
+                const card = document.getElementById(`quiz-card-${idx}`);
+
+                if (userAns === qObj.correct) {
+                    correctScore++;
+                    card.className = "bg-emerald-950/10 border border-emerald-700 rounded-xl p-5 space-y-3 transition-colors";
+                } else {
+                    card.className = "bg-red-950/10 border border-red-800 rounded-xl p-5 space-y-3 transition-colors";
+                }
+            });
+
+            if (correctScore >= 4) {
+                state.badges.exam = true;
+                showToast(`Congratulations! You passed the board exam with ${correctScore}/5!`, "success");
+                speakText(`Pass grade accomplished! Excellent academic showing with a final score of ${correctScore} out of 5. Proceeding to graduation ceremony.`);
+                setTimeout(() => {
+                    nextStep();
+                }, 2000);
+            } else {
+                showToast(`Grade score failed: ${correctScore}/5. Review highlighted slides and re-submit.`, "error");
+                speakText(`Score verification failed. You scored ${correctScore} out of 5. Read the lesson slides carefully and try again.`);
+            }
+        }
+
+        // ==========================================
+        // VIEW RENDERER 7: Graduation / Certificate
+        // ==========================================
+        function renderGraduation(viewport) {
+            document.getElementById('professor-speech').innerText = `"A flawless deployment, agent! Your training dossier is cleared. Download your certification below and present it to your department lead."`;
+
+            viewport.innerHTML = `
+                <div class="space-y-6 max-w-4xl mx-auto text-center" id="main-lesson-content">
+                    
+                    <div class="animate-float">
+                        <span class="text-4xl">🎓</span>
+                        <h2 class="text-3xl font-black text-white mt-2">Training Complete!</h2>
+                        <p class="text-sm text-gray-400 mt-1">Academic Clearance verified for candidate <strong class="text-white">${state.userName}</strong>.</p>
+                    </div>
+
+                    <!-- Digital Certificate Design Layout -->
+                    <div class="bg-white text-gray-900 border-[10px] border-double border-gray-300 p-8 rounded-xl max-w-2xl mx-auto shadow-2xl relative text-center font-serif flex flex-col justify-between" id="certificate-print-area">
+                        <!-- Tiny Watermark Background -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none select-none">
+                            <span class="text-8xl">🛡️</span>
+                        </div>
+
+                        <!-- Top Certificate Borders -->
+                        <div class="space-y-4">
+                            <span class="text-[10px] uppercase font-bold tracking-widest text-cyber-accent block font-sans">Board of Cybersecurity Standards</span>
+                            
+                            <h3 class="text-xl font-bold italic text-gray-800">Certificate of Course Completion</h3>
+                            
+                            <p class="text-[11px] font-sans text-gray-500 italic">This document certifies that active operations candidate</p>
+                            
+                            <h4 class="text-2xl font-black text-cyber-accent uppercase tracking-wide py-2 font-sans underline decoration-gray-300 decoration-1" id="cert-name-label">
+                                ${state.userName}
+                            </h4>
+                            
+                            <p class="text-[11px] max-w-md mx-auto leading-relaxed text-gray-600 font-sans">
+                                has successfully completed the rigorous training track for the fundamentals of the **CIA Triad** security structure, encompassing Access Rights Safeguarding, Ledger Hashing, and DDoS Mitigations.
+                            </p>
+                        </div>
+
+                        <!-- Bottom Seal elements -->
+                        <div class="flex items-center justify-between mt-8 border-t border-gray-200 pt-6 font-sans">
+                            <div class="text-left">
+                                <span class="text-[10px] font-bold text-gray-700 block">PROFESSOR CYBER</span>
+                                <span class="text-[8px] text-gray-400 uppercase tracking-wider block">Lead Cybersecurity Instructor</span>
+                            </div>
+                            <!-- Gold Emblem Stamp Mock -->
+                            <div class="h-14 w-14 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center text-xl text-amber-500 shadow-md shadow-amber-200/50" title="Security Verified Seal">
+                                🎖️
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] font-bold text-gray-700 block">AUTHENTIC CLEARANCE</span>
+                                <span class="text-[8px] text-gray-400 uppercase tracking-wider block">ID: CT-9902-${Math.floor(Math.random() * 9000 + 1000)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-800 flex flex-col sm:flex-row justify-center gap-3">
+                        <button onclick="window.print()" class="py-2.5 px-5 bg-cyber-accent hover:bg-blue-600 text-white font-bold rounded-lg text-xs transition flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                            </svg>
+                            Print Certificate
+                        </button>
+                        <button onclick="resetTrainingProgram()" class="py-2.5 px-5 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white font-bold rounded-lg text-xs transition">
+                            Restart Simulation Program
+                        </button>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function resetTrainingProgram() {
+            state.currentStep = 0;
+            state.badges = { confidentiality: false, integrity: false, availability: false, scenario: false, exam: false };
+            state.quizAnswers = {};
+            state.simulations.rbac.matrix = {
+                guest: { press: "none", medical: "none", financials: "none" },
+                doctor: { press: "none", medical: "none", financials: "none" },
+                cfo: { press: "none", medical: "none", financials: "none" }
+            };
+            goToStep(0);
+            showToast("System configurations rebooted to factory default.", "info");
+        }
+    </script>
+</body>
+</html>
