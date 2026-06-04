@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometrics - The Mission Terminal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#0a0b10',
+                            card: '#11131c',
+                            primary: '#00ffcc',
+                            primaryGlow: 'rgba(0, 255, 204, 0.3)',
+                            secondary: '#3b82f6',
+                            text: '#f3f4f6',
+                            muted: '#9ca3af',
+                            danger: '#ef4444',
+                            warning: '#f59e0b'
+                        }
+                    },
+                    boxShadow: {
+                        'neon': '0 0 15px rgba(0, 255, 204, 0.4)',
+                        'neon-strong': '0 0 25px rgba(0, 255, 204, 0.7)',
+                        'neon-blue': '0 0 15px rgba(59, 130, 246, 0.4)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Interactive grid background */
+        .cyber-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(0, 255, 204, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 255, 204, 0.03) 1px, transparent 1px);
+        }
+
+        /* Scan sweep laser animation */
+        @keyframes laser-sweep {
+            0% { top: 0%; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .laser-line {
+            animation: laser-sweep 3s ease-in-out infinite;
+        }
+
+        /* Subtle ambient scan glow pulsing */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.6; }
+        }
+        .ambient-pulse {
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        /* Glitch effect for title screen */
+        .glitch-text {
+            text-shadow: 2px 0 #ef4444, -2px 0 #3b82f6;
+        }
+
+        /* Rotating iris elements */
+        .rotate-clockwise {
+            transform-origin: center;
+            animation: spin-clockwise 20s linear infinite;
+        }
+        .rotate-counter {
+            transform-origin: center;
+            animation: spin-counter 12s linear infinite;
+        }
+        @keyframes spin-clockwise {
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes spin-counter {
+            100% { transform: rotate(-360deg); }
+        }
+
+        /* Custom scrollbar for terminals */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0b10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #22c55e;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-cyber-bg text-cyber-text min-h-screen flex flex-col justify-between overflow-x-hidden cyber-grid relative">
+
+    <!-- TOP HEADER -->
+    <header class="border-b border-cyber-primary/20 bg-cyber-card/80 backdrop-blur-md px-6 py-4 flex flex-wrap justify-between items-center gap-4 z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-3 bg-cyber-primary rounded-full animate-ping"></div>
+            <div>
+                <h1 class="font-mono text-lg font-bold tracking-wider text-cyber-primary">SECURE LAB GATEWAY</h1>
+                <p class="text-xs font-mono text-cyber-muted">CYBERSECURITY BIOMETRICS PROTOCOL V4.10</p>
+            </div>
+        </div>
+        
+        <!-- AUDIO SOUNDBAR CONTROLLER -->
+        <div class="flex items-center gap-4 bg-black/40 border border-white/10 rounded-lg px-4 py-2">
+            <div class="flex flex-col">
+                <span class="text-[10px] font-mono text-cyber-muted uppercase tracking-widest">Ambient Driver</span>
+                <span id="audio-status" class="text-xs font-mono text-cyber-danger">OFF (MUTED)</span>
+            </div>
+            <button id="toggle-audio-btn" onclick="toggleAudio()" class="p-2 rounded bg-cyber-primary/10 border border-cyber-primary/30 text-cyber-primary hover:bg-cyber-primary/20 transition-all">
+                <!-- Sound Off Icon -->
+                <svg id="sound-off-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>
+                <!-- Sound On Icon -->
+                <svg id="sound-on-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+            </button>
+            <div class="flex flex-col gap-1 w-20">
+                <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5" oninput="adjustVolume(this.value)" class="w-full accent-cyber-primary bg-cyber-bg h-1 rounded-lg cursor-pointer">
+            </div>
+        </div>
+    </header>
+
+    <!-- INITIAL BOOT SHIELD (To fulfill browser autoplay restrictions) -->
+    <div id="boot-overlay" class="fixed inset-0 bg-cyber-bg flex flex-col justify-center items-center z-50 p-6">
+        <div class="max-w-md text-center border border-cyber-primary/20 p-8 rounded-lg bg-cyber-card relative overflow-hidden shadow-neon">
+            <!-- Neon design corners -->
+            <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyber-primary"></div>
+            <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyber-primary"></div>
+            <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyber-primary"></div>
+            <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyber-primary"></div>
+
+            <h2 class="text-3xl font-mono font-bold text-cyber-primary mb-4 glitch-text">BIOMETRICS SECURE</h2>
+            <p class="text-sm font-mono text-cyber-muted mb-8 uppercase tracking-widest">Authorization: Required</p>
+            
+            <p class="text-sm text-cyber-text/80 mb-6">
+                Welcome to the security interface. Press below to initialize core audio channels and boot the Agent Jackson authorization scenario.
+            </p>
+
+            <button onclick="bootSystem()" class="w-full bg-cyber-primary/10 border-2 border-cyber-primary text-cyber-primary font-mono font-bold tracking-widest py-3 px-6 rounded hover:bg-cyber-primary hover:text-cyber-bg shadow-neon hover:shadow-neon-strong transition-all duration-300">
+                BOOT TERMINAL
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN BODY SECTION -->
+    <main class="flex-grow p-4 md:p-6 lg:p-8 flex items-center justify-center">
+        <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            
+            <!-- LEFT NAVIGATION / PROGRESS LIST (3 Columns) -->
+            <div class="lg:col-span-3 flex flex-col gap-4">
+                <div class="bg-cyber-card border border-white/10 rounded-lg p-4 flex flex-col gap-3 h-full justify-between">
+                    <div>
+                        <h3 class="font-mono text-xs uppercase text-cyber-muted tracking-widest mb-4 border-b border-white/5 pb-2">Mission Protocol</h3>
+                        <div class="flex flex-col gap-2 font-mono">
+                            <!-- Progress Steps -->
+                            <div id="nav-step-1" class="flex items-center gap-3 p-2 rounded border border-cyber-primary/30 bg-cyber-primary/5 text-cyber-primary transition-all">
+                                <span class="text-xs border border-cyber-primary/40 px-1.5 rounded">01</span>
+                                <span class="text-xs uppercase tracking-wider font-semibold">Briefing</span>
+                            </div>
+                            <div id="nav-step-2" class="flex items-center gap-3 p-2 rounded border border-transparent text-cyber-muted transition-all">
+                                <span class="text-xs border border-white/10 px-1.5 rounded">02</span>
+                                <span class="text-xs uppercase tracking-wider">Fingerprint</span>
+                            </div>
+                            <div id="nav-step-3" class="flex items-center gap-3 p-2 rounded border border-transparent text-cyber-muted transition-all">
+                                <span class="text-xs border border-white/10 px-1.5 rounded">03</span>
+                                <span class="text-xs uppercase tracking-wider">Face scan</span>
+                            </div>
+                            <div id="nav-step-4" class="flex items-center gap-3 p-2 rounded border border-transparent text-cyber-muted transition-all">
+                                <span class="text-xs border border-white/10 px-1.5 rounded">04</span>
+                                <span class="text-xs uppercase tracking-wider">Iris scan</span>
+                            </div>
+                            <div id="nav-step-5" class="flex items-center gap-3 p-2 rounded border border-transparent text-cyber-muted transition-all">
+                                <span class="text-xs border border-white/10 px-1.5 rounded">05</span>
+                                <span class="text-xs uppercase tracking-wider">Voice test</span>
+                            </div>
+                            <div id="nav-step-6" class="flex items-center gap-3 p-2 rounded border border-transparent text-cyber-muted transition-all">
+                                <span class="text-xs border border-white/10 px-1.5 rounded">06</span>
+                                <span class="text-xs uppercase tracking-wider">Secure Lab</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Control Overrides -->
+                    <div class="border-t border-white/5 pt-4">
+                        <span class="text-[10px] font-mono text-cyber-muted uppercase block mb-2">Manual Settings</span>
+                        <div class="flex gap-2">
+                            <button onclick="forceReset()" class="text-[10px] font-mono bg-cyber-danger/10 border border-cyber-danger/30 text-cyber-danger hover:bg-cyber-danger hover:text-white px-2 py-1 rounded transition-all flex-1">
+                                FORCE RESET
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTRAL CONTENT VIEWPORT (6 Columns) -->
+            <div class="lg:col-span-6 flex flex-col gap-4">
+                <div class="bg-cyber-card border border-white/10 rounded-lg p-6 flex flex-col justify-between h-[520px] relative overflow-hidden">
+                    
+                    <!-- Neon Box corners -->
+                    <div class="absolute top-0 left-0 w-3 h-3 border-t border-l border-cyber-primary/40"></div>
+                    <div class="absolute top-0 right-0 w-3 h-3 border-t border-r border-cyber-primary/40"></div>
+                    <div class="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-cyber-primary/40"></div>
+                    <div class="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-cyber-primary/40"></div>
+
+                    <!-- SCENE 1: INTRODUCTION BRIEFING -->
+                    <div id="scene-1" class="scene-panel flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="font-mono text-xs text-cyber-primary bg-cyber-primary/10 px-2 py-0.5 rounded border border-cyber-primary/20">AGENT PROFILE</span>
+                                <span class="font-mono text-xs text-cyber-muted">SECURE TRANSIT</span>
+                            </div>
+                            <h2 class="text-2xl font-bold font-mono tracking-wide mb-3">MISSION BRIEFING: LAB ACCESS</h2>
+                            
+                            <!-- Agent Jackson Animated SVG Vector illustration -->
+                            <div class="w-full flex justify-center py-6">
+                                <div class="relative w-44 h-44 rounded-full border border-cyber-secondary/30 bg-cyber-secondary/5 flex items-center justify-center p-3">
+                                    <div class="absolute inset-0 border border-dashed border-cyber-secondary/50 rounded-full animate-spin-clockwise rotate-clockwise"></div>
+                                    <svg viewBox="0 0 100 100" class="w-32 h-32">
+                                        <!-- Sleek cybernetic silhouette portrait of Agent Jackson -->
+                                        <!-- Hair -->
+                                        <path d="M25 40 C 25 20, 75 20, 75 40" fill="#1e293b" />
+                                        <path d="M28 35 Q 50 15 72 35" fill="#0f172a" />
+                                        <!-- Ears -->
+                                        <circle cx="26" cy="48" r="5" fill="#f87171" />
+                                        <circle cx="74" cy="48" r="5" fill="#f87171" />
+                                        <!-- Face -->
+                                        <path d="M30 40 L70 40 L65 72 Q 50 82 35 72 Z" fill="#fca5a5" />
+                                        <!-- Sunglasses (Cyber Glasses) -->
+                                        <path d="M28 44 Q 50 48 72 44 L 70 54 Q 50 60 30 54 Z" fill="#1e1b4b" stroke="#00ffcc" stroke-width="1.5" />
+                                        <path d="M35 47 L 48 49 L 45 52 L 35 50 Z" fill="#00ffcc" opacity="0.8" />
+                                        <path d="M52 49 L 65 47 L 65 50 L 55 52 Z" fill="#00ffcc" opacity="0.8" />
+                                        <!-- Neck -->
+                                        <rect x="44" y="70" width="12" height="12" fill="#f87171" />
+                                        <!-- Suit / Shoulders -->
+                                        <path d="M15 90 C 25 80, 75 80, 85 90 Z" fill="#0f172a" />
+                                        <!-- Tie / Shirt -->
+                                        <path d="M45 81 L 55 81 L 53 90 L 47 90 Z" fill="#ffffff" />
+                                        <path d="M48 83 L 52 83 L 50 90 Z" fill="#ef4444" />
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <p class="text-sm leading-relaxed text-cyber-muted font-mono mb-4">
+                                <span class="text-cyber-primary font-bold">Jackson</span> is on a mission to deliver a microchip containing the secret formula needed to produce a vaccine that will save the world.
+                            </p>
+                        </div>
+                        <div class="flex justify-end pt-2">
+                            <button onclick="nextScene(2)" class="bg-cyber-primary/10 border border-cyber-primary text-cyber-primary font-mono text-sm px-5 py-2.5 rounded hover:bg-cyber-primary hover:text-cyber-bg transition-all flex items-center gap-2 font-bold shadow-neon">
+                                INITIATE SCAN SEQUENCE
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SCENE 2: FINGERPRINT SCAN -->
+                    <div id="scene-2" class="scene-panel hidden flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-mono text-xs text-cyber-primary bg-cyber-primary/10 px-2 py-0.5 rounded border border-cyber-primary/20">BIOMETRIC 1/4</span>
+                                <span class="font-mono text-xs text-cyber-muted">GATEWAY RIDGE SENSOR</span>
+                            </div>
+                            <h2 class="text-xl font-bold font-mono tracking-wide mb-2">FINGERPRINT AUTHENTICATION</h2>
+                            <p class="text-xs text-cyber-muted font-mono mb-4 leading-relaxed">
+                                Every person has a unique fingerprint composed of ridges, grooves, and direction of the lines. Ridges form three basic patterns—the arch, loop, and whorl.
+                            </p>
+
+                            <!-- Interactive Interactive Fingerprint Pad -->
+                            <div class="flex justify-center my-2">
+                                <div id="fingerprint-scan-box" onclick="triggerBiometricScan(2)" class="cursor-pointer relative w-36 h-40 bg-black/60 border border-white/10 rounded-lg flex flex-col justify-center items-center group overflow-hidden transition-all duration-300">
+                                    <!-- Scanning Lines Laser overlay -->
+                                    <div id="finger-laser" class="laser-line hidden absolute left-0 right-0 h-1 bg-cyber-primary shadow-neon-strong z-20"></div>
+                                    <div id="finger-glow" class="ambient-pulse hidden absolute inset-0 bg-cyber-primary/10 z-10"></div>
+                                    
+                                    <!-- Fingerprint SVG representation -->
+                                    <svg viewBox="0 0 100 120" class="w-24 h-28 text-cyber-primary/40 group-hover:text-cyber-primary/60 transition-colors duration-300 relative z-0">
+                                        <!-- Fingerprint ridges -->
+                                        <path d="M 50,110 C 45,100 42,90 42,80 C 42,70 45,60 50,60" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                        <path d="M 50,110 C 55,100 58,90 58,80 C 58,70 55,60 50,60" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                        <path d="M 50,100 C 40,90 35,75 35,60 C 35,45 42,35 50,35" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                        <path d="M 50,100 C 60,90 65,75 65,60 C 65,45 58,35 50,35" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                        <path d="M 50,90 C 33,80 28,65 28,50 C 28,32 37,20 50,20 C 63,20 72,32 72,50" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                        <path d="M 50,80 C 25,70 20,55 20,40 C 20,20 33,10 50,10 C 67,10 80,20 80,40 C 80,55 75,70 50,80" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                        <!-- Minutiae detection points -->
+                                        <circle cx="50" cy="35" r="3" class="hidden scan-point" fill="#ef4444" />
+                                        <circle cx="35" cy="60" r="3" class="hidden scan-point" fill="#3b82f6" />
+                                        <circle cx="65" cy="75" r="3" class="hidden scan-point" fill="#10b981" />
+                                    </svg>
+                                    
+                                    <span id="finger-scan-prompt" class="absolute bottom-2 font-mono text-[9px] text-cyber-muted tracking-widest uppercase transition-all duration-300">Click to scan</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Reveal -->
+                        <div id="info-reveal-2" class="hidden bg-black/40 border border-cyber-primary/20 p-3 rounded text-[11px] font-mono leading-relaxed mb-2">
+                            <span class="text-cyber-primary font-bold">SCAN ANALYZED:</span> The uniqueness of a fingerprint is determined by ridge patterns as well as ridge endings called bifurcations and spots.
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <span id="scan-status-2" class="font-mono text-xs text-cyber-danger">PENDING AUTHENTICATION</span>
+                            <button id="next-btn-2" disabled onclick="nextScene(3)" class="bg-cyber-muted/10 border border-cyber-muted/30 text-cyber-muted font-mono text-xs px-4 py-2 rounded transition-all cursor-not-allowed">
+                                PROCEED TO FACE SCAN
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SCENE 3: FACIAL SCAN -->
+                    <div id="scene-3" class="scene-panel hidden flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-mono text-xs text-cyber-primary bg-cyber-primary/10 px-2 py-0.5 rounded border border-cyber-primary/20">BIOMETRIC 2/4</span>
+                                <span class="font-mono text-xs text-cyber-muted">GEOMETRIC ANALYSIS CAMERA</span>
+                            </div>
+                            <h2 class="text-xl font-bold font-mono tracking-wide mb-2">FACIAL GEOMETRY RECOGNITION</h2>
+                            <p class="text-xs text-cyber-muted font-mono mb-4 leading-relaxed">
+                                Facial scanners determine face geometry based on the shape/size of the jaw, chin, eyes, eyebrows, nose, and cheekbones. Nodes are analyzed in terms of relative point-cloud vectors.
+                            </p>
+
+                            <!-- Interactive Facial scan box with dynamic dots -->
+                            <div class="flex justify-center my-2">
+                                <div id="face-scan-box" onclick="triggerBiometricScan(3)" class="cursor-pointer relative w-36 h-40 bg-black/60 border border-white/10 rounded-lg flex flex-col justify-center items-center overflow-hidden transition-all duration-300 group">
+                                    <div id="face-laser" class="laser-line hidden absolute left-0 right-0 h-1 bg-cyber-primary shadow-neon-strong z-20"></div>
+                                    <div id="face-glow" class="ambient-pulse hidden absolute inset-0 bg-cyber-primary/10 z-10"></div>
+                                    
+                                    <!-- Vector Silhouette with Face nodes -->
+                                    <svg viewBox="0 0 100 120" class="w-24 h-28 text-cyber-primary/30 relative z-0">
+                                        <!-- Profile background -->
+                                        <path d="M25 40 C 25 20, 75 20, 75 40" fill="none" stroke="currentColor" stroke-width="1.5" />
+                                        <path d="M30 40 L70 40 L65 72 Q 50 82 35 72 Z" fill="none" stroke="currentColor" stroke-width="1.5" />
+                                        
+                                        <!-- Scanning point vector connection lines -->
+                                        <g id="facial-vectors" class="hidden opacity-60">
+                                            <line x1="38" y1="45" x2="62" y2="45" stroke="#00ffcc" stroke-width="0.5" />
+                                            <line x1="50" y1="35" x2="38" y2="45" stroke="#00ffcc" stroke-width="0.5" />
+                                            <line x1="50" y1="35" x2="62" y2="45" stroke="#00ffcc" stroke-width="0.5" />
+                                            <line x1="50" y1="58" x2="38" y2="45" stroke="#00ffcc" stroke-width="0.5" />
+                                            <line x1="50" y1="58" x2="62" y2="45" stroke="#00ffcc" stroke-width="0.5" />
+                                            <line x1="50" y1="58" x2="50" y2="76" stroke="#00ffcc" stroke-width="0.5" />
+                                            <line x1="35" y1="65" x2="50" y2="76" stroke="#00ffcc" stroke-width="0.5" />
+                                            <line x1="65" y1="65" x2="50" y2="76" stroke="#00ffcc" stroke-width="0.5" />
+                                        </g>
+
+                                        <!-- Nodes / Points -->
+                                        <g class="nodes-g">
+                                            <circle cx="50" cy="35" r="2.5" fill="#3b82f6" />
+                                            <circle cx="38" cy="45" r="2.5" fill="#3b82f6" />
+                                            <circle cx="62" cy="45" r="2.5" fill="#3b82f6" />
+                                            <circle cx="50" cy="58" r="2.5" fill="#3b82f6" />
+                                            <circle cx="35" cy="65" r="2.5" fill="#3b82f6" />
+                                            <circle cx="65" cy="65" r="2.5" fill="#3b82f6" />
+                                            <circle cx="50" cy="76" r="2.5" fill="#3b82f6" />
+                                        </g>
+                                    </svg>
+                                    <span id="face-scan-prompt" class="absolute bottom-2 font-mono text-[9px] text-cyber-muted tracking-widest uppercase">Click to scan</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Reveal -->
+                        <div id="info-reveal-3" class="hidden bg-black/40 border border-cyber-primary/20 p-3 rounded text-[11px] font-mono leading-relaxed mb-2">
+                            <span class="text-cyber-primary font-bold">SCAN ANALYZED:</span> Jaw, chin, eye parameters, and nose distance map are stored as point patterns inside database matrices.
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <span id="scan-status-3" class="font-mono text-xs text-cyber-danger">PENDING AUTHENTICATION</span>
+                            <button id="next-btn-3" disabled onclick="nextScene(4)" class="bg-cyber-muted/10 border border-cyber-muted/30 text-cyber-muted font-mono text-xs px-4 py-2 rounded transition-all cursor-not-allowed">
+                                PROCEED TO IRIS SCAN
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SCENE 4: IRIS SCAN -->
+                    <div id="scene-4" class="scene-panel hidden flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-mono text-xs text-cyber-primary bg-cyber-primary/10 px-2 py-0.5 rounded border border-cyber-primary/20">BIOMETRIC 3/4</span>
+                                <span class="font-mono text-xs text-cyber-muted">HIGH-RESOLUTION OPTICS</span>
+                            </div>
+                            <h2 class="text-xl font-bold font-mono tracking-wide mb-2">IRIS RECOGNITION PATHWAY</h2>
+                            <p class="text-xs text-cyber-muted font-mono mb-4 leading-relaxed">
+                                Iris recognition relies on complex ring pattern microstructures. The iris texture is extremely stable throughout one's life. Works even if the subject is wearing glasses or contacts.
+                            </p>
+
+                            <!-- Interactive Iris rotating ring -->
+                            <div class="flex justify-center my-2">
+                                <div id="iris-scan-box" onclick="triggerBiometricScan(4)" class="cursor-pointer relative w-36 h-40 bg-black/60 border border-white/10 rounded-lg flex flex-col justify-center items-center overflow-hidden transition-all duration-300 group">
+                                    <div id="iris-laser" class="laser-line hidden absolute left-0 right-0 h-1 bg-cyber-primary shadow-neon-strong z-20"></div>
+                                    <div id="iris-glow" class="ambient-pulse hidden absolute inset-0 bg-cyber-primary/10 z-10"></div>
+                                    
+                                    <!-- Rotating Iris Vector Ring -->
+                                    <svg viewBox="0 0 100 100" class="w-28 h-28 text-cyber-primary relative z-0">
+                                        <!-- Outer Ring -->
+                                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4, 4" class="rotate-clockwise" />
+                                        <!-- Mid Concentric Ring -->
+                                        <circle cx="50" cy="50" r="35" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="10, 5" class="rotate-counter" />
+                                        <!-- Inner Iris texture representation -->
+                                        <circle cx="50" cy="50" r="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="1, 2" />
+                                        <!-- Pupil -->
+                                        <circle cx="50" cy="50" r="12" fill="#0c0d14" stroke="#3b82f6" stroke-width="1" />
+                                        
+                                        <!-- Focus crosshair -->
+                                        <path d="M 50,0 L 50,15 M 50,100 L 50,85 M 0,50 L 15,50 M 100,50 L 85,50" stroke="currentColor" stroke-width="1" opacity="0.5" />
+                                    </svg>
+                                    <span id="iris-scan-prompt" class="absolute bottom-2 font-mono text-[9px] text-cyber-muted tracking-widest uppercase">Click to scan</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Reveal -->
+                        <div id="info-reveal-4" class="hidden bg-black/40 border border-cyber-primary/20 p-3 rounded text-[11px] font-mono leading-relaxed mb-2">
+                            <span class="text-cyber-primary font-bold">SCAN ANALYZED:</span> Micro-features of the iris pattern are processed using algorithmic calculations to establish unique sector identifiers.
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <span id="scan-status-4" class="font-mono text-xs text-cyber-danger">PENDING AUTHENTICATION</span>
+                            <button id="next-btn-4" disabled onclick="nextScene(5)" class="bg-cyber-muted/10 border border-cyber-muted/30 text-cyber-muted font-mono text-xs px-4 py-2 rounded transition-all cursor-not-allowed">
+                                PROCEED TO VOICE RECOGNITION
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SCENE 5: VOICE TEST -->
+                    <div id="scene-5" class="scene-panel hidden flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-mono text-xs text-cyber-primary bg-cyber-primary/10 px-2 py-0.5 rounded border border-cyber-primary/20">BIOMETRIC 4/4</span>
+                                <span class="font-mono text-xs text-cyber-muted">AUDIO SPECTRUM IDENTIFIER</span>
+                            </div>
+                            <h2 class="text-xl font-bold font-mono tracking-wide mb-2">VOICEPRINT VERIFICATION</h2>
+                            <p class="text-xs text-cyber-muted font-mono mb-4 leading-relaxed">
+                                Voice recognition determines WHO is speaking based on physiological (vocal cords, mouth cavity) and behavioral components (emotional state, speed, pace, accents).
+                            </p>
+
+                            <!-- Audio Waveform Canvas Animation -->
+                            <div class="flex flex-col items-center gap-2 my-2">
+                                <div id="voice-scan-box" onclick="triggerBiometricScan(5)" class="cursor-pointer relative w-full h-24 bg-black/60 border border-white/10 rounded-lg flex flex-col justify-center items-center overflow-hidden transition-all duration-300">
+                                    <canvas id="voice-canvas" class="absolute inset-0 w-full h-full opacity-60"></canvas>
+                                    <div class="z-10 font-mono text-xs text-center p-2">
+                                        <p id="voice-phrase" class="text-cyber-primary tracking-widest font-bold">"TRANSMITTING DECRYPTION KEY"</p>
+                                        <p id="voice-scan-prompt" class="text-[9px] text-cyber-muted uppercase tracking-widest mt-1">Click to analyze phrase</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Reveal -->
+                        <div id="info-reveal-5" class="hidden bg-black/40 border border-cyber-primary/20 p-3 rounded text-[11px] font-mono leading-relaxed mb-2">
+                            <span class="text-cyber-primary font-bold">SPEECH ANALYZED:</span> Input voice is digitized, compared against registered audio models, and matched to vocal parameters.
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <span id="scan-status-5" class="font-mono text-xs text-cyber-danger">PENDING AUTHENTICATION</span>
+                            <button id="next-btn-5" disabled onclick="nextScene(6)" class="bg-cyber-muted/10 border border-cyber-muted/30 text-cyber-muted font-mono text-xs px-4 py-2 rounded transition-all cursor-not-allowed">
+                                ENTER SECRET LABORATORY
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SCENE 6: SECURE LABORATORY ACCESS -->
+                    <div id="scene-6" class="scene-panel hidden flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="font-mono text-xs text-cyber-primary bg-cyber-primary/10 px-2 py-0.5 rounded border border-cyber-primary/20">SUCCESS</span>
+                                <span class="font-mono text-xs text-cyber-muted">SECRET LABORATORY</span>
+                            </div>
+                            <h2 class="text-2xl font-bold font-mono tracking-wide text-cyber-primary mb-3">ACCESS GRANTED</h2>
+
+                            <!-- Dynamic Animation showing Jackson handing microchip to Scientist -->
+                            <div class="relative w-full h-44 bg-black/40 border border-white/10 rounded-lg flex justify-around items-center overflow-hidden my-3">
+                                
+                                <!-- Background high-tech laboratory elements in SVG -->
+                                <svg class="absolute inset-0 w-full h-full opacity-20 pointer-events-none" viewBox="0 0 400 200">
+                                    <line x1="10" y1="180" x2="390" y2="180" stroke="#fff" stroke-width="2" />
+                                    <!-- Double Helix -->
+                                    <path d="M 30,50 Q 50,150 70,50 T 110,50" fill="none" stroke="#00ffcc" stroke-width="2" />
+                                    <path d="M 30,150 Q 50,50 70,150 T 110,150" fill="none" stroke="#3b82f6" stroke-width="2" />
+                                    <line x1="50" y1="100" x2="50" y2="100" stroke="#fff" stroke-width="2" />
+                                    <!-- Shelves/Lab stuff -->
+                                    <rect x="280" y="80" width="80" height="90" fill="none" stroke="#fff" stroke-width="1" />
+                                    <!-- Flasks -->
+                                    <path d="M 300,160 L 305,140 L 305,130 L 315,130 L 315,140 L 320,160 Z" fill="#00ffcc" opacity="0.6" />
+                                </svg>
+
+                                <!-- Jackson SVG avatar (left) -->
+                                <div class="flex flex-col items-center">
+                                    <svg viewBox="0 0 100 100" class="w-20 h-20">
+                                        <path d="M25 40 C 25 20, 75 20, 75 40" fill="#1e293b" />
+                                        <circle cx="26" cy="48" r="5" fill="#f87171" />
+                                        <circle cx="74" cy="48" r="5" fill="#f87171" />
+                                        <path d="M30 40 L70 40 L65 72 Q 50 82 35 72 Z" fill="#fca5a5" />
+                                        <path d="M28 44 Q 50 48 72 44 L 70 54 Q 50 60 30 54 Z" fill="#1e1b4b" stroke="#00ffcc" stroke-width="1.5" />
+                                        <rect x="44" y="70" width="12" height="12" fill="#f87171" />
+                                        <path d="M15 90 C 25 80, 75 80, 85 90 Z" fill="#0f172a" />
+                                    </svg>
+                                    <span class="text-[10px] font-mono mt-1 text-cyber-muted">Agent Jackson</span>
+                                </div>
+
+                                <!-- Transferring Microchip with CSS wave/pulse -->
+                                <div class="relative flex items-center justify-center">
+                                    <div class="absolute inset-0 bg-cyber-primary/20 rounded-full animate-ping scale-150"></div>
+                                    <div class="w-12 h-12 bg-cyber-card border border-cyber-primary rounded-lg flex items-center justify-center shadow-neon z-10">
+                                        <!-- Microchip SVG Icon -->
+                                        <svg class="w-8 h-8 text-cyber-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="5" y="5" width="14" height="14" rx="2" />
+                                            <line x1="9" y1="1" x2="9" y2="5" />
+                                            <line x1="15" y1="1" x2="15" y2="5" />
+                                            <line x1="9" y1="19" x2="9" y2="23" />
+                                            <line x1="15" y1="19" x2="15" y2="23" />
+                                            <line x1="1" y1="9" x2="5" y2="9" />
+                                            <line x1="1" y1="15" x2="5" y2="15" />
+                                            <line x1="19" y1="9" x2="23" y2="9" />
+                                            <line x1="19" y1="15" x2="23" y2="15" />
+                                            <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Scientist SVG avatar (right) -->
+                                <div class="flex flex-col items-center">
+                                    <svg viewBox="0 0 100 100" class="w-20 h-20">
+                                        <!-- Hair -->
+                                        <path d="M 20 50 C 20 10, 80 10, 80 50" fill="#3b82f6" />
+                                        <circle cx="26" cy="48" r="5" fill="#fca5a5" />
+                                        <circle cx="74" cy="48" r="5" fill="#fca5a5" />
+                                        <!-- Face -->
+                                        <path d="M30 40 L70 40 L65 72 Q 50 82 35 72 Z" fill="#fca5a5" />
+                                        <!-- Smart Glasses -->
+                                        <rect x="32" y="44" width="15" height="8" rx="2" fill="none" stroke="#3b82f6" stroke-width="1.5" />
+                                        <rect x="53" y="44" width="15" height="8" rx="2" fill="none" stroke="#3b82f6" stroke-width="1.5" />
+                                        <line x1="47" y1="48" x2="53" y2="48" stroke="#3b82f6" stroke-width="1.5" />
+                                        <!-- Lab coat shoulder -->
+                                        <path d="M15 90 L85 90 L75 75 L25 75 Z" fill="#e2e8f0" />
+                                        <!-- Lab coat lapels -->
+                                        <path d="M 40 75 L 50 90 L 60 75" fill="none" stroke="#475569" stroke-width="1.5" />
+                                    </svg>
+                                    <span class="text-[10px] font-mono mt-1 text-cyber-muted">Dr. Aris</span>
+                                </div>
+
+                            </div>
+
+                            <p class="text-sm leading-relaxed text-cyber-muted font-mono">
+                                <span class="text-cyber-primary font-bold">"Welcome to the secret laboratory! Did you bring the microchip?"</span>
+                            </p>
+                        </div>
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="font-mono text-xs text-cyber-primary flex items-center gap-2">
+                                <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /></svg>
+                                SECURE VACCINE PRODUCTION INITIALIZED
+                            </span>
+                            <button onclick="forceReset()" class="bg-cyber-primary/10 border border-cyber-primary text-cyber-primary font-mono text-xs px-4 py-2 rounded hover:bg-cyber-primary hover:text-cyber-bg transition-all">
+                                RESTART MISSION
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT TERMINAL DIAGNOSTIC LOGS (3 Columns) -->
+            <div class="lg:col-span-3 flex flex-col gap-4">
+                <div class="bg-cyber-card border border-white/10 rounded-lg p-4 flex flex-col justify-between h-full font-mono">
+                    <div>
+                        <h3 class="text-xs uppercase text-cyber-muted tracking-widest mb-3 border-b border-white/5 pb-2">Diagnostic Logs</h3>
+                        
+                        <!-- Terminal Log Outputs -->
+                        <div id="terminal-logs" class="text-[10px] text-cyber-primary/80 flex flex-col gap-2 overflow-y-auto h-[380px] pr-1">
+                            <p class="text-cyber-muted">[SYSTEM] Core kernel ready.</p>
+                            <p class="text-cyber-muted">[SYSTEM] Waiting for biometric verification inputs...</p>
+                        </div>
+                    </div>
+
+                    <!-- Input custom asset Override Option -->
+                    <div class="border-t border-white/5 pt-3">
+                        <span class="text-[9px] text-cyber-muted uppercase block mb-1">Custom MP3 Override URL</span>
+                        <input type="text" id="custom-audio-url" placeholder="Paste .mp3 link here" onchange="overrideAudioSource(this.value)" class="w-full bg-black/60 border border-white/10 rounded text-[10px] p-1.5 text-cyber-primary focus:outline-none focus:border-cyber-primary">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-white/5 bg-black/40 px-6 py-4 flex flex-wrap justify-between items-center gap-4 text-xs font-mono text-cyber-muted">
+        <div>
+            Licensed under <span class="text-cyber-primary">Creative Commons Attribution 4.0 International</span>
+        </div>
+        <div>
+            Funded by the National Science Foundation
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE SCRIPTING ENGINE -->
+    <script>
+        // WEB AUDIO SYSTEM CLASS (Creates procedural spy tension hum & effects client-side safely)
+        class BiometricSoundSystem {
+            constructor() {
+                this.ctx = null;
+                this.masterVol = null;
+                this.ambientOsc = null;
+                this.ambientLFO = null;
+                this.customAudio = null;
+                this.isMuted = true;
+                this.customAudioUrl = '';
+            }
+
+            init() {
+                if (this.ctx) return;
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioCtx();
+                
+                // Master volume configuration
+                this.masterVol = this.ctx.createGain();
+                this.masterVol.gain.value = 0.5;
+                this.masterVol.connect(this.ctx.destination);
+
+                this.startAmbientHum();
+            }
+
+            startAmbientHum() {
+                try {
+                    // Create deep tension synth pad (fundamental frequency hum)
+                    this.ambientOsc = this.ctx.createOscillator();
+                    this.ambientOsc.type = 'triangle';
+                    this.ambientOsc.frequency.setValueAtTime(65.41, this.ctx.currentTime); // C2 chord frequency
+
+                    const lowpass = this.ctx.createBiquadFilter();
+                    lowpass.type = 'lowpass';
+                    lowpass.frequency.setValueAtTime(200, this.ctx.currentTime);
+
+                    // Pulsing volume envelope via LFO (Tension drone)
+                    this.ambientLFO = this.ctx.createOscillator();
+                    this.ambientLFO.frequency.setValueAtTime(0.2, this.ctx.currentTime); // very slow pulsing modulation
+                    
+                    const lfoGain = this.ctx.createGain();
+                    lfoGain.gain.value = 0.15;
+
+                    const humGain = this.ctx.createGain();
+                    humGain.gain.value = 0.25;
+
+                    this.ambientLFO.connect(lfoGain);
+                    lfoGain.connect(humGain.gain);
+
+                    this.ambientOsc.connect(lowpass);
+                    lowpass.connect(humGain);
+                    humGain.connect(this.masterVol);
+
+                    this.ambientOsc.start();
+                    this.ambientLFO.start();
+                } catch(e) {
+                    console.error("Procedural sound system error: ", e);
+                }
+            }
+
+            // High-tech scanning pitch sweeps
+            playScanSound() {
+                if (!this.ctx || this.isMuted) return;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+                // Ramp pitch upwards to simulate active bio-scanning laser sweep
+                osc.frequency.exponentialRampToValueAtTime(1500, this.ctx.currentTime + 2.5);
+
+                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 2.8);
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.masterVol);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 3.0);
+            }
+
+            // Radar security ping
+            playSuccessPing() {
+                if (!this.ctx || this.isMuted) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, this.ctx.currentTime); // High pitch notification
+                osc.frequency.exponentialRampToValueAtTime(440, this.ctx.currentTime + 0.5);
+
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.6);
+
+                osc.connect(gain);
+                gain.connect(this.masterVol);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.7);
+            }
+
+            // Threat beep
+            playFailureBeep() {
+                if (!this.ctx || this.isMuted) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(130, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+
+                osc.connect(gain);
+                gain.connect(this.masterVol);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.5);
+            }
+
+            setMute(mute) {
+                this.isMuted = mute;
+                if (!this.masterVol) return;
+                if (mute) {
+                    this.masterVol.gain.setValueAtTime(0, this.ctx.currentTime);
+                    if (this.customAudio) this.customAudio.pause();
+                } else {
+                    this.masterVol.gain.setValueAtTime(0.5, this.ctx.currentTime);
+                    if (this.customAudio && this.customAudioUrl) {
+                        this.customAudio.play().catch(e => console.log(e));
+                    }
+                }
+            }
+
+            setVolume(vol) {
+                if (!this.masterVol) return;
+                this.masterVol.gain.setValueAtTime(vol, this.ctx.currentTime);
+                if (this.customAudio) this.customAudio.volume = vol;
+            }
+
+            setCustomAudioUrl(url) {
+                this.customAudioUrl = url;
+                if (this.customAudio) {
+                    this.customAudio.pause();
+                }
+                this.customAudio = new Audio(url);
+                this.customAudio.loop = true;
+                this.customAudio.volume = this.masterVol ? this.masterVol.gain.value : 0.5;
+                if (!this.isMuted) {
+                    this.customAudio.play().catch(e => console.log("Custom audio play blocked:", e));
+                }
+            }
+        }
+
+        // Initialize sound controller globally
+        const SoundEngine = new BiometricSoundSystem();
+
+        // Boot system action
+        function bootSystem() {
+            SoundEngine.init();
+            SoundEngine.setMute(false);
+            
+            // Adjust elements
+            document.getElementById('boot-overlay').style.display = 'none';
+            document.getElementById('audio-status').innerText = "SYNTH CHANNELS HIGH";
+            document.getElementById('audio-status').className = "text-xs font-mono text-cyber-primary";
+            document.getElementById('sound-off-icon').classList.add('hidden');
+            document.getElementById('sound-on-icon').classList.remove('hidden');
+
+            addLog("[INIT] Core security gateway systems loaded successfully.");
+            addLog("[AUDIO] Procedural Ambient Tension track synthesized dynamically.");
+        }
+
+        // Toggle sound driver state
+        function toggleAudio() {
+            SoundEngine.init(); // Fallback secure trigger
+            const currentMute = SoundEngine.isMuted;
+            const targetMute = !currentMute;
+            SoundEngine.setMute(targetMute);
+
+            const statusTxt = document.getElementById('audio-status');
+            const onIcon = document.getElementById('sound-on-icon');
+            const offIcon = document.getElementById('sound-off-icon');
+
+            if (targetMute) {
+                statusTxt.innerText = "OFF (MUTED)";
+                statusTxt.className = "text-xs font-mono text-cyber-danger";
+                onIcon.classList.add('hidden');
+                offIcon.classList.remove('hidden');
+                addLog("[AUDIO] Dynamic synthesizer muted by operator.");
+            } else {
+                statusTxt.innerText = "SYNTH CHANNELS HIGH";
+                statusTxt.className = "text-xs font-mono text-cyber-primary";
+                offIcon.classList.add('hidden');
+                onIcon.classList.remove('hidden');
+                addLog("[AUDIO] Synthesizer channels activated.");
+            }
+        }
+
+        // Override background music with URL
+        function overrideAudioSource(url) {
+            if (!url) return;
+            SoundEngine.init();
+            SoundEngine.setCustomAudioUrl(url);
+            addLog(`[AUDIO] Custom tracking file connected: ${url.substring(0, 30)}...`);
+        }
+
+        function adjustVolume(val) {
+            SoundEngine.setVolume(val);
+        }
+
+        // UTILITY LOG DISPLAY
+        function addLog(text) {
+            const logsBox = document.getElementById('terminal-logs');
+            const p = document.createElement('p');
+            p.className = "border-l border-cyber-primary/20 pl-2 text-cyber-primary py-0.5 animate-pulse";
+            p.innerText = text;
+            logsBox.appendChild(p);
+            logsBox.scrollTop = logsBox.scrollHeight;
+        }
+
+        // SCENE STEWARD TRANSITIONS
+        function nextScene(sceneNumber) {
+            // Hide all scenes
+            document.querySelectorAll('.scene-panel').forEach(panel => {
+                panel.classList.add('hidden');
+            });
+            // Show requested scene
+            document.getElementById(`scene-${sceneNumber}`).classList.remove('hidden');
+
+            // Reset matching progress item in sidebar
+            document.querySelectorAll('[id^="nav-step-"]').forEach(item => {
+                item.className = "flex items-center gap-3 p-2 rounded border border-transparent text-cyber-muted transition-all";
+                // Restore regular border on non-active elements
+                const borderSpan = item.querySelector('span:first-child');
+                if (borderSpan) borderSpan.className = "text-xs border border-white/10 px-1.5 rounded";
+            });
+
+            // Update targeted progress item
+            const currentItem = document.getElementById(`nav-step-${sceneNumber}`);
+            if (currentItem) {
+                currentItem.className = "flex items-center gap-3 p-2 rounded border border-cyber-primary/30 bg-cyber-primary/5 text-cyber-primary transition-all shadow-neon";
+                const borderSpan = currentItem.querySelector('span:first-child');
+                if (borderSpan) borderSpan.className = "text-xs border border-cyber-primary/40 px-1.5 rounded bg-cyber-primary/10";
+            }
+
+            addLog(`[SYSTEM] Gateway scene transitioned to Protocol step 0${sceneNumber}.`);
+            
+            // Special Voice spectrum canvas animation preparation
+            if (sceneNumber === 5) {
+                initVoiceCanvas();
+            }
+        }
+
+        // GENERALIZED SCENARIO RESETTER
+        function forceReset() {
+            // Revert all scanner box UI components
+            document.getElementById('fingerprint-scan-box').className = "cursor-pointer relative w-36 h-40 bg-black/60 border border-white/10 rounded-lg flex flex-col justify-center items-center group overflow-hidden transition-all duration-300";
+            document.getElementById('finger-scan-prompt').innerText = "Click to scan";
+            document.getElementById('finger-laser').classList.add('hidden');
+            document.getElementById('finger-glow').classList.add('hidden');
+            document.getElementById('info-reveal-2').classList.add('hidden');
+            document.getElementById('scan-status-2').innerText = "PENDING AUTHENTICATION";
+            document.getElementById('scan-status-2').className = "font-mono text-xs text-cyber-danger";
+            document.getElementById('next-btn-2').disabled = true;
+            document.getElementById('next-btn-2').className = "bg-cyber-muted/10 border border-cyber-muted/30 text-cyber-muted font-mono text-xs px-4 py-2 rounded transition-all cursor-not-allowed";
+            document.querySelectorAll('.scan-point').forEach(p => p.classList.add('hidden'));
+
+            document.getElementById('face-scan-box').className = "cursor-pointer relative w-36 h-40 bg-black/60 border border-white/10 rounded-lg flex flex-col justify-center items-center overflow-hidden transition-all duration-300 group";
+            document.getElementById('face-scan-prompt').innerText = "Click to scan";
+            document.getElementById('face-laser').classList.add('hidden');
+            document.getElementById('face-glow').classList.add('hidden');
+            document.getElementById('facial-vectors').classList.add('hidden');
+            document.getElementById('info-reveal-3').classList.add('hidden');
+            document.getElementById('scan-status-3').innerText = "PENDING AUTHENTICATION";
+            document.getElementById('scan-status-3').className = "font-mono text-xs text-cyber-danger";
+            document.getElementById('next-btn-3').disabled = true;
+            document.getElementById('next-btn-3').className = "bg-cyber-muted/10 border border-cyber-muted/30 text-cyber-muted font-mono text-xs px-4 py-2 rounded transition-all cursor-not-allowed";
+
+            document.getElementById('iris-scan-box').className = "cursor-pointer relative w-36 h-40 bg-black/60 border border-white/10 rounded-lg flex flex-col justify-center items-center overflow-hidden transition-all duration-300 group";
+            document.getElementById('iris-scan-prompt').innerText = "Click to scan";
+            document.getElementById('iris-laser').classList.add('hidden');
+            document.getElementById('iris-glow').classList.add('hidden');
+            document.getElementById('info-reveal-4').classList.add('hidden');
+            document.getElementById('scan-status-4').innerText = "PENDING AUTHENTICATION";
+            document.getElementById('scan-status-4').className = "font-mono text-xs text-cyber-danger";
+            document.getElementById('next-btn-4').disabled = true;
+            document.getElementById('next-btn-4').className = "bg-cyber-muted/10 border border-cyber-muted/30 text-cyber-muted font-mono text-xs px-4 py-2 rounded transition-all cursor-not-allowed";
+
+            document.getElementById('voice-scan-prompt').innerText = "Click to analyze phrase";
+            document.getElementById('info-reveal-5').classList.add('hidden');
+            document.getElementById('scan-status-5').innerText = "PENDING AUTHENTICATION";
+            document.getElementById('scan-status-5').className = "font-mono text-xs text-cyber-danger";
+            document.getElementById('next-btn-5').disabled = true;
+            document.getElementById('next-btn-5').className = "bg-cyber-muted/10 border border-cyber-muted/30 text-cyber-muted font-mono text-xs px-4 py-2 rounded transition-all cursor-not-allowed";
+
+            nextScene(1);
+            addLog("[SYSTEM] Operator commanded manual reset. Protocols set to base status.");
+        }
+
+        // TRIGGER BIOMETRIC INDIVIDUAL SCAN ANIMATIONS
+        function triggerBiometricScan(step) {
+            SoundEngine.init(); // user interaction insurance
+            SoundEngine.playScanSound();
+
+            if (step === 2) {
+                // Fingerprint
+                const box = document.getElementById('fingerprint-scan-box');
+                const laser = document.getElementById('finger-laser');
+                const glow = document.getElementById('finger-glow');
+                const prompt = document.getElementById('finger-scan-prompt');
+                
+                box.classList.add('border-cyber-primary');
+                laser.classList.remove('hidden');
+                glow.classList.remove('hidden');
+                prompt.innerText = "SCANNING...";
+
+                addLog("[SCAN] Initializing high-precision ridge scanning optical index...");
+
+                setTimeout(() => {
+                    // Step complete
+                    laser.classList.add('hidden');
+                    glow.classList.add('hidden');
+                    prompt.innerText = "VERIFIED";
+                    box.classList.remove('border-cyber-primary');
+                    box.classList.add('border-green-500');
+
+                    // Highlight Bifurcation Points
+                    document.querySelectorAll('.scan-point').forEach(p => p.classList.remove('hidden'));
+                    document.getElementById('info-reveal-2').classList.remove('hidden');
+                    
+                    const status = document.getElementById('scan-status-2');
+                    status.innerText = "BIOMETRICS MATCHED: AGENT JACKSON";
+                    status.className = "font-mono text-xs text-green-400";
+
+                    const btn = document.getElementById('next-btn-2');
+                    btn.disabled = false;
+                    btn.className = "bg-cyber-primary/10 border border-cyber-primary text-cyber-primary font-mono text-xs px-4 py-2 rounded hover:bg-cyber-primary hover:text-cyber-bg transition-all cursor-pointer shadow-neon";
+
+                    SoundEngine.playSuccessPing();
+                    addLog("[SUCCESS] Fingerprint patterns verified against secure credentials repository.");
+                }, 3000);
+            }
+
+            if (step === 3) {
+                // Face scan
+                const box = document.getElementById('face-scan-box');
+                const laser = document.getElementById('face-laser');
+                const glow = document.getElementById('face-glow');
+                const prompt = document.getElementById('face-scan-prompt');
+                
+                box.classList.add('border-cyber-primary');
+                laser.classList.remove('hidden');
+                glow.classList.remove('hidden');
+                prompt.innerText = "MAPPING NODES...";
+
+                addLog("[SCAN] Commencing point cloud alignment vectors...");
+
+                setTimeout(() => {
+                    laser.classList.add('hidden');
+                    glow.classList.add('hidden');
+                    prompt.innerText = "GEOMETRY MATCH";
+                    box.classList.remove('border-cyber-primary');
+                    box.classList.add('border-green-500');
+
+                    document.getElementById('facial-vectors').classList.remove('hidden');
+                    document.getElementById('info-reveal-3').classList.remove('hidden');
+
+                    const status = document.getElementById('scan-status-3');
+                    status.innerText = "GEOMETRIC CORRELATION: 99.8% ACCURATE";
+                    status.className = "font-mono text-xs text-green-400";
+
+                    const btn = document.getElementById('next-btn-3');
+                    btn.disabled = false;
+                    btn.className = "bg-cyber-primary/10 border border-cyber-primary text-cyber-primary font-mono text-xs px-4 py-2 rounded hover:bg-cyber-primary hover:text-cyber-bg transition-all cursor-pointer shadow-neon";
+
+                    SoundEngine.playSuccessPing();
+                    addLog("[SUCCESS] Node alignment verified. Profile classification matches database record.");
+                }, 3000);
+            }
+
+            if (step === 4) {
+                // Iris Scan
+                const box = document.getElementById('iris-scan-box');
+                const laser = document.getElementById('iris-laser');
+                const glow = document.getElementById('iris-glow');
+                const prompt = document.getElementById('iris-scan-prompt');
+                
+                box.classList.add('border-cyber-primary');
+                laser.classList.remove('hidden');
+                glow.classList.remove('hidden');
+                prompt.innerText = "SEGMENTING IRIS...";
+
+                addLog("[SCAN] Processing iris micro-texture mapping sector checks...");
+
+                setTimeout(() => {
+                    laser.classList.add('hidden');
+                    glow.classList.add('hidden');
+                    prompt.innerText = "IRIS VERIFIED";
+                    box.classList.remove('border-cyber-primary');
+                    box.classList.add('border-green-500');
+
+                    document.getElementById('info-reveal-4').classList.remove('hidden');
+
+                    const status = document.getElementById('scan-status-4');
+                    status.innerText = "AUTHENTICATION MATRIX MATCH";
+                    status.className = "font-mono text-xs text-green-400";
+
+                    const btn = document.getElementById('next-btn-4');
+                    btn.disabled = false;
+                    btn.className = "bg-cyber-primary/10 border border-cyber-primary text-cyber-primary font-mono text-xs px-4 py-2 rounded hover:bg-cyber-primary hover:text-cyber-bg transition-all cursor-pointer shadow-neon";
+
+                    SoundEngine.playSuccessPing();
+                    addLog("[SUCCESS] Iris signature verified under cryptographic analysis standard.");
+                }, 3000);
+            }
+
+            if (step === 5) {
+                // Voice Recognition Simulation
+                const prompt = document.getElementById('voice-scan-prompt');
+                prompt.innerText = "RECORDING SPEECH...";
+                addLog("[SCAN] Recording speech sample pattern dynamics...");
+                
+                // Animate waveform heavily using JS logic
+                isVoiceAnimating = true;
+
+                setTimeout(() => {
+                    isVoiceAnimating = false;
+                    prompt.innerText = "SPEECH ALIGNED";
+                    
+                    document.getElementById('info-reveal-5').classList.remove('hidden');
+
+                    const status = document.getElementById('scan-status-5');
+                    status.innerText = "PHASE ENVELOPE ID MATCHED: JACKSON";
+                    status.className = "font-mono text-xs text-green-400";
+
+                    const btn = document.getElementById('next-btn-5');
+                    btn.disabled = false;
+                    btn.className = "bg-cyber-primary/10 border border-cyber-primary text-cyber-primary font-mono text-xs px-4 py-2 rounded hover:bg-cyber-primary hover:text-cyber-bg transition-all cursor-pointer shadow-neon";
+
+                    SoundEngine.playSuccessPing();
+                    addLog("[SUCCESS] Phrase frequency fingerprint correlation verified.");
+                }, 3000);
+            }
+        }
+
+        // CANVAS SPECTRUM WAVEFORM VISUALIZER
+        let voiceCanvas, voiceCtx;
+        let isVoiceAnimating = false;
+        let animFrameId;
+
+        function initVoiceCanvas() {
+            voiceCanvas = document.getElementById('voice-canvas');
+            if (!voiceCanvas) return;
+            voiceCtx = voiceCanvas.getContext('2d');
+            
+            // Adjust canvas size safely inside viewport
+            voiceCanvas.width = voiceCanvas.parentElement.clientWidth;
+            voiceCanvas.height = voiceCanvas.parentElement.clientHeight;
+
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+            drawVoiceSpectrum();
+        }
+
+        function drawVoiceSpectrum() {
+            animFrameId = requestAnimationFrame(drawVoiceSpectrum);
+            if (!voiceCtx) return;
+
+            voiceCtx.clearRect(0, 0, voiceCanvas.width, voiceCanvas.height);
+            
+            voiceCtx.strokeStyle = "#00ffcc";
+            voiceCtx.lineWidth = 2.5;
+            voiceCtx.beginPath();
+
+            const sliceWidth = voiceCanvas.width / 40;
+            let x = 0;
+
+            for (let i = 0; i < 40; i++) {
+                // Fluctuates higher if actively "recording"
+                const amplitude = isVoiceAnimating ? (Math.sin(i * 0.4 + Date.now() * 0.015) * 20 + 25) : 4;
+                const offset = voiceCanvas.height / 2;
+                
+                if (i === 0) {
+                    voiceCtx.moveTo(x, offset);
+                } else {
+                    voiceCtx.lineTo(x, offset + (i % 2 === 0 ? amplitude : -amplitude));
+                }
+                x += sliceWidth;
+            }
+
+            voiceCtx.stroke();
+        }
+
+        // Handle scaling dynamically
+        window.addEventListener('resize', () => {
+            if (voiceCanvas) {
+                voiceCanvas.width = voiceCanvas.parentElement.clientWidth;
+                voiceCanvas.height = voiceCanvas.parentElement.clientHeight;
+            }
+        });
+
+    </script>
+</body>
+</html>
