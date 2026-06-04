@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometrics - The Mission</title>
+    <style>
+        :root {
+            --bg-color: #121214;
+            --card-bg: #1e1e24;
+            --accent-color: #00ffcc;
+            --accent-glow: rgba(0, 255, 204, 0.4);
+            --text-color: #ffffff;
+            --text-muted: #a0a0aa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Ambient background overlay grid */
+        .grid-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(18, 18, 20, 0.8) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(18, 18, 20, 0.8) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Initialization Screen */
+        #intro-screen {
+            position: absolute;
+            z-index: 10;
+            text-align: center;
+            background: rgba(18, 18, 20, 0.95);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: var(--accent-color);
+            border: 2px solid var(--accent-color);
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--accent-glow);
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-action:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px var(--accent-color);
+        }
+
+        /* Main Container */
+        .mission-container {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 800px;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: none; /* Shown after initialization */
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px var(--accent-glow);
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* Interactive Scanning Zones */
+        .scan-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .character-graphic {
+            width: 150px;
+            height: 150px;
+            border: 2px dashed var(--accent-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            position: relative;
+            background: rgba(0, 255, 204, 0.03);
+        }
+
+        /* Futuristic Scanning Bar Effect */
+        .character-graphic::after {
+            content: '';
+            position: absolute;
+            width: 90%;
+            height: 2px;
+            background: var(--accent-color);
+            box-shadow: 0 0 8px var(--accent-color);
+            top: 0;
+            animation: scanAnimation 2s linear infinite;
+            display: none;
+        }
+
+        .scanning .character-graphic::after {
+            display: block;
+        }
+
+        @keyframes scanAnimation {
+            0% { top: 10%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 90%; opacity: 0; }
+        }
+
+        .character-avatar {
+            font-size: 4rem; /* Placeholder representation for characters */
+        }
+
+        .result-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 4px 4px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-overlay"></div>
+
+    <audio id="bg-music" loop src="ambient-spy-theme.mp3"></audio>
+
+    <div id="intro-screen">
+        <h2>MISSION INITIALIZATION</h2>
+        <p style="text-align: center; max-width: 500px;">Prepare to securely clear agent Jackson through laboratory biometrics.</p>
+        <button class="btn-action" onclick="startMission()">Start Mission</button>
+    </div>
+
+    <div class="mission-container" id="mission-app">
+        
+        <div class="step active" id="step-1">
+            <h2>The Mission Briefing</h2>
+            <div class="scan-container">
+                <div class="character-graphic">
+                    <span class="character-avatar">🏃‍♂️</span> </div>
+            </div>
+            <p>Jackson is on a mission to deliver a microchip containing the secret formula needed to produce a vaccine that will save the world.</p>
+            <button class="btn-action" onclick="goToStep(2)">Proceed to Security</button>
+        </div>
+
+        <div class="step" id="step-2">
+            <h2>Biometric Scan: Fingerprint</h2>
+            <div class="scan-container" id="scan-zone-2">
+                <div class="character-graphic">
+                    <span class="character-avatar">☝️</span>
+                </div>
+                <button class="btn-action btn-scan" onclick="runScan(2)">Click here to scan</button>
+            </div>
+            <div class="result-box" id="result-2">
+                <p>Every person has a unique fingerprint composed of ridges, grooves, and direction of the lines. Ridges form three basic patterns—the arch, loop, and whorl. The uniqueness of a fingerprint is determined by the pattern as well as ridge endings called bifurcation and spots.</p>
+                <button class="btn-action" onclick="goToStep(3)">Next Scan</button>
+            </div>
+        </div>
+
+        <div class="step" id="step-3">
+            <h2>Biometric Scan: Facial Geometry</h2>
+            <div class="scan-container" id="scan-zone-3">
+                <div class="character-graphic">
+                    <span class="character-avatar">👤</span>
+                </div>
+                <button class="btn-action btn-scan" onclick="runScan(3)">Click here to scan</button>
+            </div>
+            <div class="result-box" id="result-3">
+                <p>Facial scanners determine the face geometry based on the shape and size of the jaw and chin, the shape and size of the eyes, eyebrows, nose, lips, and cheekbones. A database stores the facial geometry in terms of points. A comparison algorithm performs face matching to come up with the results.</p>
+                <button class="btn-action" onclick="goToStep(4)">Next Scan</button>
+            </div>
+        </div>
+
+        <div class="step" id="step-4">
+            <h2>Biometric Scan: Iris & Voice</h2>
+            <div class="scan-container" id="scan-zone-4">
+                <div class="character-graphic">
+                    <span class="character-avatar">👁️</span>
+                </div>
+                <button class="btn-action btn-scan" onclick="runScan(4)">Click here to scan</button>
+            </div>
+            <div class="result-box" id="result-4">
+                <p><strong>Iris Recognition:</strong> Works on the basis of the iris pattern of the eye. The texture of the iris is stable throughout one's life. A camera takes a picture, stores it, and compares it via algorithms.</p>
+                <p><strong>Voice Recognition:</strong> The objective is to identify WHO is speaking. The sample is converted into a digital signal and stored for identity validation.</p>
+                <button class="btn-action" onclick="goToStep(5)">Verify Entry</button>
+            </div>
+        </div>
+
+        <div class="step" id="step-5">
+            <h2>Access Granted</h2>
+            <div class="scan-container">
+                <div class="character-graphic" style="border-color: #00ff00;">
+                    <span class="character-avatar">🔬</span> </div>
+            </div>
+            <p style="color: #00ff00; font-weight: bold; text-align: center;">"Welcome to the secret laboratory! Did you bring the microchip?"</p>
+            <p>Jackson has successfully cleared security checkpoints using valid biological data matrices. The vaccine configuration can now safely progress.</p>
+            <button class="btn-action" onclick="restartMission()">Restart Scenario</button>
+        </div>
+
+    </div>
+
+    <script>
+        const bgMusic = document.getElementById('bg-music');
+
+        function startMission() {
+            // Unlocks and starts audio loop playback seamlessly
+            bgMusic.play().catch(error => console.log("Audio play blocked initially:", error));
+            document.getElementById('intro-screen').style.display = 'none';
+            document.getElementById('mission-app').style.display = 'block';
+        }
+
+        function goToStep(stepNumber) {
+            // Hide all structural step divisions
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            // Display targeted container
+            document.getElementById(`step-${stepNumber}`).classList.add('active');
+        }
+
+        function runScan(stepNumber) {
+            const container = document.getElementById(`scan-zone-${stepNumber}`);
+            const resultBox = document.getElementById(`result-${stepNumber}`);
+            
+            container.classList.add('scanning');
+            const scanBtn = container.querySelector('.btn-scan');
+            scanBtn.innerText = "SCANNING...";
+            scanBtn.disabled = true;
+
+            // Simulated biometric scanning operational delay
+            setTimeout(() => {
+                container.classList.remove('scanning');
+                container.style.display = 'none';
+                resultBox.style.display = 'block';
+            }, 2000);
+        }
+
+        function restartMission() {
+            // Reset scan panels visibility matrices
+            for (let i = 2; i <= 4; i++) {
+                document.getElementById(`scan-zone-${i}`).style.display = 'flex';
+                const scanBtn = document.getElementById(`scan-zone-${i}`).querySelector('.btn-scan');
+                scanBtn.innerText = "Click here to scan";
+                scanBtn.disabled = false;
+                document.getElementById(`result-${i}`).style.display = 'none';
+            }
+            goToStep(1);
+        }
+    </script>
+</body>
+</html>
