@@ -1,0 +1,288 @@
+[
+  {
+    "id": "q1",
+    "type": "numerical_mc",
+    "subject": "tech-networking",
+    "stem": "A network technician is troubleshooting a slow physical link. Calculate the transmission delay of a frame of size $1200$ bytes over a copper link with a transmission rate of $1.0 \\times 10^7$ bits per second.",
+    "choices": [
+      {"letter": "A", "text": "$1.2 \\times 10^{-4}$ s"},
+      {"letter": "B", "text": "$9.6 \\times 10^{-3}$ s"},
+      {"letter": "C", "text": "$9.6 \\times 10^{-4}$ s"},
+      {"letter": "D", "text": "$1.0 \\times 10^3$ s"}
+    ],
+    "correct": "C",
+    "worked_solution": "1. Given values:\n- Frame size $L = 1200$ bytes\n- Link bandwidth $R = 1.0 \\times 10^7$ bps\n\n2. Relevant formulas:\n- $\\text{Transmission Delay} = \\frac{L}{R}$\n- $1$ byte $= 8$ bits\n\n3. Substitution and conversion:\n- Convert frame size to bits: $L = 1200 \\times 8 = 9600$ bits\n- Calculate delay: $\\text{Delay} = \\frac{9600}{1.0 \\times 10^7} = 9.6 \\times 10^{-4}$ s\n\n4. Dimensional analysis:\n- $\\text{s} = \\frac{\\text{bits}}{\\text{bits/s}}$\n\n5. Final answer: $9.6 \\times 10^{-4}$ s (expressed to 2 significant figures).",
+    "distractor_logic": {
+      "A": "Forgot to convert bytes to bits, resulting in $1200 / (1.0 \\times 10^7) = 1.2 \\times 10^{-4}$ s.",
+      "B": "Used incorrect bandwidth order of magnitude ($1.0 \\times 10^6$ instead of $1.0 \\times 10^7$), yielding $9.6 \\times 10^{-3}$ s.",
+      "D": "Inverted the transmission delay formula, dividing bandwidth by frame size to get $1.0 \\times 10^3$ s."
+    },
+    "bloom": "Apply",
+    "stem_level": "Single-step",
+    "difficulty": "easy",
+    "tolerance_pct": 5,
+    "units": "s",
+    "rationale": "The correct transmission delay is calculated by dividing the frame size in bits ($9600$ bits) by the link rate ($1.0 \\times 10^7$ bps), yielding $9.6 \\times 10^{-4}$ s. Distractor A is incorrect because it forgets the 8-bit conversion. Distractor B is incorrect because it misapplies the bandwidth scaling factor. Distractor D is incorrect because it inverts the transmission delay formula.",
+    "verification_expression": "1200 * 8 / 10000000"
+  },
+  {
+    "id": "q2",
+    "type": "conceptual",
+    "subject": "tech-networking",
+    "stem": "A network technician notices that a link light on a switch port is completely off. Which layer of the OSI model should be investigated first, and what is the typical troubleshooting step?",
+    "choices": [
+      {"letter": "A", "text": "Physical layer (Layer 1); check if the cable is securely plugged in, damaged, or mismatched."},
+      {"letter": "B", "text": "Data Link layer (Layer 2); check if there is an IP address conflict on the local subnet."},
+      {"letter": "C", "text": "Network layer (Layer 3); check if the static gateway is configured correctly."},
+      {"letter": "D", "text": "Transport layer (Layer 4); check if TCP port 80 is blocked by a local firewall."}
+    ],
+    "correct": "A",
+    "worked_solution": "1. Identify the symptom: Switch port link light is completely off.\n2. Relate to the OSI model: Physical connectivity (cabling, port states, and transceivers) resides at Layer 1 (Physical layer).\n3. Determine the correct troubleshooting step: Verify physical integrity (cables, connectors, and power).\n4. Select the correct option: Option A accurately identifies Layer 1 and the associated physical checks.",
+    "distractor_logic": {
+      "B": "IP address conflict is a Layer 3 concept, and IP configuration does not affect the physical Link light on a switch port.",
+      "C": "Gateway configuration is a Layer 3 concept and does not prevent the physical switch port from lighting up.",
+      "D": "Firewall rules blocking a TCP port reside at Layer 4/7 and do not impact physical link establishment."
+    },
+    "bloom": "Understand",
+    "stem_level": "Single-step",
+    "difficulty": "easy",
+    "tolerance_pct": null,
+    "units": null,
+    "rationale": "A link light being off indicates a failure to establish a physical connection, which must be addressed at the Physical layer (Layer 1) before any logical troubleshooting can occur. Distractor B is incorrect because logical IP configuration is Layer 3 and does not affect the physical link status. Distractor C is incorrect because default gateway configuration is a Layer 3 setting. Distractor D is incorrect because firewall rule checks are Layer 4 or higher.",
+    "verification_expression": null
+  },
+  {
+    "id": "q3",
+    "type": "conceptual",
+    "subject": "tech-networking",
+    "stem": "A network engineer is troubleshooting an Ethernet connection where a host can ping some local devices on the same subnet but cannot reach the default gateway. The engineer notices that the host's ARP table shows the gateway's IP address as 'Incomplete'. At which layer of the OSI model is this problem primarily occurring, and what is the most likely cause?",
+    "choices": [
+      {"letter": "A", "text": "Network Layer (Layer 3); the gateway's IP address belongs to a different subnet, causing routing failure."},
+      {"letter": "B", "text": "Data Link Layer (Layer 2); the host's ARP requests are not receiving ARP replies, indicating a VLAN mismatch or blocked broadcast domain."},
+      {"letter": "C", "text": "Transport Layer (Layer 4); a firewall is blocking incoming TCP acknowledgments from the gateway."},
+      {"letter": "D", "text": "Physical Layer (Layer 1); high cable attenuation is causing severe frame errors for broadcast frames only."}
+    ],
+    "correct": "B",
+    "worked_solution": "1. Analyze the symptoms: The host can ping some local hosts, indicating Layer 1 and Layer 2 are partially functional. The ARP table entry for the gateway is 'Incomplete'.\n2. Define ARP: Address Resolution Protocol (ARP) maps Layer 3 IP addresses to Layer 2 MAC addresses and operates at the boundary of these layers, primarily categorized under the Data Link Layer (Layer 2).\n3. Evaluate 'Incomplete': An incomplete entry means the host sent a Layer 2 broadcast ARP request but received no Layer 2 unicast ARP reply.\n4. Determine the cause: Since local communication works, a complete Physical layer failure is ruled out. The issue lies in the Layer 2 path to the gateway, such as a VLAN misconfiguration or blocked broadcast traffic to that port.",
+    "distractor_logic": {
+      "A": "If the gateway were on a different subnet, the host would not even attempt ARP for it directly; it would route through its local interface.",
+      "C": "Firewall TCP blocking would occur after ARP resolution is complete; ARP must succeed before any Layer 4 traffic can be sent.",
+      "D": "Physical cable attenuation would affect all frames, not selectively block only ARP broadcast/reply frames while letting other local pings succeed."
+    },
+    "bloom": "Analyze",
+    "stem_level": "Multi-step",
+    "difficulty": "medium",
+    "tolerance_pct": null,
+    "units": null,
+    "rationale": "The ARP 'Incomplete' status shows that Layer 2 address resolution is failing because ARP requests are not receiving replies, pointing to a Data Link Layer (Layer 2) issue like a VLAN mismatch. Distractor A is incorrect because ARP is initiated for local gateway IPs, and subnet mismatch would prevent direct ARP. Distractor C is incorrect because Layer 4 firewalls operate after ARP is completed. Distractor D is incorrect because physical attenuation would disrupt local traffic as well.",
+    "verification_expression": null
+  },
+  {
+    "id": "q4",
+    "type": "numerical_mc",
+    "subject": "tech-networking",
+    "stem": "A network administrator is troubleshooting poor file transfer speeds between two servers. The Round-Trip Time (RTT) is measured to be $0.040$ seconds, and the TCP window size is set to $16000$ bytes. Calculate the maximum theoretical throughput in bits per second.",
+    "choices": [
+      {"letter": "A", "text": "$4.0 \\times 10^5$ bps"},
+      {"letter": "B", "text": "$5.1 \\times 10^3$ bps"},
+      {"letter": "C", "text": "$1.6 \\times 10^6$ bps"},
+      {"letter": "D", "text": "$3.2 \\times 10^6$ bps"}
+    ],
+    "correct": "D",
+    "worked_solution": "1. Given values:\n- RTT $t = 0.040$ s\n- TCP Window size $W = 16000$ bytes\n\n2. Relevant formulas:\n- $\\text{Throughput} = \\frac{W}{t}$\n- $1$ byte $= 8$ bits\n\n3. Substitution and conversion:\n- Convert TCP window size to bits: $W = 16000 \\times 8 = 128000$ bits\n- Calculate maximum throughput: $\\text{Throughput} = \\frac{128000}{0.040} = 3.2 \\times 10^6$ bps\n\n4. Dimensional analysis:\n- $\\text{bps} = \\frac{\\text{bits}}{\\text{s}}$\n\n5. Final answer: $3.2 \\times 10^6$ bps (expressed to 2 significant figures).",
+    "distractor_logic": {
+      "A": "Forgot to convert bytes to bits, resulting in $16000 / 0.040 = 4.0 \\times 10^5$ bps.",
+      "B": "Multiplied window size in bits by RTT instead of dividing, yielding $128000 \\times 0.040 = 5.1 \\times 10^3$ bps.",
+      "C": "Incorrectly assumed bidirectional RTT in the denominator (using $2 \\times RTT$), dividing by $0.080$ s to get $1.6 \\times 10^6$ bps."
+    },
+    "bloom": "Apply",
+    "stem_level": "Multi-step",
+    "difficulty": "medium",
+    "tolerance_pct": 5,
+    "units": "bps",
+    "rationale": "The maximum TCP throughput is given by the formula Window Size (in bits) divided by the Round-Trip Time (RTT). Converting $16000$ bytes to $128000$ bits and dividing by $0.040$ s results in $3.2 \\times 10^6$ bps. Distractor A is incorrect because it fails to convert bytes to bits. Distractor B is incorrect because it multiplies instead of dividing. Distractor C is incorrect because it doubles the RTT in the denominator.",
+    "verification_expression": "16000 * 8 / 0.040"
+  },
+  {
+    "id": "q5",
+    "type": "conceptual",
+    "subject": "tech-networking",
+    "stem": "A workstation with IP address 192.168.1.50 and subnet mask 255.255.255.0 can ping other hosts on the same subnet but cannot reach any hosts on the 192.168.2.0 subnet. Which of the following is the most likely OSI Layer 3 misconfiguration?",
+    "choices": [
+      {"letter": "A", "text": "The workstation has an incorrect or missing default gateway configured."},
+      {"letter": "B", "text": "The workstation's switch port is assigned to a VLAN that lacks Spanning Tree Protocol."},
+      {"letter": "C", "text": "The destination hosts have a Physical layer mismatch with the local switch."},
+      {"letter": "D", "text": "The workstation's network interface card is operating in half-duplex instead of full-duplex."}
+    ],
+    "correct": "A",
+    "worked_solution": "1. Analyze the symptoms: Local communication on the 192.168.1.0/24 subnet is working. Remote communication to the 192.168.2.0 subnet is failing.\n2. Map to OSI Layer: Subnet routing and gateway forwarding reside at the Network Layer (Layer 3).\n3. Determine requirements for cross-subnet traffic: A default gateway is required to route traffic outside the local subnet.\n4. Diagnose: If the workstation can ping local hosts, its Layer 1, Layer 2, and local Layer 3 configurations are valid. A missing or incorrect gateway prevents routing to remote subnets.",
+    "distractor_logic": {
+      "B": "Spanning Tree Protocol (STP) prevents Layer 2 loops and does not govern inter-subnet routing.",
+      "C": "Physical layer mismatches would disrupt all traffic (both local and remote), not just cross-subnet communication.",
+      "D": "Duplex mismatch is a Layer 2 issue that typically causes packet loss and slow speeds, rather than completely blocking remote subnets while local pings work perfectly."
+    },
+    "bloom": "Analyze",
+    "stem_level": "Single-step",
+    "difficulty": "medium",
+    "tolerance_pct": null,
+    "units": null,
+    "rationale": "A default gateway is required for a host to send packets to a different subnet at Layer 3. Distractor B is incorrect because STP prevents Layer 2 loops and does not route traffic. Distractor C is incorrect because a physical mismatch would block local traffic too. Distractor D is incorrect because duplex mismatch causes packet degradation rather than selective subnet isolation.",
+    "verification_expression": null
+  },
+  {
+    "id": "q6",
+    "type": "symbolic",
+    "subject": "tech-networking",
+    "stem": "A network engineer is troubleshooting a noisy physical channel and needs to identify the theoretical maximum data rate for a noiseless channel to establish a baseline. If the channel bandwidth is represented by $B$ and the number of discrete signal levels is represented by $L$, which of the following expressions represents Nyquist's maximum data rate $C$?",
+    "choices": [
+      {"letter": "A", "text": "$C = B \\log_2(1 + L)$"},
+      {"letter": "B", "text": "$C = B \\log_2(L)$"},
+      {"letter": "C", "text": "$C = 2 B \\log_2(L)$"},
+      {"letter": "D", "text": "$C = 2 B \\ln(L)$"}
+    ],
+    "correct": "C",
+    "worked_solution": "1. State the Nyquist theorem: Nyquist's formula determines the maximum data rate of a noiseless transmission channel.\n2. Express the mathematical formula: The capacity $C$ is given by $C = 2 B \\log_2(L)$, where $B$ is the bandwidth in Hertz and $L$ is the number of signal levels.\n3. Analyze choices: Option C matches the standard symbolic formula.",
+    "distractor_logic": {
+      "A": "Confuses Nyquist's theorem with Shannon's capacity formula ($C = B \\log_2(1 + \\text{SNR})$).",
+      "B": "Omits the multiplier factor of $2$, which accounts for the two samples per cycle required by the Nyquist rate.",
+      "D": "Uses the natural logarithm (base $e$) instead of base $2$ logarithms, which is required to measure capacity in bits."
+    },
+    "bloom": "Understand",
+    "stem_level": "Single-step",
+    "difficulty": "medium",
+    "tolerance_pct": null,
+    "units": null,
+    "rationale": "Nyquist's theorem states that the maximum data rate of a noiseless channel is $C = 2 B \\log_2(L)$. Distractor A incorrectly integrates the Shannon limit structure. Distractor B omits the critical sampling factor of $2$. Distractor D uses natural logarithms instead of base 2.",
+    "verification_expression": null
+  },
+  {
+    "id": "q7",
+    "type": "conceptual",
+    "subject": "tech-networking",
+    "stem": "A client workstation can connect to a secure web server by entering its IP address in the browser (e.g., https://192.168.10.20) but receives a 'Server Not Found' error when trying to access the site using its domain name (e.g., https://intranet.local). At which OSI layer does this troubleshooting issue reside, and what is the failing service?",
+    "choices": [
+      {"letter": "A", "text": "Session Layer (Layer 5); the NetBIOS session termination protocol is failing."},
+      {"letter": "B", "text": "Application Layer (Layer 7); the Domain Name System (DNS) resolution is failing."},
+      {"letter": "C", "text": "Network Layer (Layer 3); the IP routing table is missing the route to the local domain server."},
+      {"letter": "D", "text": "Transport Layer (Layer 4); the TLS handshake on TCP port 443 is timing out."}
+    ],
+    "correct": "B",
+    "worked_solution": "1. Analyze the symptoms: Access via IP address is successful, proving that Layers 1 through 4 (and even upper layers for HTTPS) are fully functional. Access via hostname fails.\n2. Identify the service: Mapping hostnames to IP addresses is the role of the Domain Name System (DNS).\n3. Relate to the OSI model: DNS is an Application Layer protocol that resides at Layer 7.\n4. Determine the failure point: The DNS resolution service is failing to resolve intranet.local to 192.168.10.20.",
+    "distractor_logic": {
+      "A": "NetBIOS operates at Layer 5 and is not responsible for standard DNS resolution of domain names in a modern browser.",
+      "C": "Since routing works when using the direct IP address, there is no Layer 3 routing issue.",
+      "D": "The TLS handshake would fail for both IP address and domain name if port 443 were blocked or timing out."
+    },
+    "bloom": "Understand",
+    "stem_level": "Single-step",
+    "difficulty": "medium",
+    "tolerance_pct": null,
+    "units": null,
+    "rationale": "The symptom of being able to connect via IP address but not by hostname points to a DNS resolution failure, which occurs at the Application Layer (Layer 7). Distractor A is incorrect because NetBIOS is not used for standard domain name resolution. Distractor C is incorrect because IP routing is proven to work via direct IP access. Distractor D is incorrect because port 443 connectivity is established when bypassing hostname resolution.",
+    "verification_expression": null
+  },
+  {
+    "id": "q8",
+    "type": "conceptual",
+    "subject": "tech-networking",
+    "stem": "A network administrator is troubleshooting an email client that is unable to establish an encrypted IMAPS connection to an email server. The logs reveal a failure during the SSL/TLS cipher suite negotiation. At which OSI layer does this encryption negotiation primarily take place, and what is its role?",
+    "choices": [
+      {"letter": "A", "text": "Presentation Layer (Layer 6); it handles data encryption, decryption, compression, and formatting."},
+      {"letter": "B", "text": "Session Layer (Layer 5); it establishes, manages, and terminates the connection between applications."},
+      {"letter": "C", "text": "Transport Layer (Layer 4); it manages the multiplexing of socket connections using port numbers."},
+      {"letter": "D", "text": "Application Layer (Layer 7); it directly interacts with the email client to render messages."}
+    ],
+    "correct": "A",
+    "worked_solution": "1. Analyze the problem: The issue is a failure to negotiate SSL/TLS cipher suites.\n2. Define SSL/TLS function: SSL/TLS is responsible for encrypting and decrypting data to provide confidentiality, as well as handling data formatting.\n3. Map to OSI Layer: The Presentation Layer (Layer 6) is responsible for translation, formatting, encryption, and decryption of data.\n4. Select correct option: Option A correctly links SSL/TLS cipher negotiation to Layer 6.",
+    "distractor_logic": {
+      "B": "The Session Layer (Layer 5) is responsible for starting and stopping communication sessions, not the encryption or translation of the data payload.",
+      "C": "The Transport Layer (Layer 4) handles reliable segment delivery (TCP) and ports, but does not encrypt or format payloads natively.",
+      "D": "The Application Layer (Layer 7) provides the user interface and protocol services (like IMAP), but delegates encryption to the Presentation Layer."
+    },
+    "bloom": "Understand",
+    "stem_level": "Single-step",
+    "difficulty": "medium",
+    "tolerance_pct": null,
+    "units": null,
+    "rationale": "SSL/TLS negotiation and encryption take place at the Presentation Layer (Layer 6), which formats, encrypts, and decrypts payloads. Distractor B is incorrect because Layer 5 manages sessions rather than encryption. Distractor C is incorrect because Layer 4 manages transport protocols and port multiplexing. Distractor D is incorrect because Layer 7 interfaces with the user application directly.",
+    "verification_expression": null
+  },
+  {
+    "id": "q9",
+    "type": "numerical_mc",
+    "subject": "tech-networking",
+    "stem": "A router receives an IPv4 packet at the Network Layer (Layer 3) with a total length of $1420$ bytes, which includes a standard $20$-byte IP header. The router must forward this packet out an interface with a Maximum Transmission Unit (MTU) of $600$ bytes. Due to this constraint, the router fragments the packet. Calculate the payload size of the third fragment (excluding any IP headers).",
+    "choices": [
+      {"letter": "A", "text": "$240$ bytes"},
+      {"letter": "B", "text": "$200$ bytes"},
+      {"letter": "C", "text": "$248$ bytes"},
+      {"letter": "D", "text": "$268$ bytes"}
+    ],
+    "correct": "C",
+    "worked_solution": "1. Given values:\n- Total original packet size $= 1420$ bytes\n- IP header size $= 20$ bytes\n- Outgoing interface MTU $= 600$ bytes\n\n2. Relevant formulas and constraints:\n- Original payload $= \\text{Total length} - \\text{IP header}$\n- Maximum payload per fragment $\\le \\text{MTU} - \\text{IP header}$\n- Fragment offset rule: The payload size of all fragments (except the last) must be a multiple of $8$ bytes.\n\n3. Substitution and step-by-step fragmentation:\n- Original payload $= 1420 - 20 = 1400$ bytes.\n- Maximum possible payload per fragment $= 600 - 20 = 580$ bytes.\n- Adjust for $8$-byte alignment: $\\lfloor 580 / 8 \\rfloor \\times 8 = 72 \\times 8 = 576$ bytes.\n- Fragment $1$ payload $= 576$ bytes (remaining payload $= 1400 - 576 = 824$ bytes).\n- Fragment $2$ payload $= 576$ bytes (remaining payload $= 824 - 576 = 248$ bytes).\n- Fragment $3$ payload $= 248$ bytes.\n\n4. Dimensional analysis:\n- $\\text{bytes} = \\text{bytes} - \\text{bytes}$\n\n5.  $248$ bytes (which is to 2 significant figures).",
+    "distractor_logic": {
+      "A": "Assumed each intermediate fragment can carry a maximum payload of $580$ bytes, ignoring the 8-byte boundary constraint: $1400 - (2 \\times 580) = 240$ bytes.",
+      "B": "Forgot to subtract the IP header from the MTU when calculating fragment payload size, assuming $600$ bytes per fragment: $1400 - (2 \\times 600) = 200$ bytes.",
+      "D": "Calculated the total length of the third fragment (including its $20$-byte IP header) instead of the payload size: $248 + 20 = 268$ bytes."
+    },
+    "bloom": "Analyze",
+    "stem_level": "Multi-step",
+    "difficulty": "hard",
+    "tolerance_pct": 5,
+    "units": "bytes",
+    "rationale": "To calculate IPv4 fragmentation, the original payload is $1400$ bytes. The max payload per fragment is $580$ bytes, but must be a multiple of $8$ bytes, which is $576$ bytes. This leaves $248$ bytes for the third fragment. Distractor A is incorrect because it ignores the 8-byte alignment rule. Distractor B is incorrect because it fails to account for the IP header in each fragment. Distractor D is incorrect because it includes the IP header.",
+    "verification_expression": "(1420 - 20) - 2 * 576"
+  },
+  {
+    "id": "q10",
+    "type": "conceptual",
+    "subject": "tech-networking",
+    "stem": "A network engineer is troubleshooting a network degradation issue. In one part of the network, a redundant physical loop on a switch causes a broadcast storm that completely disables communication. In another part, a routing loop between two routers causes packets to circulate continuously. How does the OSI model explain the difference in how these two loops are handled?",
+    "choices": [
+      {"letter": "A", "text": "Layer 3 packets lack any loop prevention fields, requiring dynamic routing protocols to terminate loops; Layer 2 Ethernet frames contain a Spanning Tree field that limits their lifetime."},
+      {"letter": "B", "text": "Layer 2 frames rely on a hop counter that switches decrement, whereas Layer 3 packets must be prevented statically by configuring VLAN priority rules on the trunk ports."},
+      {"letter": "C", "text": "Both Layer 2 and Layer 3 use a MAC-address-based aging timer that automatically discards duplicate looping data after 64 hops."},
+      {"letter": "D", "text": "Layer 2 Ethernet frames do not have a Time-to-Live (TTL) or hop limit field, so loops circulate indefinitely unless prevented by Spanning Tree Protocol (STP); Layer 3 IPv4/IPv6 packets contain a TTL/Hop Limit field that is decremented by routers to discard looping packets."}
+    ],
+    "correct": "D",
+    "worked_solution": "1. Analyze Layer 2 frame structure: Ethernet frames contain source MAC, destination MAC, Type, and Payload. There is no Time-to-Live (TTL) field. Thus, once a frame enters a loop, switches forward it indefinitely, causing a broadcast storm.\n2. Identify Layer 2 mitigation: Spanning Tree Protocol (STP) must actively run on switches to block redundant paths and prevent loops.\n3. Analyze Layer 3 packet structure: IPv4 packets contain a $1$-byte TTL field (IPv6 contains a Hop Limit). Routers decrement this field by $1$ at each hop. If the value reaches $0$, the packet is discarded and an ICMP Time Exceeded message is sent.\n4. Compare and select: Option D correctly contrasts the behavior of Layer 2 and Layer 3 loop handling.",
+    "distractor_logic": {
+      "A": "Inverts the reality; Layer 3 packets actually contain a TTL field, while Layer 2 Ethernet frames lack any loop prevention field.",
+      "B": "Claims Layer 2 frames have a hop counter, which is incorrect; Ethernet frames have no such field.",
+      "C": "Falsely claims that a universal MAC-aging timer discards loops after 64 hops."
+    },
+    "bloom": "Analyze",
+    "stem_level": "Multi-step",
+    "difficulty": "hard",
+    "tolerance_pct": null,
+    "units": null,
+    "rationale": "Ethernet frames lack a TTL field, meaning Layer 2 loops will persist indefinitely until STP intervenes. Layer 3 packets contain a TTL (or Hop Limit) field that routers decrement, ensuring that looping packets are eventually discarded. Distractor A inverts the characteristics of the layers. Distractor B falsely attributes a hop counter to Layer 2. Distractor C proposes an imaginary universal aging timer.",
+    "verification_expression": null
+  },
+  {
+    "id": "q11",
+    "type": "conceptual",
+    "subject": "tech-networking",
+    "stem": "An administrator is troubleshooting a stateful web application where users are experiencing intermittent session disconnects. The network map reveals a Layer 4 load balancer distributing incoming TCP traffic across three web servers. Which of the following recommendations correctly applies OSI model concepts to solve this session persistence problem?",
+    "choices": [
+      {"letter": "A", "text": "Replace the configuration with a Layer 2 switch using Dynamic ARP Inspection to bind the client MAC address to a specific server socket."},
+      {"letter": "B", "text": "Upgrade to a Layer 7 load balancer that can inspect Application layer HTTP headers or cookies to ensure session stickiness."},
+      {"letter": "C", "text": "Configure Layer 3 IP routing with static route parameters to bind client IP subnets directly to the server's Physical layer interfaces."},
+      {"letter": "D", "text": "Enable TCP Keep-Alives at the Physical layer (Layer 1) to force constant synchronization of memory states between the server NICs."}
+    ],
+    "correct": "B",
+    "worked_solution": "1. Analyze the symptoms: Users are disconnected because their stateful sessions are lost when the Layer 4 load balancer forwards subsequent requests to a different backend server.\n2. Identify Layer 4 limits: A Layer 4 load balancer operates at the Transport layer, routing traffic based on IP addresses and TCP/UDP ports. It cannot inspect application data (like HTTP cookies) to identify individual sessions.\n3. Identify Layer 7 benefits: An Application layer (Layer 7) load balancer can inspect the actual content of HTTP requests, reading cookie headers to associate a specific user session with a persistent backend server.\n4. Select the solution: Upgrading to a Layer 7 load balancer addresses the session state requirement.",
+    "distractor_logic": {
+      "A": "Dynamic ARP Inspection is a security feature to prevent ARP spoofing at Layer 2 and cannot track or bind Layer 7 HTTP application sessions.",
+      "C": "Binding IP subnets directly to Physical interfaces at Layer 3/1 is impractical and does not resolve individual application-layer session tracking.",
+      "D": "TCP Keep-Alives operate at the Transport layer (Layer 4), not the Physical layer, and do not synchronize application states across different servers."
+    },
+    "bloom": "Analyze",
+    "stem_level": "Multi-step",
+    "difficulty": "medium",
+    "tolerance_pct": null,
+    "units": null,
+    "rationale": "A Layer 7 load balancer can inspect HTTP headers and cookies to manage session persistence at the Application layer, whereas Layer 4 load balancers are limited to port-level routing. Distractor A is incorrect because ARP inspection is a Layer 2 security mechanism. Distractor C is incorrect because Layer 3 static routing cannot track individual web application sessions. Distractor D is incorrect because TCP Keep-Alives are Layer 4 and do not synchronize application memory.",
+    "verification_expression": null
+  }
+]
