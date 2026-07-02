@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reyes IT Training & Consulting | AI, Cloud & Enterprise Solutions</title>
+    <!-- Tailwind CSS for modern responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Alpine.js for dynamic interactive states -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            cyan: '#06b6d4',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .hero-pattern {
+            background-image: radial-gradient(rgba(37, 99, 235, 0.1) 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased bg-slate-50 text-slate-800" x-data="{ mobileMenuOpen: false, bookingModalOpen: false }">
+
+    <!-- Navigation -->
+    <header class="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md transition-all duration-300">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-20 items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center gap-2">
+                    <a href="#home" class="flex items-center gap-2">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-700 to-brand-cyan shadow-md shadow-brand-600/20 text-white font-bold text-xl font-display">
+                            R
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-lg font-bold tracking-tight text-slate-900 font-display leading-none">REYES IT</span>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-brand-cyan font-sans leading-none mt-1">Training & Consulting</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Desktop Nav Links -->
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#home" class="text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors">Home</a>
+                    <a href="#training" class="text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors">IT Training</a>
+                    <a href="#consulting" class="text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors">Consulting</a>
+                    <a href="#pathfinder" class="text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors">Path Finder</a>
+                    <a href="#about" class="text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors">About</a>
+                    <a href="#contact" class="text-sm font-semibold text-slate-700 hover:text-brand-600 transition-colors">Contact</a>
+                </nav>
+
+                <!-- Desktop Action CTA -->
+                <div class="hidden md:flex items-center gap-4">
+                    <a href="tel:510-509-0533" class="text-sm font-medium text-slate-600 hover:text-brand-600 transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-phone text-brand-cyan animate-pulse"></i>
+                        <span class="font-bold">510-509-0533</span>
+                    </a>
+                    <button @click="bookingModalOpen = true" class="rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 transition-all duration-300 transform hover:-translate-y-0.5">
+                        Free Consultation
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="flex md:hidden">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="inline-flex items-center justify-center rounded-lg p-2.5 text-slate-700 hover:bg-slate-100 transition-colors">
+                        <span class="sr-only">Open main menu</span>
+                        <i class="fa-solid" :class="mobileMenuOpen ? 'fa-xmark text-xl' : 'fa-bars text-xl'"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div x-show="mobileMenuOpen" 
+             x-transition:enter="transition ease-out duration-150"
+             x-transition:enter-start="opacity-0 -translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-100"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-2"
+             class="md:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-3 shadow-lg"
+             style="display: none;">
+            <a href="#home" @click="mobileMenuOpen = false" class="block rounded-lg px-3 py-2 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600">Home</a>
+            <a href="#training" @click="mobileMenuOpen = false" class="block rounded-lg px-3 py-2 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600">IT Training</a>
+            <a href="#consulting" @click="mobileMenuOpen = false" class="block rounded-lg px-3 py-2 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600">Consulting</a>
+            <a href="#pathfinder" @click="mobileMenuOpen = false" class="block rounded-lg px-3 py-2 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600">Path Finder</a>
+            <a href="#about" @click="mobileMenuOpen = false" class="block rounded-lg px-3 py-2 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600">About</a>
+            <a href="#contact" @click="mobileMenuOpen = false" class="block rounded-lg px-3 py-2 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-brand-600">Contact</a>
+            
+            <div class="border-t border-slate-100 pt-3 flex flex-col gap-3">
+                <a href="tel:510-509-0533" class="px-3 py-1 text-base font-semibold text-slate-700 flex items-center gap-2">
+                    <i class="fa-solid fa-phone text-brand-600"></i>
+                    510-509-0533
+                </a>
+                <button @click="mobileMenuOpen = false; bookingModalOpen = true" class="w-full text-center rounded-lg bg-brand-700 px-4 py-2.5 text-base font-semibold text-white shadow-sm hover:bg-brand-600">
+                    Free Consultation
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero / Dynamic Front Page -->
+    <section id="home" class="relative overflow-hidden bg-slate-900 text-white pt-24 pb-32 hero-pattern">
+        <!-- Interactive background glow effects -->
+        <div class="absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-brand-600/20 blur-3xl pointer-events-none"></div>
+        <div class="absolute top-1/2 -left-40 h-[500px] w-[500px] rounded-full bg-brand-cyan/15 blur-3xl pointer-events-none"></div>
+
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Left Content Area -->
+                <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-brand-200/20 bg-brand-600/10 px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-brand-cyan">
+                        <i class="fa-solid fa-wand-magic-sparkles animate-spin" style="animation-duration: 4s;"></i> Master Enterprise AI & Technologies
+                    </div>
+                    
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display leading-[1.1] text-white">
+                        Empowering Enterprises Through <span class="gradient-text">AI Innovation</span> & Elite IT Training
+                    </h1>
+                    
+                    <p class="text-lg sm:text-xl text-slate-300 font-light leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                        At Reyes IT, we deliver world-class training curriculum and hands-on consulting architecture to catapult your enterprise, developers, and workflows into the future of artificial intelligence.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center">
+                        <button @click="bookingModalOpen = true" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-brand-700 to-brand-600 text-base font-semibold shadow-lg shadow-brand-700/20 hover:shadow-brand-700/40 hover:from-brand-600 hover:to-brand-700 transition-all duration-300 transform hover:-translate-y-0.5">
+                            Get Free IT Strategy Audit
+                        </button>
+                        <a href="#training" class="w-full sm:w-auto px-8 py-4 rounded-xl border border-slate-700 bg-slate-800/50 text-base font-semibold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                            Explore Programs
+                            <i class="fa-solid fa-arrow-down-long text-xs text-brand-cyan"></i>
+                        </a>
+                    </div>
+
+                    <!-- Small bullet stats -->
+                    <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800 text-left">
+                        <div>
+                            <p class="text-2xl sm:text-3xl font-bold text-white font-display">98%</p>
+                            <p class="text-xs sm:text-sm text-slate-400">Success Certification Rate</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl sm:text-3xl font-bold text-brand-cyan font-display">5K+</p>
+                            <p class="text-xs sm:text-sm text-slate-400">Professionals Upskilled</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl sm:text-3xl font-bold text-white font-display">15+</p>
+                            <p class="text-xs sm:text-sm text-slate-400">Years Consulting Experience</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Interactive Graphic Area -->
+                <div class="lg:col-span-5 relative w-full flex justify-center">
+                    <div class="relative w-full max-w-md aspect-square rounded-3xl overflow-hidden shadow-2xl shadow-brand-900/50 border border-slate-700/50 group">
+                        <!-- Simulated video/live visual wrapper -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent z-10"></div>
+                        
+                        <!-- High Quality AI & Training Dynamic Image -->
+                        <img src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80" 
+                             alt="Reyes IT training room dynamic setting" 
+                             class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                             onerror="this.onerror=null; this.src='https://placehold.co/800x800/1e293b/ffffff?text=Professional+IT+Training';">
+                        
+                        <!-- Dynamic Overlay Widgets -->
+                        <div class="absolute top-4 left-4 z-20 glass-card p-3 rounded-2xl flex items-center gap-3 shadow-md">
+                            <div class="h-10 w-10 rounded-xl bg-brand-cyan/20 flex items-center justify-center text-brand-cyan">
+                                <i class="fa-solid fa-brain text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-300 font-semibold uppercase tracking-wider leading-none">Specialization</p>
+                                <p class="text-sm font-bold text-white leading-tight">Advanced Generative AI</p>
+                            </div>
+                        </div>
+
+                        <div class="absolute bottom-6 left-6 right-6 z-20 glass-card p-4 rounded-2xl border border-white/10 shadow-lg">
+                            <div class="flex items-center gap-3">
+                                <span class="relative flex h-3.5 w-3.5">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
+                                </span>
+                                <p class="text-xs font-bold text-emerald-400 tracking-wider uppercase">Live Consulting Case Study</p>
+                            </div>
+                            <h3 class="text-md font-bold text-white mt-1">Reyes IT helps tech startup slash operational overhead by 40% with AI Automation</h3>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- IT Training Programs Section -->
+    <section id="training" class="py-24 bg-white">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <h2 class="text-xs font-extrabold uppercase tracking-widest text-brand-600">Enterprise Curriculums</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 font-display">Specialized IT Training Solutions</h3>
+                <p class="text-slate-600 text-lg">
+                    We offer deep technical bootcamps, executive alignment series, and hands-on lab training tailored to bridge skills gaps in modern IT workforces.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
+                
+                <!-- Training Card 1: Advanced AI -->
+                <div class="group relative rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-brand-cyan"></div>
+                    <div>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-50 text-brand-cyan mb-6">
+                            <i class="fa-solid fa-robot text-2xl"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">Generative AI & LLM Training</h4>
+                        <p class="text-slate-600 mt-3 text-sm leading-relaxed">
+                            Equip your core software engineers with deep capabilities in Prompt Engineering, RAG implementation, Fine-tuning models, and Custom LLM Agent deployment.
+                        </p>
+                        <ul class="mt-6 space-y-2.5 text-sm text-slate-700">
+                            <li class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-brand-cyan"></i> Hands-on with PyTorch & HuggingFace</li>
+                            <li class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-brand-cyan"></i> Custom internal dataset pipeline exercises</li>
+                            <li class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-brand-cyan"></i> Enterprise security sandbox standards</li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Weeks: 4 to 8 • Live Labs</span>
+                        <button @click="bookingModalOpen = true" class="text-sm font-bold text-brand-700 group-hover:underline flex items-center gap-1.5">
+                            Syllabus <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Training Card 2: Cloud Architectures & DevOps -->
+                <div class="group relative rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-brand-700"></div>
+                    <div>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-700 mb-6">
+                            <i class="fa-solid fa-cloud text-2xl"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">AWS, Azure & DevOps Mastery</h4>
+                        <p class="text-slate-600 mt-3 text-sm leading-relaxed">
+                            Practical, high-impact instruction focusing on microservices architecture, infrastructure as code (Terraform), Kubernetes deployment, and hybrid-cloud topologies.
+                        </p>
+                        <ul class="mt-6 space-y-2.5 text-sm text-slate-700">
+                            <li class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-brand-700"></i> Docker orchestration & Helm orchestration</li>
+                            <li class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-brand-700"></i> CI/CD Pipeline architectures</li>
+                            <li class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-brand-700"></i> Cloud Architect Cert prep tracks</li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Weeks: 6 to 10 • Certification</span>
+                        <button @click="bookingModalOpen = true" class="text-sm font-bold text-brand-700 group-hover:underline flex items-center gap-1.5">
+                            Syllabus <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Training Card 3: Cyber Security -->
+                <div class="group relative rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-rose-500"></div>
+                    <div>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-600 mb-6">
+                            <i class="fa-solid fa-shield-halved text-2xl"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">Cybersecurity & SecOps Protocols</h4>
+                        <p class="text-slate-600 mt-3 text-sm leading-relaxed">
+                            Protect organizational structures against modern threat environments. Focuses on zero-trust architectures, threat detection engineering, and incident response logic.
+                        </p>
+                        <ul class="mt-6 space-y-2.5 text-sm text-slate-700">
+                            <li class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-rose-500"></i> OWASP security compliance reviews</li>
+                            <li class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-rose-500"></i> Active network breach simulation labs</li>
+                            <li class="flex items-center gap-2"><i class="fa-regular fa-circle-check text-rose-500"></i> HIPAA & SOC 2 compliance mapping</li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Weeks: 4 to 12 • High Defense</span>
+                        <button @click="bookingModalOpen = true" class="text-sm font-bold text-brand-700 group-hover:underline flex items-center gap-1.5">
+                            Syllabus <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- IT Consulting Division -->
+    <section id="consulting" class="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div class="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-brand-600/10 blur-3xl pointer-events-none"></div>
+
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                
+                <!-- Graphic Image of Enterprise Consulting Work -->
+                <div class="lg:col-span-5 order-2 lg:order-1">
+                    <div class="relative w-full aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl shadow-slate-950 border border-slate-800">
+                        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80" 
+                             alt="Reyes IT client team meeting" 
+                             class="absolute inset-0 w-full h-full object-cover"
+                             onerror="this.onerror=null; this.src='https://placehold.co/800x600/1e293b/ffffff?text=Consulting+Integrity';">
+                        
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 to-transparent"></div>
+                        
+                        <div class="absolute bottom-4 left-4 right-4 glass-card p-4 rounded-xl text-center">
+                            <span class="text-xs text-brand-cyan tracking-widest font-bold uppercase block">Core Competency</span>
+                            <span class="text-white text-md font-semibold font-display">Customized Enterprise AI & Cloud Topography Plans</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text Info -->
+                <div class="lg:col-span-7 order-1 lg:order-2 space-y-8">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-brand-200/20 bg-brand-600/10 px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-brand-cyan">
+                        Enterprise Solutions
+                    </div>
+                    
+                    <h2 class="text-3xl sm:text-4xl font-extrabold font-display leading-[1.2]">
+                        Expert IT Consulting: <br>
+                        <span class="gradient-text">Architecting Futureproof Infrastructure</span>
+                    </h2>
+                    
+                    <p class="text-slate-300 leading-relaxed text-md">
+                        Our senior architects do more than instruct—we integrate directly with your teams to map out legacy modernizations, design cloud security, audit system integrity, and strategize enterprise-wide artificial intelligence frameworks.
+                    </p>
+
+                    <!-- Features -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-800 text-brand-cyan">
+                                <i class="fa-solid fa-gears"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-md font-bold text-white">AI Automation Integrations</h4>
+                                <p class="text-slate-400 text-xs mt-1">Replacing friction with scalable models for document ingestion, data analysis, and workflow systems.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-800 text-brand-cyan">
+                                <i class="fa-solid fa-network-wired"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-md font-bold text-white">IT Architecture Audits</h4>
+                                <p class="text-slate-400 text-xs mt-1">Reviewing bottlenecks, security flaws, cost redundancies, and system limits before failures happen.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-800 text-brand-cyan">
+                                <i class="fa-solid fa-compass-drafting"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-md font-bold text-white">Cloud Strategy & Porting</h4>
+                                <p class="text-slate-400 text-xs mt-1">Coordinating seamless data structures between bare-metal systems, GCP, Azure, or AWS safely.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-800 text-brand-cyan">
+                                <i class="fa-solid fa-users-gear"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-md font-bold text-white">Staff Transition Strategy</h4>
+                                <p class="text-slate-400 text-xs mt-1">Developing comprehensive organizational alignment protocols so teams adopt new tech seamlessly.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6">
+                        <button @click="bookingModalOpen = true" class="px-8 py-3.5 rounded-xl bg-brand-700 text-sm font-semibold text-white hover:bg-brand-600 transition-colors shadow-lg shadow-brand-700/10">
+                            Consult with our Architects
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive AI & IT Training Path Finder -->
+    <section id="pathfinder" class="py-24 bg-slate-50">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <h2 class="text-xs font-extrabold uppercase tracking-widest text-brand-600">Quick Diagnostics</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold text-slate-900 font-display">Find Your Ideal Technology Path</h3>
+                <p class="text-slate-600 text-md">
+                    Not sure what syllabus or consultation vector meets your immediate goal? Try our dynamic interactive selector widget.
+                </p>
+            </div>
+
+            <div class="mt-12 max-w-2xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8" x-data="{
+                currentStep: 1,
+                userGoal: '',
+                skillLevel: '',
+                recommendation: null,
+                goals: [
+                    { id: 'ai', title: 'Implement AI inside my company workflow', desc: 'Enterprise Automation' },
+                    { id: 'cloud', title: 'Optimize, secure or scale our cloud systems', desc: 'Infrastructure Strategy' },
+                    { id: 'skills', title: 'Retrain/Upskill developers on modern software stacks', desc: 'Team Technical Growth' },
+                    { id: 'compliance', title: 'Secure network vulnerabilities & achieve data audits', desc: 'Cybersecurity Assurance' }
+                ],
+                levels: [
+                    { id: 'beginner', label: 'Executive / Leadership / Strategic', text: 'Needs strategic overview, budgeting framework, & ROI focus.' },
+                    { id: 'mid', label: 'Mid-Level Engineers / Project Managers', text: 'Needs hybrid management skills and pipeline tools oversight.' },
+                    { id: 'expert', label: 'Advanced Software Engineers & System Architects', text: 'Needs hard-coded deployment workflows, advanced ML algorithms, and system configs.' }
+                ],
+                findPath() {
+                    if (this.userGoal === 'ai' && this.skillLevel === 'beginner') {
+                        this.recommendation = {
+                            title: 'Generative AI Overview for Executives & PMs',
+                            category: 'IT Training Series',
+                            badge: 'High Strategic ROI',
+                            details: 'Focuses on building business workflows, evaluating LLM provider costs (OpenAI, Claude, Llama), safety parameters, and team transition planning.',
+                            time: '2-week cohort framework',
+                            nextStep: 'Request syllabus overview matching business timelines.'
+                        };
+                    } else if (this.userGoal === 'ai' && (this.skillLevel === 'mid' || this.skillLevel === 'expert')) {
+                        this.recommendation = {
+                            title: 'LLM Agent Engineering & RAG Systems Integration',
+                            category: 'Advanced Technical Bootcamp',
+                            badge: 'Deep Architecture',
+                            details: 'Intense lab-driven deep dive covering vector database optimizations (Pinecone, Chroma), LangChain architectures, embedding evaluations, and local fine-tuning systems.',
+                            time: '6-week developer cohort',
+                            nextStep: 'Request deep-dive sandbox lab specs for engineers.'
+                        };
+                    } else if (this.userGoal === 'cloud') {
+                        this.recommendation = {
+                            title: 'Enterprise Infrastructure Assessment & Cloud Port Strategy',
+                            category: 'Senior IT Consulting Service',
+                            badge: 'Direct System Audits',
+                            details: 'A dedicated Reyes IT lead architect analyzes current server frameworks, pinpoints security vulnerabilities, outlines multi-cloud models, and delivers a migration roadmap.',
+                            time: 'Typical Project: 3 to 5 Weeks',
+                            nextStep: 'Arrange initial secure exploratory consultation call.'
+                        };
+                    } else if (this.userGoal === 'compliance') {
+                        this.recommendation = {
+                            title: 'Full Stack Cybersecurity Defense Protocol Architecture',
+                            category: 'IT Training & Engineering Audit',
+                            badge: 'Total Security Integration',
+                            details: 'Combines proactive penetration-testing drills for engineers, zero-trust network deployment blueprints, and readiness checklists for HIPAA, SOC-2, and GDPR validations.',
+                            time: 'Typical Phase: 4 Weeks',
+                            nextStep: 'Conduct rapid external vulnerabilities scanner sequence.'
+                        };
+                    } else {
+                        this.recommendation = {
+                            title: 'Custom Curated Enterprise Technical Alignment',
+                            category: 'Hybrid Consulting & Custom Training',
+                            badge: 'Tailormade Fit',
+                            details: 'A bespoke hybrid of custom-designed curriculum combined with direct consulting resources to meet complex mixed team configurations and specialized tech stacks.',
+                            time: 'Custom Scope Design',
+                            nextStep: 'Inquire directly with our lead strategist for customized options.'
+                        };
+                    }
+                    this.currentStep = 3;
+                },
+                resetSelector() {
+                    this.currentStep = 1;
+                    this.userGoal = '';
+                    this.skillLevel = '';
+                    this.recommendation = null;
+                }
+            }">
+                
+                <!-- Steps indicators -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-6 mb-8">
+                    <div class="flex items-center gap-2">
+                        <div class="h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs" :class="currentStep >= 1 ? 'bg-brand-700 text-white' : 'bg-slate-100 text-slate-500'">1</div>
+                        <span class="text-xs font-semibold text-slate-700">Identify Goal</span>
+                    </div>
+                    <div class="h-0.5 bg-slate-200 flex-1 mx-4"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs" :class="currentStep >= 2 ? 'bg-brand-700 text-white' : 'bg-slate-100 text-slate-500'">2</div>
+                        <span class="text-xs font-semibold text-slate-700">Experience Profile</span>
+                    </div>
+                    <div class="h-0.5 bg-slate-200 flex-1 mx-4"></div>
+                    <div class="flex items-center gap-2">
+                        <div class="h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs" :class="currentStep === 3 ? 'bg-brand-cyan text-slate-900 font-extrabold' : 'bg-slate-100 text-slate-500'">3</div>
+                        <span class="text-xs font-semibold text-slate-700">Get Recommendation</span>
+                    </div>
+                </div>
+
+                <!-- Step 1 Content -->
+                <div x-show="currentStep === 1">
+                    <h4 class="text-md font-bold text-slate-900 mb-4">What is your organization's primary target milestone?</h4>
+                    <div class="space-y-3">
+                        <template x-for="item in goals" :key="item.id">
+                            <label class="block p-4 rounded-xl border-2 cursor-pointer transition-all duration-200" :class="userGoal === item.id ? 'border-brand-700 bg-brand-50/50' : 'border-slate-200 hover:border-slate-300'">
+                                <div class="flex items-start gap-3">
+                                    <input type="radio" name="goal" :value="item.id" x-model="userGoal" class="mt-1 text-brand-700 focus:ring-brand-700">
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-900" x-text="item.title"></p>
+                                        <p class="text-xs text-slate-500 mt-0.5" x-text="item.desc"></p>
+                                    </div>
+                                </div>
+                            </label>
+                        </template>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button @click="currentStep = 2" :disabled="!userGoal" class="px-6 py-2.5 rounded-lg bg-brand-700 text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            Next Stage <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2 Content -->
+                <div x-show="currentStep === 2" style="display: none;">
+                    <h4 class="text-md font-bold text-slate-900 mb-4">Select the technical background profile of the team or audience:</h4>
+                    <div class="space-y-3">
+                        <template x-for="item in levels" :key="item.id">
+                            <label class="block p-4 rounded-xl border-2 cursor-pointer transition-all duration-200" :class="skillLevel === item.id ? 'border-brand-700 bg-brand-50/50' : 'border-slate-200 hover:border-slate-300'">
+                                <div class="flex items-start gap-3">
+                                    <input type="radio" name="level" :value="item.id" x-model="skillLevel" class="mt-1 text-brand-700 focus:ring-brand-700">
+                                    <div>
+                                        <p class="text-sm font-bold text-slate-900" x-text="item.label"></p>
+                                        <p class="text-xs text-slate-500 mt-1" x-text="item.text"></p>
+                                    </div>
+                                </div>
+                            </label>
+                        </template>
+                    </div>
+                    <div class="mt-6 flex justify-between">
+                        <button @click="currentStep = 1" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold text-sm">
+                            Back
+                        </button>
+                        <button @click="findPath" :disabled="!skillLevel" class="px-6 py-2.5 rounded-lg bg-brand-700 text-white font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            Compute Path <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3 Recommendation Display -->
+                <div x-show="currentStep === 3" style="display: none;" class="space-y-6">
+                    <template x-if="recommendation">
+                        <div class="rounded-2xl bg-slate-900 text-white p-6 relative overflow-hidden">
+                            <div class="absolute -right-20 -bottom-20 h-40 w-40 rounded-full bg-brand-cyan/20 blur-2xl"></div>
+                            
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="bg-brand-cyan text-slate-900 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded" x-text="recommendation.badge"></span>
+                                <span class="text-slate-400 text-xs font-semibold" x-text="recommendation.category"></span>
+                            </div>
+                            
+                            <h5 class="text-lg font-bold font-display" x-text="recommendation.title"></h5>
+                            <p class="text-sm text-slate-300 mt-2 leading-relaxed" x-text="recommendation.details"></p>
+                            
+                            <div class="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs">
+                                <span class="text-slate-400">Duration Strategy: <strong class="text-white" x-text="recommendation.time"></strong></span>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="space-y-2">
+                        <p class="text-xs font-bold uppercase text-slate-500">Your Recommended Action Strategy:</p>
+                        <p class="text-sm text-slate-800" x-text="recommendation?.nextStep"></p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100">
+                        <button @click="bookingModalOpen = true" class="flex-1 py-3 px-5 text-center bg-brand-700 hover:bg-brand-600 text-white font-bold text-sm rounded-xl transition-all duration-300 shadow-md">
+                            Lock In Action Path Strategy Now
+                        </button>
+                        <button @click="resetSelector" class="py-3 px-5 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm rounded-xl transition-colors">
+                            Restart Analysis
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About Reyes IT & Success Cases -->
+    <section id="about" class="py-24 bg-white">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+                
+                <!-- Left Side text explaining Reyes IT training expertise -->
+                <div class="lg:col-span-6 space-y-6">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-800">
+                        The Leadership Mindset
+                    </div>
+                    
+                    <h2 class="text-3xl sm:text-4xl font-extrabold font-display text-slate-900 leading-[1.2]">
+                        About Reyes IT Training & Consulting
+                    </h2>
+                    
+                    <p class="text-slate-600 text-md leading-relaxed">
+                        At Reyes IT, our business is your growth. Led by a vision of accessible enterprise excellence, we develop rigorous educational syllabus structures that pair deep technical theory with hands-on practice. We operate out of Union City, California, supplying remote training hubs globally and direct consultation pipelines locally to empower the corporate tech community.
+                    </p>
+
+                    <p class="text-slate-600 text-md leading-relaxed">
+                        Whether your corporate structure requires custom AI microservice APIs integrated into your current systems or a strategic cloud migration training track for upskilling your engineers, Reyes IT aligns technical capability directly with commercial success.
+                    </p>
+
+                    <!-- Quote from CEO -->
+                    <div class="border-l-4 border-brand-cyan pl-4 py-2 bg-slate-50 rounded-r-xl">
+                        <p class="text-sm italic text-slate-700">
+                            "Technology moves fast, but enterprise capabilities can move faster when backed by structured training and secure, battle-tested solutions."
+                        </p>
+                        <p class="text-xs font-bold text-slate-900 mt-2 font-display">— Executive Leadership, Reyes IT</p>
+                    </div>
+
+                    <!-- Direct Access coordinates -->
+                    <div class="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold text-slate-600">
+                        <div class="flex items-center gap-2"><i class="fa-solid fa-map-location-dot text-brand-cyan text-sm"></i> PO Box 1674 Union city Ca 94587</div>
+                        <div class="flex items-center gap-2"><i class="fa-solid fa-envelope text-brand-cyan text-sm"></i> freyes999@gmail.com</div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Interactive Success Story Panel showcasing real training success imagery -->
+                <div class="lg:col-span-6">
+                    <div class="space-y-6">
+                        <div class="text-left">
+                            <h3 class="text-xs font-extrabold uppercase tracking-widest text-brand-600">Enterprise Impact</h3>
+                            <h4 class="text-2xl font-bold font-display text-slate-900 mt-1">Success Case Highlight</h4>
+                        </div>
+
+                        <!-- Main Case Display -->
+                        <div class="rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                            <div class="h-56 relative overflow-hidden bg-slate-100">
+                                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80" 
+                                     alt="AI development neural conceptual illustration" 
+                                     class="absolute inset-0 w-full h-full object-cover"
+                                     onerror="this.onerror=null; this.src='https://placehold.co/800x400/1e293b/ffffff?text=AI+Integration+Excellence';">
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
+                                <span class="absolute bottom-4 left-4 bg-brand-cyan text-slate-900 font-extrabold text-[10px] tracking-widest uppercase px-2 py-0.5 rounded">AI & Automation Portfolio</span>
+                            </div>
+                            <div class="p-6 space-y-3">
+                                <h5 class="text-lg font-bold text-slate-900 font-display">Automated Medical Document Routing Engine</h5>
+                                <p class="text-slate-600 text-sm leading-relaxed">
+                                    Reyes IT deployed customized natural language processing pipelines to parse, classify, and secure highly sensitive diagnostic documents, leading to a massive increase in operational dispatch accuracy.
+                                </p>
+                                <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                    <div class="flex items-center gap-1 text-xs text-slate-500 font-semibold">
+                                        <i class="fa-regular fa-clock"></i> Deployment Timeline: 12 Weeks
+                                    </div>
+                                    <span class="text-xs font-extrabold text-emerald-600 uppercase tracking-wider bg-emerald-50 px-2 py-1 rounded">Completed & Audited</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials / Client Praise -->
+    <section class="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div class="absolute top-0 left-0 h-[400px] w-[400px] rounded-full bg-brand-cyan/5 blur-3xl pointer-events-none"></div>
+
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <h2 class="text-xs font-extrabold uppercase tracking-widest text-brand-cyan">Verified Endorsements</h2>
+                <h3 class="text-3xl sm:text-4xl font-extrabold font-display">What Clients Say About Reyes IT</h3>
+                <p class="text-slate-400 text-md">
+                    We take pride in our ability to train rigorous engineering methodologies and provide straightforward consulting frameworks.
+                </p>
+            </div>
+
+            <!-- Testimonials Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
+                
+                <!-- Testimonial 1 -->
+                <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <!-- Stars -->
+                        <div class="flex items-center gap-1 text-amber-400 mb-4">
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-relaxed italic">
+                            "Reyes IT structured a custom LLM and Azure pipeline bootcamp for our software engineers. In just 4 weeks, our team transitioned from standard API logic to running local fine-tuned agent platforms. Excellent material and brilliant live instruction."
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-full bg-brand-cyan/20 flex items-center justify-center text-brand-cyan font-bold text-sm">
+                            JD
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-white">James D.</p>
+                            <p class="text-xs text-slate-400">VP of Software, Nexus Healthcare</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-1 text-amber-400 mb-4">
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-relaxed italic">
+                            "Their executive consulting service saved us months of research and high subscription fees. They laid out a cloud port roadmap and integrated security controls directly. Reyes IT is our go-to partner for complex digital transformation strategies."
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-full bg-brand-cyan/20 flex items-center justify-center text-brand-cyan font-bold text-sm">
+                            MR
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-white">Maria R.</p>
+                            <p class="text-xs text-slate-400">CTO, CloudScale Logistics</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-1 text-amber-400 mb-4">
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                            <i class="fa-solid fa-star text-sm"></i>
+                        </div>
+                        <p class="text-slate-300 text-sm leading-relaxed italic">
+                            "The cybersecurity readiness course run by Reyes IT was incredibly intense. They simulated real-world attacks in a dedicated lab environment, testing our systems and training our security incident response processes step-by-step."
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-full bg-brand-cyan/20 flex items-center justify-center text-brand-cyan font-bold text-sm">
+                            TL
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-white">Terry L.</p>
+                            <p class="text-xs text-slate-400">Security Operations Lead</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Consultation Modal -->
+    <div x-show="bookingModalOpen" 
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         style="display: none;" 
+         aria-labelledby="modal-title" 
+         role="dialog" 
+         aria-modal="true"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        <div class="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background Overlay -->
+            <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm transition-opacity" @click="bookingModalOpen = false" aria-hidden="true"></div>
+
+            <!-- Alignment element for center screen -->
+            <span class="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+
+            <!-- Modal Panel -->
+            <div class="inline-block transform overflow-hidden rounded-2xl bg-white text-left align-bottom shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle border border-slate-200"
+                 x-data="{ 
+                     clientName: '', 
+                     clientEmail: '', 
+                     interest: 'AI Training', 
+                     timeline: 'Immediately',
+                     successState: false,
+                     submitBooking() {
+                         if (this.clientName && this.clientEmail) {
+                             this.successState = true;
+                         }
+                     },
+                     closeBooking() {
+                         bookingModalOpen = false;
+                         this.successState = false;
+                         this.clientName = '';
+                         this.clientEmail = '';
+                     }
+                 }">
+                
+                <!-- Close Button -->
+                <div class="absolute top-4 right-4 z-10">
+                    <button @click="closeBooking" type="button" class="rounded-md bg-white text-slate-400 hover:text-slate-500 focus:outline-none">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Pre-Submission State -->
+                <div x-show="!successState" class="p-6 sm:p-8 space-y-4">
+                    <div class="text-center sm:text-left">
+                        <div class="mx-auto sm:mx-0 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-700 mb-4">
+                            <i class="fa-solid fa-calendar-check text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold font-display text-slate-900" id="modal-title">Schedule Free 1-on-1 Strategy Call</h3>
+                        <p class="text-slate-500 text-sm mt-1">Get an initial analysis of your technology stack or engineering training requirements.</p>
+                    </div>
+
+                    <form @submit.prevent="submitBooking" class="space-y-4 pt-2">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Your Name</label>
+                            <input type="text" x-model="clientName" required class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-brand-700 focus:ring-brand-700 focus:outline-none" placeholder="First Last">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Corporate Email Address</label>
+                            <input type="email" x-model="clientEmail" required class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-brand-700 focus:ring-brand-700 focus:outline-none" placeholder="you@company.com">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Area of Focus</label>
+                                <select x-model="interest" class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm bg-white focus:border-brand-700 focus:ring-brand-700 focus:outline-none">
+                                    <option value="AI Training">AI/LLM Training</option>
+                                    <option value="Cloud Migration">Cloud Infrastructure</option>
+                                    <option value="Cybersecurity">Cybersecurity Audit</option>
+                                    <option value="General Consulting">General IT Consulting</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Urgency</label>
+                                <select x-model="timeline" class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm bg-white focus:border-brand-700 focus:ring-brand-700 focus:outline-none">
+                                    <option value="Immediately">Immediately</option>
+                                    <option value="1-3 Months">1-3 Months</option>
+                                    <option value="3+ Months">3+ Months</option>
+                                    <option value="General Discovery">General Discovery</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex flex-col sm:flex-row-reverse gap-3">
+                            <button type="submit" class="w-full sm:w-auto flex-1 rounded-xl bg-brand-700 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 transition-colors">
+                                Book Audit Strategy Session
+                            </button>
+                            <button @click="closeBooking" type="button" class="w-full sm:w-auto rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Success State -->
+                <div x-show="successState" style="display: none;" class="p-8 text-center space-y-6">
+                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
+                        <i class="fa-solid fa-circle-check text-4xl animate-bounce" style="animation-duration: 2s;"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-2xl font-bold font-display text-slate-900">Consultation Booked!</h3>
+                        <p class="text-slate-600 text-sm">
+                            Thank you, <strong class="text-slate-900" x-text="clientName"></strong>. A Reyes IT Lead Architect will reach out to you within 4 hours at <span class="text-brand-700 font-semibold" x-text="clientEmail"></span>.
+                        </p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl text-xs text-slate-500 flex flex-col items-center gap-1.5 border border-slate-100">
+                        <p class="font-bold text-slate-700">Need Immediate Assistance?</p>
+                        <p>Call Direct: <a href="tel:510-509-0533" class="text-brand-700 font-bold hover:underline">510-509-0533</a></p>
+                    </div>
+                    <button @click="closeBooking" class="w-full rounded-xl bg-brand-700 py-3 text-sm font-semibold text-white hover:bg-brand-600 transition-colors">
+                        Return to Homepage
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Details & Map/Form Sequence -->
+    <section id="contact" class="py-24 bg-slate-50">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-stretch">
+                
+                <!-- Contact info detail cards left side -->
+                <div class="lg:col-span-5 space-y-8 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <h2 class="text-xs font-extrabold uppercase tracking-widest text-brand-600">Secure Channels</h2>
+                        <h3 class="text-3xl sm:text-4xl font-extrabold font-display text-slate-900">Let’s Transform Your Technology Together</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            Have specific training dates, project details, or enterprise challenges? Connect directly with us via the contact channels below, or submit our integrated secure client inquiry structure.
+                        </p>
+                    </div>
+
+                    <!-- Direct contact block details -->
+                    <div class="space-y-4">
+                        
+                        <!-- Address -->
+                        <div class="flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-200">
+                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+                                <i class="fa-solid fa-map-location text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Office Mailing Address</h4>
+                                <p class="text-xs text-slate-500 mt-1">PO Box 1674</p>
+                                <p class="text-xs text-slate-700 font-semibold">Union City, CA 94587</p>
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-200">
+                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-brand-cyan">
+                                <i class="fa-solid fa-phone text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Direct Telephone Route</h4>
+                                <a href="tel:510-509-0533" class="text-sm font-bold text-brand-700 hover:underline block mt-1">510-509-0533</a>
+                                <p class="text-xs text-slate-500">Mon - Fri • 8:00 AM - 6:00 PM PST</p>
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="flex items-start gap-4 p-4 rounded-2xl bg-white border border-slate-200">
+                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                                <i class="fa-solid fa-envelope text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Inquiry Electronic Mail</h4>
+                                <a href="mailto:freyes999@gmail.com" class="text-sm font-bold text-brand-700 hover:underline block mt-1">freyes999@gmail.com</a>
+                                <p class="text-xs text-slate-500">Continuous digital scanning response queue</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Contact form interactive right side -->
+                <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-sm flex flex-col justify-center" x-data="{
+                    contactName: '',
+                    contactEmail: '',
+                    contactCompany: '',
+                    contactMsg: '',
+                    contactSubmitted: false,
+                    sendContact() {
+                        if(this.contactName && this.contactEmail && this.contactMsg) {
+                            this.contactSubmitted = true;
+                        }
+                    },
+                    resetForm() {
+                        this.contactSubmitted = false;
+                        this.contactName = '';
+                        this.contactEmail = '';
+                        this.contactCompany = '';
+                        this.contactMsg = '';
+                    }
+                }">
+                    <!-- Pre-submission contact form state -->
+                    <div x-show="!contactSubmitted">
+                        <h3 class="text-xl font-bold font-display text-slate-900 mb-6">Send Direct Secured Transmission</h3>
+                        
+                        <form @submit.prevent="sendContact" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Full Name *</label>
+                                    <input type="text" x-model="contactName" required class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-brand-700 focus:ring-brand-700 focus:outline-none" placeholder="First Last">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Company / Organization</label>
+                                    <input type="text" x-model="contactCompany" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-brand-700 focus:ring-brand-700 focus:outline-none" placeholder="Optional Company LLC">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Electronic Mail Address *</label>
+                                <input type="email" x-model="contactEmail" required class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-brand-700 focus:ring-brand-700 focus:outline-none" placeholder="name@company.com">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Describe Your Requirement / Consultation Objective *</label>
+                                <textarea x-model="contactMsg" required rows="4" class="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-brand-700 focus:ring-brand-700 focus:outline-none resize-none" placeholder="We require AI upskilling for our senior engineering team, starting next quarter..."></textarea>
+                            </div>
+
+                            <div class="pt-2">
+                                <button type="submit" class="w-full rounded-xl bg-brand-700 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 transition-colors flex items-center justify-center gap-2">
+                                    Send Secured Inquiry <i class="fa-solid fa-paper-plane text-xs"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Post-submission contact form state -->
+                    <div x-show="contactSubmitted" style="display: none;" class="text-center space-y-6 py-12">
+                        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                            <i class="fa-solid fa-paper-plane text-2xl animate-bounce" style="animation-duration: 1.5s;"></i>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="text-2xl font-bold font-display text-slate-900">Transmission Successfully Routed</h3>
+                            <p class="text-slate-600 text-sm max-w-md mx-auto">
+                                Thank you for contacting Reyes IT Training & Consulting. Your query has been logged securely under routing identification. We will get back to you promptly.
+                            </p>
+                        </div>
+                        <button @click="resetForm" class="mx-auto rounded-xl border border-slate-300 px-6 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
+                            Submit Another Request
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="bg-slate-950 text-white border-t border-slate-900 py-16">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 pb-12 border-b border-slate-900">
+                
+                <!-- Left Block -->
+                <div class="md:col-span-4 space-y-4">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-700 to-brand-cyan shadow-md text-white font-bold text-lg font-display">
+                            R
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-md font-bold tracking-tight text-white font-display leading-none">REYES IT</span>
+                            <span class="text-[10px] font-semibold uppercase tracking-wider text-brand-cyan font-sans leading-none mt-1">Training & Consulting</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-xs leading-relaxed max-w-xs">
+                        Elevating enterprises, developers, and corporate operations through custom syllabus architectures, specialized AI integration frameworks, and deep-level IT consulting.
+                    </p>
+                </div>
+
+                <!-- Middle Links -->
+                <div class="md:col-span-4 grid grid-cols-2 gap-8 text-xs">
+                    <div>
+                        <h4 class="font-bold text-slate-300 uppercase tracking-widest mb-4">Core Divisions</h4>
+                        <ul class="space-y-3">
+                            <li><a href="#training" class="text-slate-400 hover:text-white transition-colors">IT Training Bootcamps</a></li>
+                            <li><a href="#training" class="text-slate-400 hover:text-white transition-colors">Generative AI Labs</a></li>
+                            <li><a href="#consulting" class="text-slate-400 hover:text-white transition-colors">Enterprise Systems Audits</a></li>
+                            <li><a href="#consulting" class="text-slate-400 hover:text-white transition-colors">Cloud Port Migration</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-300 uppercase tracking-widest mb-4">Our Channels</h4>
+                        <ul class="space-y-3">
+                            <li><a href="#home" class="text-slate-400 hover:text-white transition-colors">Introduction Deck</a></li>
+                            <li><a href="#pathfinder" class="text-slate-400 hover:text-white transition-colors">Path Finder Diagnostics</a></li>
+                            <li><a href="#about" class="text-slate-400 hover:text-white transition-colors">About Executives</a></li>
+                            <li><a href="#contact" class="text-slate-400 hover:text-white transition-colors">Corporate Contacts</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right Newsletter signup -->
+                <div class="md:col-span-4 space-y-4" x-data="{ newsEmail: '', newsSuccess: false }">
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-widest">Reyes IT Briefings</h4>
+                    <p class="text-slate-400 text-xs leading-relaxed">
+                        Stay secure on enterprise updates, cloud frameworks, and AI-related educational tracks.
+                    </p>
+                    
+                    <form @submit.prevent="if(newsEmail) { newsSuccess = true; }" class="flex gap-2 max-w-sm" x-show="!newsSuccess">
+                        <input type="email" x-model="newsEmail" required class="flex-1 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-700" placeholder="your@email.com">
+                        <button type="submit" class="rounded-lg bg-brand-700 px-4 py-2 text-xs font-semibold hover:bg-brand-600 transition-colors">
+                            Subscribe
+                        </button>
+                    </form>
+                    <div x-show="newsSuccess" style="display: none;" class="p-3 bg-brand-600/10 border border-brand-700/30 rounded-lg text-[11px] text-brand-cyan font-semibold">
+                        Successfully subscribed! Check your inbox for updates shortly.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Copyright / Addresses -->
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-4">
+                <div class="space-y-1 text-center sm:text-left">
+                    <p>&copy; 2026 Reyes IT Training and Consulting. All rights reserved.</p>
+                    <p class="text-[10px]">Headquarters: PO Box 1674, Union City, CA 94587</p>
+                </div>
+                <div class="flex items-center gap-6">
+                    <a href="tel:510-509-0533" class="hover:underline flex items-center gap-1"><i class="fa-solid fa-phone"></i> 510-509-0533</a>
+                    <a href="mailto:freyes999@gmail.com" class="hover:underline flex items-center gap-1"><i class="fa-solid fa-envelope"></i> freyes999@gmail.com</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
